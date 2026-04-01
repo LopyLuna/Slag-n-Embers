@@ -22,7 +22,16 @@ import org.jetbrains.annotations.NotNull;
 
 public class DoubleSmeltingCategory extends AbstractRecipeCategory<RecipeHolder<DoubleSmeltingRecipe>> {
     public DoubleSmeltingCategory(IGuiHelper guiHelper) {
-        super(EmbersRecipesJEI.DOUBLE_SMELTING.get(), Component.translatableWithFallback("gui.slag.category.double_smelting", "Double Smelting"), guiHelper.createDrawableItemLike(AllBlocks.FORGE), 82, 54);
+        super(
+            EmbersRecipesJEI.DOUBLE_SMELTING.get(),
+            Component.translatableWithFallback(
+                "gui.slag.category.double_smelting",
+                "Double Smelting"
+            ),
+            guiHelper.createDrawableItemLike(AllBlocks.FORGE),
+            82,
+            54
+        );
     }
 
     @Override

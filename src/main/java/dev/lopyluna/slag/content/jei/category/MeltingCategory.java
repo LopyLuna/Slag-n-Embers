@@ -46,7 +46,13 @@ public class MeltingCategory extends AbstractRecipeCategory<RecipeHolder<Melting
     private final IDrawable validHeaterSlot;
 
     public MeltingCategory(IGuiHelper guiHelper) {
-        super(EmbersRecipesJEI.MELTING.get(), Component.translatableWithFallback("gui.slag.category.melting", "Melting"), guiHelper.createDrawableItemLike(AllBlocks.MELTER), 123, 54);
+        super(
+            EmbersRecipesJEI.MELTING.get(),
+            Component.translatableWithFallback("gui.slag.category.melting", "Melting"),
+            guiHelper.createDrawableItemLike(AllBlocks.MELTER),
+            123,
+            54
+        );
 
         ResourceLocation backgroundTexture = SlagEmbers.loc("textures/gui/jei.png");
         this.tankBackground = guiHelper.createDrawable(backgroundTexture, 0, 0, 32, 56);

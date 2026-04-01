@@ -2,6 +2,7 @@ package dev.lopyluna.slag.content;
 
 import com.tterrag.registrate.providers.ProviderType;
 import dev.lopyluna.slag.SlagEmbers;
+import dev.lopyluna.slag.content.datagen.LangProviderDatagen;
 import dev.lopyluna.slag.content.datagen.MaterialDatagen;
 import dev.lopyluna.slag.content.datagen.ModularDatagen;
 import dev.lopyluna.slag.content.datagen.PartDatagen;
@@ -30,6 +31,7 @@ public class EmbersDatagen {
         SlagEmbers.REG.addDataGenerator(ProviderType.LANG, provider -> {
             BiConsumer<String, String> langConsumer = provider::add;
             AllSoundEvents.provideLang(langConsumer);
+            LangProviderDatagen.lang(provider);
         });
     }
 }
