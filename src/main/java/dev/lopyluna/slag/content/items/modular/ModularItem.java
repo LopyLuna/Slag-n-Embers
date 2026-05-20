@@ -159,12 +159,12 @@ public class ModularItem extends Item implements IModularItem {
             if (copyParts == null || copyParts.isEmpty()) return;
             var possibleModulars = parts.getPossibleModulars();
             if (modularType == null) {
-                if (!possibleModulars.isEmpty()) tooltip.add(Component.literal("Possible Items:").withStyle(ChatFormatting.GRAY));
+                if (!possibleModulars.isEmpty()) tooltip.add(Component.translatable("slag.tooltip.possible_items").withStyle(ChatFormatting.GRAY));
                 for (var modular : possibleModulars) tooltip.add(Component.literal(" ").append(RegistrateLangProvider.toEnglishName(modular.id.getPath())).withStyle(ChatFormatting.GRAY));
             }
             var possibleParts = parts.getPossibleParts();
             if (!possibleParts.isEmpty() && !possibleModulars.isEmpty()) tooltip.add(Component.literal(" "));
-            if (!possibleParts.isEmpty()) tooltip.add(Component.literal("Possible Parts:").withStyle(ChatFormatting.GRAY));
+            if (!possibleParts.isEmpty()) tooltip.add(Component.translatable("slag.tooltip.possible_parts").withStyle(ChatFormatting.GRAY));
             for (var part : possibleParts) {
                 if (part instanceof ItemStack partStack) tooltip.add(Component.literal(" ").append(partStack.getHoverName()).append(" x" + partStack.getCount()).withStyle(ChatFormatting.GRAY));
                 if (part instanceof TagKey<?> partTag) tooltip.add(Component.literal(" " + RegistrateLangProvider.toEnglishName(Arrays.stream(partTag.location().toString().split("/")).toList().getLast())).withStyle(ChatFormatting.GRAY));

@@ -167,5 +167,12 @@ public class AllLangs {
             var name = material + "_" + mixture;
             REG.addRawLang(Util.makeDescriptionId("item", SlagEmbers.loc(name)), RegistrateLangProvider.toEnglishName(name));
         }
+        for (var material : List.of("purpur", "flint", "bone", "nautilus", "rose_gold", "deep_alloy",
+                "wooden", "stone", "quartz", "iron", "golden", "diamond", "netherite", "redstone", "copper",
+                "emerald", "lapis", "amethyst", "obsidian", "blue_icy", "echo", "prismarine", "glowstone"
+        )) for (var armor : List.of("helmet", "chestplate", "leggings", "boots")) {
+            var name = material + "_" + armor;
+            REG.addRawLang(Util.makeDescriptionId("item", SlagEmbers.loc(name)), RegistrateLangProvider.toEnglishName(name));
+        }
     }
 }

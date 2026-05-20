@@ -65,7 +65,7 @@ public class DynamicPartItem extends Item implements IDynamicPart {
         if (matID.isEmpty()) return super.getDescriptionId(stack);
         var partID = part.id.getPath();
         if (partID.isEmpty()) return super.getDescriptionId(stack);
-        return Util.makeDescriptionId("item", SlagEmbers.loc(mod, matID + "_" + partID));
+        return Util.makeDescriptionId("item", SlagEmbers.loc(mod, "part_" + matID + "_" + partID));
     }
 
     @Override

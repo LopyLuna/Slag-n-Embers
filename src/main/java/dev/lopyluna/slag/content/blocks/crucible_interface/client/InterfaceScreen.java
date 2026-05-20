@@ -68,7 +68,9 @@ public class InterfaceScreen extends AbstractContainerScreen<InterfaceMenu> {
         amount /= bucketAmount ? 10f : 1f;
 
 
-        var text = amount + (bucketAmount ? "B" : "mB") + "/" + capacity + (bucketCapacity ? "B" : "mB");
+        var unitB = Component.translatable("slag.fluid_unit.buckets").getString();
+        var unitMb = Component.translatable("slag.fluid_unit.millibuckets").getString();
+        var text = amount + (bucketAmount ? unitB : unitMb) + "/" + capacity + (bucketCapacity ? unitB : unitMb);
         text = text.replace(".0", "");
         guiGraphics.drawString(this.font, Component.literal(text), this.titleLabelX + imageWidth - font.width(text) - 12, this.titleLabelY, 4210752, false);
     }
