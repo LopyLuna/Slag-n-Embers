@@ -24,9 +24,9 @@ public class ReloadModelsCommand {
         
         if (source.getPlayer() != null) {
             AllDynamicTypes.syncToPlayer(source.getPlayer());
-            source.sendSuccess(() -> Component.literal("Reloading models..."), true);
+            source.sendSuccess(() -> Component.translatable("slag.command.reload_models.start"), true);
         } else {
-            source.sendFailure(Component.literal("This command must be run on the client side"));
+            source.sendFailure(Component.translatable("slag.command.reload_models.client_only"));
         }
         
         return 1;
