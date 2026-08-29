@@ -10,7 +10,9 @@ import dev.lopyluna.slag.content.types.ModularType;
 import dev.lopyluna.slag.register.AllDataComponents;
 import dev.lopyluna.slag.register.AllDynamicTypes;
 import dev.lopyluna.slag.register.AllLangs;
+import net.bettercombat.api.component.BetterCombatDataComponents;
 import net.minecraft.ChatFormatting;
+import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundEvent;
@@ -30,6 +32,7 @@ import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
+import net.neoforged.fml.ModList;
 import net.neoforged.neoforge.client.extensions.common.IClientItemExtensions;
 import org.jetbrains.annotations.NotNull;
 
@@ -80,6 +83,9 @@ public class ModularItem extends Item implements IModularItem {
                 part.set(AllDataComponents.BUILT, typeID);
             }
             stack.set(AllDataComponents.MODULAR_TYPE, typeID);
+            if (ModList.get().isLoaded("bettercombat") && modularType.betterCombatPreset != null && modularType.betterCombatPreset.isPresent()) {
+                stack.set(BetterCombatDataComponents.WEAPON_PRESET_ID, modularType.betterCombatPreset.get());
+            }
             if (fireImmune) stack.set(DataComponents.FIRE_RESISTANT, Unit.INSTANCE);
             setParts(stack, toolParts);
             playBuildSound(player, null);

@@ -2,12 +2,14 @@ package dev.lopyluna.slag.register;
 
 import dev.lopyluna.slag.SlagEmbers;
 import dev.lopyluna.slag.content.items.modular.DataDynamicParts;
+import net.bettercombat.api.component.BetterCombatDataComponents;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.Unit;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.ItemStack;
+import net.neoforged.fml.ModList;
 import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
 import net.neoforged.neoforge.registries.DeferredHolder;
 
@@ -55,6 +57,10 @@ public class AllCreativeTabs {
                     var newStacks = new ArrayList<>(modular.finalSegmentStacks);
                     for (var stack : newStacks) stack.set(AllDataComponents.BUILT, modular.id);
                     toolParts.addAll(newStacks);
+                }
+
+                if (ModList.get().isLoaded("bettercombat") && modular.betterCombatPreset != null && modular.betterCombatPreset.isPresent()) {
+                    baseTool.set(BetterCombatDataComponents.WEAPON_PRESET_ID, modular.betterCombatPreset.get());
                 }
 
                 if (material.fireProof) baseTool.set(DataComponents.FIRE_RESISTANT, Unit.INSTANCE);

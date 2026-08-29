@@ -4,6 +4,7 @@
     "sword",
     "isTool"
   ],
+  "betterCombatPreset": "bettercombat:scythe",
   "final_segment_stacks": [
     {
       "count": 3,

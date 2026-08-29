@@ -5,6 +5,7 @@
     "shovel",
     "isTool"
   ],
+  "betterCombatPreset": "bettercombat:hammer",
   "final_segment_stacks": [
     {
       "count": 3,

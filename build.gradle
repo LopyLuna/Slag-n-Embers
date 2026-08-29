@@ -106,6 +106,8 @@ dependencies {
 
     implementation("maven.modrinth:sodium:mc${minecraft_version}-${sodium_version}-neoforge")
     implementation("maven.modrinth:jade:43sRR8f6")
+
+    implementation("maven.modrinth:5sy6g3kz:VhIOvcXP") // better combat
 }
 
 var generateModMetadata = tasks.register("generateModMetadata", ProcessResources) {

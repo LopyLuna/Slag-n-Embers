@@ -5,6 +5,7 @@
     "sword",
     "isTool"
   ],
+  "betterCombatPreset": "bettercombat:mace",
   "final_segment_stacks": [
     {
       "count": 3,

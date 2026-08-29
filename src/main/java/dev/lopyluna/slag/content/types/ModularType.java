@@ -7,6 +7,7 @@ import dev.lopyluna.slag.content.AllUtils;
 import dev.lopyluna.slag.content.items.dynamic_part.IDynamicPart;
 import dev.lopyluna.slag.content.items.modular.actions.*;
 import dev.lopyluna.slag.register.AllDataComponents;
+import net.bettercombat.api.component.BetterCombatDataComponents;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
@@ -17,10 +18,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Stream;
 
 @SuppressWarnings("unused")
@@ -33,6 +31,7 @@ public class ModularType {
     public final List<ItemStack> finalSegmentStacks;
     private final ItemStack resultStack;
     public final List<String> actions; //like "pickaxe" gives effects of an actual pickaxe or "shield" gives effects of an actual shield for example
+    public final Optional<ResourceLocation> betterCombatPreset; // compat w/ better combat
 
     public final List<TagKey<Item>> itemTags;
 
@@ -47,7 +46,8 @@ public class ModularType {
                     ItemStack.CODEC.listOf().optionalFieldOf("final_segment_stacks", new ArrayList<>()).forGetter(m -> m.finalSegmentStacks),
                     ItemStack.CODEC.optionalFieldOf("result_stack", ItemStack.EMPTY).forGetter(m -> m.resultStack),
                     Codec.STRING.listOf().optionalFieldOf("actions", new ArrayList<>()).forGetter(m -> m.actions),
-                    TagKey.codec(Registries.ITEM).listOf().optionalFieldOf("item_tags", new ArrayList<>()).forGetter(m -> m.itemTags)
+                    TagKey.codec(Registries.ITEM).listOf().optionalFieldOf("item_tags", new ArrayList<>()).forGetter(m -> m.itemTags),
+                    ResourceLocation.CODEC.optionalFieldOf("betterCombatPreset").forGetter(m -> m.betterCombatPreset)
             ).apply(instance, ModularType::new)
     );
 
@@ -110,7 +110,13 @@ public class ModularType {
             if (itemTagsSize > 0) for (int i = 0; i < itemTagsSize; i++) itemTags.add(AllUtils.tagKeyStreamCodec(Registries.ITEM).decode(buf));
         }
 
-        return new ModularType(id, modelType, sorting, segments, finalSegmentStacks, resultStack, actions, itemTags);
+        boolean hasBetterCombatPreset = buf.readBoolean();
+        Optional<ResourceLocation> betterCombatPreset = Optional.empty();
+        if (hasBetterCombatPreset) {
+            betterCombatPreset = Optional.of(ResourceLocation.STREAM_CODEC.decode(buf));
+        }
+
+        return new ModularType(id, modelType, sorting, segments, finalSegmentStacks, resultStack, actions, itemTags, betterCombatPreset);
     }
 
     public static void toNetwork(RegistryFriendlyByteBuf buf, ModularType type) {
@@ -144,9 +150,14 @@ public class ModularType {
             buf.writeVarInt(type.itemTags.size());
             for (var tag : type.itemTags) AllUtils.tagKeyStreamCodec(Registries.ITEM).encode(buf, tag);
         }
+
+        buf.writeBoolean(type.betterCombatPreset != null && type.betterCombatPreset.isPresent());
+        if (type.betterCombatPreset != null && type.betterCombatPreset.isPresent()) {
+            ResourceLocation.STREAM_CODEC.encode(buf, type.betterCombatPreset.get());
+        }
     }
 
-    private ModularType(ResourceLocation id, String modelType, int sortOrder, List<TagKey<Item>> segments, List<ItemStack> finalSegmentStacks, ItemStack resultStack, List<String> actions, List<TagKey<Item>> itemTags) {
+    private ModularType(ResourceLocation id, String modelType, int sortOrder, List<TagKey<Item>> segments, List<ItemStack> finalSegmentStacks, ItemStack resultStack, List<String> actions, List<TagKey<Item>> itemTags, Optional<ResourceLocation> betterCombatPreset) {
         dontRegister = id == null || id.getNamespace().isEmpty() || id.getPath().isEmpty() || id.getPath().equals("null") || id.getPath().equals("empty");
         this.id = id;
         this.modelType = modelType;
@@ -156,6 +167,7 @@ public class ModularType {
         this.resultStack = resultStack;
         this.actions = actions;
         this.itemTags = itemTags;
+        this.betterCombatPreset = betterCombatPreset;
     }
 
     @SuppressWarnings("unused")
@@ -168,6 +180,7 @@ public class ModularType {
         private ItemStack resultStack;
         private List<String> actions = new ArrayList<>();
         private List<TagKey<Item>> itemTags = new ArrayList<>();
+        private Optional<ResourceLocation> betterCombatPreset = Optional.empty();
 
         public Builder(ResourceLocation id) { this.id = id; }
         public Builder(String id) { this.id = SlagEmbers.loc(id); }
@@ -223,7 +236,10 @@ public class ModularType {
         public Builder addItemTags(List<TagKey<Item>> itemTags) { this.itemTags.addAll(itemTags); return this; }
         @SafeVarargs public final Builder addItemTags(TagKey<Item>... itemTags) { this.itemTags.addAll(List.of(itemTags)); return this; }
 
-        public ModularType register() { return new ModularType(id, modelType, sortOrder, segments, finalSegmentStacks, resultStack == null ? ItemStack.EMPTY : resultStack, actions, itemTags); }
+        public Builder betterCombatPreset(ResourceLocation id) { betterCombatPreset = Optional.of(id); return this; }
+        public Builder betterCombatPreset(String id) { betterCombatPreset(ResourceLocation.read(id).getOrThrow()); return this; }
+
+        public ModularType register() { return new ModularType(id, modelType, sortOrder, segments, finalSegmentStacks, resultStack == null ? ItemStack.EMPTY : resultStack, actions, itemTags, betterCombatPreset); }
     }
 
     @SuppressWarnings("unused")

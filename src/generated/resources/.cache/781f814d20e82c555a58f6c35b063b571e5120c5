@@ -1,6 +1,6 @@
-// 1.21.1	2026-03-13T02:25:52.8353186	Slag Modular Datagen
+// 1.21.1	2026-08-28T20:08:28.6641437	Slag Modular Datagen
 212714ea09a66028d69cd808fbb3842cf28e8a10 data/slag/slag/modulars/arrow.json
-4539fdefa665d11a0588960413d4ed84ee4a105b data/slag/slag/modulars/axe.json
+6239e9f0ef0086c9394bee84a813a4fe282a6afe data/slag/slag/modulars/axe.json
 2194b5619e6b1324bd12d0053826db6f8a1b2218 data/slag/slag/modulars/boots.json
 d82e9fd2dd64b9cd8d3e36293be6ad0fcb009a70 data/slag/slag/modulars/bow.json
 57da2071f6a23d5193c43bb86bc3317413025d30 data/slag/slag/modulars/brush.json
@@ -10,21 +10,21 @@ d82e9fd2dd64b9cd8d3e36293be6ad0fcb009a70 data/slag/slag/modulars/bow.json
 138e5c0558e9b955abc53e26b2c5a2e4692f4dd7 data/slag/slag/modulars/fishing_rod.json
 b19aadeb1741a84daf837b08325b3dc3392af622 data/slag/slag/modulars/flint_and_steel.json
 58deb0bfcdc98bef2ac69eb8a793495627e8cb75 data/slag/slag/modulars/graip.json
-e6c156f0567544c59480c87784ad3cc411ff66d0 data/slag/slag/modulars/hammer.json
+d7aeeff5f2ccb2892571c3f08d2fde3137298d7d data/slag/slag/modulars/hammer.json
 db26440e2df4202b3a5176d2c5961421637caacd data/slag/slag/modulars/helmet.json
 e70e07af48ef8c6f2ee38e34d2faf57a7451fa3c data/slag/slag/modulars/hoe.json
 58d15cbe6898e737398e4cc1d705802ed763ce07 data/slag/slag/modulars/leggings.json
 904c768d2573f946110c052840f3c5d53f66b7cf data/slag/slag/modulars/mace.json
-eb8a0ec22bd4493053cd04508ecce216c7c9de0f data/slag/slag/modulars/mallet.json
+5c1e6cda1bc71b4001769c2a72df25f86cc7f049 data/slag/slag/modulars/mallet.json
 9877f9a1e0251f096a347802253f57274bdc834b data/slag/slag/modulars/mattock.json
-1b4aba5ac5f1b5875a30e3a04ccd6f1dee5d9bd7 data/slag/slag/modulars/maul.json
+68845146813e544cb8cf9501bbf13c80c8c8be66 data/slag/slag/modulars/maul.json
 3665eb24a8a774461560d0cf7a719631fb6f4cf0 data/slag/slag/modulars/paxel.json
 cb72fd1011fe6494bf6e29ba864eb18084ddcf03 data/slag/slag/modulars/pickaxe.json
 ac08e2d05f8cdd626a1a2789db3c770612084732 data/slag/slag/modulars/prybar.json
-2e681b3d9967c01cd67fb68cde9a3e28ad06c47b data/slag/slag/modulars/scythe.json
+476d61dc5d1d9bafb772a58e3a09a1cb6a4d7c62 data/slag/slag/modulars/scythe.json
 9b9f87f44f657ea1454aebcebb9cd2e1401f89e0 data/slag/slag/modulars/shears.json
 363be360f4dd1dd2862d37d7efa6002be42abc69 data/slag/slag/modulars/shovel.json
 7f7e885c2659b75483105861229ec642761ff7bb data/slag/slag/modulars/spectral_arrow.json
 177c2897ef337b3a27f35593c1e667b3fadbd25d data/slag/slag/modulars/spyglass.json
-dbb72cd2f33798e81c5fd6685d79507d2c1b8346 data/slag/slag/modulars/sword.json
+e73b4d8b244183133e772197f15e0547b2c77cb7 data/slag/slag/modulars/sword.json
 fabc42f9303c04f7c883f4def7db9794031b2729 data/slag/slag/modulars/trident.json

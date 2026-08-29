@@ -4,6 +4,7 @@
     "axe",
     "isTool"
   ],
+  "betterCombatPreset": "bettercombat:hammer",
   "final_segment_stacks": [
     {
       "count": 2,

@@ -1,9 +1,12 @@
 package dev.lopyluna.slag.register;
 
 import dev.lopyluna.slag.content.types.ModularType;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.world.item.Items;
 import net.neoforged.neoforge.common.Tags;
+
+import java.util.Optional;
 
 @SuppressWarnings("unused")
 public class AllModulars {
@@ -16,6 +19,7 @@ public class AllModulars {
             .rodCount(2)
             .segments(AllTags.PARTS_AXE_HEADS)
             .itemTags(ItemTags.AXES, Tags.Items.MELEE_WEAPON_TOOLS)
+            .betterCombatPreset("bettercombat:axe")
             .register());
 
     public static final ModularType PICKAXE = register(new ModularType.Builder("pickaxe")
@@ -48,6 +52,7 @@ public class AllModulars {
             .rodCount(1)
             .segments(AllTags.PARTS_SWORD_BLADES, AllTags.PARTS_GUARDS)
             .itemTags(ItemTags.SWORDS, Tags.Items.MELEE_WEAPON_TOOLS)
+            .betterCombatPreset("bettercombat:sword")
             .register());
 
     public static final ModularType MATTOCK = register(new ModularType.Builder("mattock")
@@ -80,6 +85,7 @@ public class AllModulars {
             .rodCount(2)
             .segments(AllTags.PARTS_PICKAXE_HEADS, AllTags.PARTS_AXE_HEADS)
             .itemTags(ItemTags.PICKAXES, ItemTags.AXES, Tags.Items.MELEE_WEAPON_TOOLS)
+            .betterCombatPreset("bettercombat:hammer")
             .register());
 
     public static final ModularType HAMMER = register(new ModularType.Builder("hammer")
@@ -88,6 +94,7 @@ public class AllModulars {
             .rodCount(3)
             .segments(AllTags.PARTS_PICKAXE_HEADS, AllTags.PARTS_AXE_HEADS, AllTags.PARTS_SHOVEL_HEADS)
             .itemTags(ItemTags.PICKAXES, ItemTags.AXES, ItemTags.SHOVELS, Tags.Items.MELEE_WEAPON_TOOLS)
+            .betterCombatPreset("bettercombat:hammer")
             .register());
 
     public static final ModularType SCYTHE = register(new ModularType.Builder("scythe")
@@ -96,6 +103,7 @@ public class AllModulars {
             .rodCount(3)
             .segments(AllTags.PARTS_HOE_HEADS, AllTags.PARTS_SWORD_BLADES, AllTags.PARTS_GUARDS)
             .itemTags(ItemTags.HOES, ItemTags.SWORDS, Tags.Items.MELEE_WEAPON_TOOLS)
+            .betterCombatPreset("bettercombat:scythe")
             .register());
 
     public static final ModularType MAUL = register(new ModularType.Builder("maul")
@@ -104,6 +112,7 @@ public class AllModulars {
             .rodCount(3)
             .segments(AllTags.PARTS_PICKAXE_HEADS, AllTags.PARTS_AXE_HEADS, AllTags.PARTS_SWORD_BLADES)
             .itemTags(ItemTags.PICKAXES, ItemTags.AXES, ItemTags.SWORDS, Tags.Items.MELEE_WEAPON_TOOLS)
+            .betterCombatPreset("bettercombat:mace")
             .register());
 
     public static final ModularType PAXEL = register(new ModularType.Builder("paxel")
