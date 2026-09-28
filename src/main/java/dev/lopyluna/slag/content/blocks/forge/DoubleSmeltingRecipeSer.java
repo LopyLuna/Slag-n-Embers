@@ -9,7 +9,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeSerializer;
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
 
 import java.util.Objects;
 
@@ -42,11 +42,11 @@ public class DoubleSmeltingRecipeSer implements RecipeSerializer<DoubleSmeltingR
     }
 
     @Override
-    public @NotNull MapCodec<DoubleSmeltingRecipe> codec() {
+    public @Nonnull MapCodec<DoubleSmeltingRecipe> codec() {
         return this.codec;
     }
     @Override
-    public @NotNull StreamCodec<RegistryFriendlyByteBuf, DoubleSmeltingRecipe> streamCodec() {
+    public @Nonnull StreamCodec<RegistryFriendlyByteBuf, DoubleSmeltingRecipe> streamCodec() {
         return this.streamCodec;
     }
 

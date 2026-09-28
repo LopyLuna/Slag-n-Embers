@@ -1,0 +1,19 @@
+{
+  "type": "slag:melting",
+  "ingredients": [
+    {
+      "components": {
+        "slag:material_type": "slag:echo",
+        "slag:part_type": "slag:axe_head"
+      },
+      "count": 1,
+      "id": "slag:dynamic_part"
+    }
+  ],
+  "result": [
+    {
+      "amount": 216,
+      "id": "slag:molten_echo"
+    }
+  ]
+}

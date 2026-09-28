@@ -12,6 +12,7 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+import net.minecraft.client.renderer.Rect2i;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -21,8 +22,9 @@ import net.minecraft.world.level.Level;
 import net.neoforged.neoforge.common.SoundActions;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.network.PacketDistributor;
-import org.jetbrains.annotations.NotNull;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -34,6 +36,8 @@ public class InterfaceScreen extends AbstractContainerScreen<InterfaceMenu> {
 
     private static final int BOX_X = 39, BOX_Y = 19, BOX_W = 97, BOX_H = 48;
     private final Level level;
+    public @Nullable Object ingredient;
+    public @Nullable Rect2i ingredientArea;
 
     public InterfaceScreen(InterfaceMenu menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title);
@@ -42,6 +46,8 @@ public class InterfaceScreen extends AbstractContainerScreen<InterfaceMenu> {
 
     @Override
     protected void renderBg(GuiGraphics g, float pt, int mx, int my) {
+        ingredient = null;
+        ingredientArea = null;
         int iX = (width - imageWidth) / 2;
         int iY = (height - imageHeight) / 2;
         g.blit(TEXTURE, iX, iY, 0, 0, imageWidth, imageHeight);
@@ -51,7 +57,7 @@ public class InterfaceScreen extends AbstractContainerScreen<InterfaceMenu> {
     }
 
     @Override
-    protected void renderLabels(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY) {
+    protected void renderLabels(@Nonnull GuiGraphics guiGraphics, int mouseX, int mouseY) {
         super.renderLabels(guiGraphics, mouseX, mouseY);
         float capacity = (float) menu.getCapacity() / Math.max(1, menu.getFluids().size());
         if (capacity == 0) return;
@@ -129,6 +135,8 @@ public class InterfaceScreen extends AbstractContainerScreen<InterfaceMenu> {
 
                 int y = yTop2 - h;
                 if (my >= y && my < yTop2) {
+                    ingredient = fs;
+                    ingredientArea = new Rect2i(boxX, y, boxW, h);
                     g.fill(boxX, y, boxX + boxW, y + h, 0x1affffFF);
 
                     var tooltipFlag = Minecraft.getInstance().options.advancedItemTooltips ? TooltipFlag.Default.ADVANCED : TooltipFlag.Default.NORMAL;
@@ -269,7 +277,7 @@ public class InterfaceScreen extends AbstractContainerScreen<InterfaceMenu> {
     }
 
     @Override
-    public void render(@NotNull GuiGraphics gui, int mouseX, int mouseY, float partialTick) {
+    public void render(@Nonnull GuiGraphics gui, int mouseX, int mouseY, float partialTick) {
         super.render(gui, mouseX, mouseY, partialTick);
         var p = gui.pose();
         p.pushPose();

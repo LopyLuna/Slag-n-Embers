@@ -1,0 +1,17 @@
+{
+  "effects": [
+    {
+      "type": "slag:mining",
+      "blocks": "#minecraft:mineable/shovel"
+    },
+    {
+      "type": "slag:abilities",
+      "abilities": [
+        "shovel_dig"
+      ]
+    }
+  ],
+  "hidden": true,
+  "id": "slag:shovel_mining",
+  "sort_order": 140
+}

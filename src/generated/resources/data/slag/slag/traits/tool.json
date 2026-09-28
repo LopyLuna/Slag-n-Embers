@@ -1,0 +1,11 @@
+{
+  "effects": [
+    {
+      "type": "slag:flag",
+      "flag": "tool"
+    }
+  ],
+  "hidden": true,
+  "id": "slag:tool",
+  "sort_order": 110
+}

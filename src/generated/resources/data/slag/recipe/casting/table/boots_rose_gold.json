@@ -3,7 +3,7 @@
   "cast": "slag:cast/boots",
   "ingredient": {
     "amount": 144,
-    "id": "slag:molten_rose_gold"
+    "tag": "c:molten/rose_gold"
   },
   "result": {
     "components": {

@@ -1,11 +1,17 @@
 {
+  "neoforge:conditions": [
+    {
+      "type": "slag:cast_only",
+      "tier": 5.0
+    }
+  ],
   "parent": "minecraft:recipes/root",
   "criteria": {
-    "has_guard": {
+    "has_paper": {
       "conditions": {
         "items": [
           {
-            "items": "#c:guards"
+            "items": "minecraft:paper"
           }
         ]
       },
@@ -21,7 +27,7 @@
   "requirements": [
     [
       "has_the_recipe",
-      "has_guard"
+      "has_paper"
     ]
   ],
   "rewards": {

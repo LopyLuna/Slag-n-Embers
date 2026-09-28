@@ -1,0 +1,25 @@
+{
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:not",
+      "value": {
+        "type": "neoforge:tag_empty",
+        "tag": "c:ingots/tin"
+      }
+    }
+  ],
+  "type": "slag:table_casting",
+  "cast": "slag:cast/sword_blades",
+  "ingredient": {
+    "amount": 72,
+    "tag": "c:molten/tin"
+  },
+  "result": {
+    "components": {
+      "slag:material_type": "slag:tin",
+      "slag:part_type": "slag:sword_blade"
+    },
+    "count": 1,
+    "id": "slag:dynamic_part"
+  }
+}

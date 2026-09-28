@@ -1,0 +1,41 @@
+{
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:not",
+      "value": {
+        "type": "neoforge:tag_empty",
+        "tag": "c:plates/nickel"
+      }
+    }
+  ],
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_meltable_nickel_plates": {
+      "conditions": {
+        "items": [
+          {
+            "items": "#c:plates/nickel"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "slag:melting/nickel_plates"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    }
+  },
+  "requirements": [
+    [
+      "has_the_recipe",
+      "has_meltable_nickel_plates"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "slag:melting/nickel_plates"
+    ]
+  }
+}

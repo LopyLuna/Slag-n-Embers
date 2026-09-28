@@ -1,11 +1,11 @@
 {
   "parent": "minecraft:recipes/root",
   "criteria": {
-    "has_shovel_head": {
+    "has_melter": {
       "conditions": {
         "items": [
           {
-            "items": "#c:shovel_heads"
+            "items": "slag:melter"
           }
         ]
       },
@@ -21,7 +21,7 @@
   "requirements": [
     [
       "has_the_recipe",
-      "has_shovel_head"
+      "has_melter"
     ]
   ],
   "rewards": {

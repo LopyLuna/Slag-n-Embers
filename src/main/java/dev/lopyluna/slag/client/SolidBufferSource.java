@@ -5,7 +5,7 @@ import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.Sheets;
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
 
 public class SolidBufferSource implements MultiBufferSource {
     private final MultiBufferSource parent;
@@ -15,16 +15,14 @@ public class SolidBufferSource implements MultiBufferSource {
     }
 
     @Override
-    public @NotNull VertexConsumer getBuffer(@NotNull RenderType type) {
+    public @Nonnull VertexConsumer getBuffer(@Nonnull RenderType type) {
         RenderType rt = type;
         if (type == Sheets.cutoutBlockSheet() || type == Sheets.translucentItemSheet() || type == Sheets.translucentCullBlockSheet()) rt = Sheets.solidBlockSheet();
         return new SolidVertexConsumer(parent.getBuffer(rt));
     }
 
     @MethodsReturnNonnullByDefault
-    private static class SolidVertexConsumer implements VertexConsumer {
-        private final VertexConsumer d;
-        SolidVertexConsumer(VertexConsumer delegate) { this.d = delegate; }
+        private record SolidVertexConsumer(VertexConsumer d) implements VertexConsumer {
         @Override public VertexConsumer addVertex(float x, float y, float z) { return d.addVertex(x, y, z); }
         @Override public VertexConsumer setColor(int r, int g, int b, int a) { return d.setColor(r, g, b, 255); }
         @Override public VertexConsumer setUv(float u, float v) { return d.setUv(u, v); }

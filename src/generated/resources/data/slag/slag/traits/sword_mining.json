@@ -1,0 +1,24 @@
+{
+  "effects": [
+    {
+      "type": "slag:mining",
+      "blocks": "#minecraft:sword_efficient",
+      "durability_cost": 2
+    },
+    {
+      "type": "slag:mining",
+      "blocks": "minecraft:cobweb",
+      "durability_cost": 2,
+      "speed": 2.0
+    },
+    {
+      "type": "slag:abilities",
+      "abilities": [
+        "sword_dig"
+      ]
+    }
+  ],
+  "hidden": true,
+  "id": "slag:sword_mining",
+  "sort_order": 160
+}

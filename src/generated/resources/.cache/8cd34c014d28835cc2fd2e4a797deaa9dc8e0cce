@@ -1,12 +1,12 @@
-// 1.21.1	2026-03-16T08:07:07.7176176	Slag Part Datagen
-7fa1498db6e320b3f5e0d27fecfa5276f769cc50 data/slag/slag/parts/axe_head.json
-27dd7c086d3c8beaf032ae46c92c939237d1eacb data/slag/slag/parts/boots.json
-2e4481327936af2e9b3b9371785aba1494aa5e02 data/slag/slag/parts/chestplate.json
-d0036196915caf62e94896ec8a875b8a8a0bf4d1 data/slag/slag/parts/guard.json
-9b28be67fd3cfb4e03e00aad4e4460885f03960b data/slag/slag/parts/helmet.json
-1a49f1f8119f4482a5afdc1673db52f9c438aaac data/slag/slag/parts/hoe_head.json
-6b622a07b5bc264ba26a6fb9232fab0f48fd66e5 data/slag/slag/parts/leggings.json
-537e2f4fab6047d75d4645b85c43ab35bcb2a468 data/slag/slag/parts/pickaxe_head.json
-19818f66010c38431aba3a3a91078d9af2a7f450 data/slag/slag/parts/plate.json
-0582f1519f09e4b56cd56478b0ea2d56a038ea82 data/slag/slag/parts/shovel_head.json
-9c69b7a3087218abfda6ca3819e903408d5f1de1 data/slag/slag/parts/sword_blade.json
+// 1.21.1	2026-09-23T13:11:17.4782225	Slag Part Datagen
+6393e6c3060f1425ae787687c1923d38d37c825e data/slag/slag/parts/axe_head.json
+8623f1bc2a6247dda2ea2efc7f8079755b27df71 data/slag/slag/parts/boots.json
+7398e7d0ae4db6a9a0f2b58588dcff1dc2fd1ca7 data/slag/slag/parts/chestplate.json
+2e6209c07ade6a431631f1a9c6865c660715430e data/slag/slag/parts/guard.json
+3309506ce705d23e3f4e9d47a5fc5432d91216e1 data/slag/slag/parts/helmet.json
+3d46c5e59833c84b9fd885fb9bb590da8f742c62 data/slag/slag/parts/hoe_head.json
+846842eedea6bc2f38e4452189e489a629078bb9 data/slag/slag/parts/leggings.json
+d1cf4a22c67ad9efbe2c05de2a4ba1b5cb7d4d04 data/slag/slag/parts/pickaxe_head.json
+51a7bb8f208e8b4d901b840d1c997a54eaee2f4c data/slag/slag/parts/plate.json
+016c0314c1585be6a2cfe1f4da2caf29df5597c3 data/slag/slag/parts/shovel_head.json
+2beb6d3efb22c4403c25d4c2fe5fa0784305ddf8 data/slag/slag/parts/sword_blade.json

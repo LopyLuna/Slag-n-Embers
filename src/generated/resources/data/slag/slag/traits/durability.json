@@ -1,0 +1,12 @@
+{
+  "effects": [
+    {
+      "type": "slag:stat",
+      "stat": "max_damage"
+    }
+  ],
+  "hidden": true,
+  "id": "slag:durability",
+  "part_scale": 0.25,
+  "sort_order": 60
+}

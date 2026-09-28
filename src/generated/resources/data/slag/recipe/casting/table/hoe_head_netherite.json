@@ -3,10 +3,11 @@
   "cast": "slag:cast/hoe_heads",
   "ingredient": {
     "amount": 72,
-    "id": "slag:molten_netherite"
+    "tag": "c:molten/netherite"
   },
   "result": {
     "components": {
+      "minecraft:fire_resistant": {},
       "slag:material_type": "slag:netherite",
       "slag:part_type": "slag:hoe_head"
     },

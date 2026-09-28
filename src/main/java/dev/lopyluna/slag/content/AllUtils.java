@@ -9,8 +9,14 @@ import com.tterrag.registrate.util.nullness.NonNullFunction;
 import dev.lopyluna.slag.SlagEmbers;
 import dev.lopyluna.slag.content.items.dynamic_part.IDynamicPart;
 import dev.lopyluna.slag.content.items.modular.ModularItem;
+import dev.lopyluna.slag.content.temperature.Temperatures;
+import dev.lopyluna.slag.content.temperature.Temperatures.Heat;
+import dev.lopyluna.slag.content.temperature.Temperatures.Tiers;
+import dev.lopyluna.slag.content.temperature.Temperatures.Type;
 import dev.lopyluna.slag.register.AllDataComponents;
+import dev.lopyluna.slag.register.AllLangs;
 import io.netty.buffer.ByteBuf;
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
@@ -33,18 +39,21 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.armortrim.TrimMaterial;
 import net.minecraft.world.item.armortrim.TrimMaterials;
+import net.minecraft.world.item.component.ItemLore;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.BaseFireBlock;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.neoforged.fml.loading.FMLEnvironment;
 import net.neoforged.neoforge.server.ServerLifecycleHooks;
 
+import javax.annotation.Nullable;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 import static com.tterrag.registrate.providers.RegistrateRecipeProvider.has;
 import static dev.lopyluna.slag.SlagEmbers.REG;
-import static dev.lopyluna.slag.content.blocks.melter.MelterBE.isStateHeater;
 
 @SuppressWarnings("unused")
 public class AllUtils {
@@ -73,6 +82,11 @@ public class AllUtils {
         return ResourceLocation.STREAM_CODEC.map((loc) -> TagKey.create(registry, loc), TagKey::location);
     }
 
+    public static @Nullable TagKey<Item> castType(ItemStack stack) {
+        for (var tag : stack.getTags().toList()) if (tag.location().getPath().startsWith("cast/")) return tag;
+        return null;
+    }
+
     public static boolean tagPresentInHotbar(Player player, TagKey<Item> tag) {
         Inventory inv = player.getInventory();
         for (int i = 0; i < Inventory.getSelectionSize(); i++) if (inv.getItem(i).is(tag)) return true;
@@ -91,10 +105,41 @@ public class AllUtils {
         return out;
     }
 
+    public static List<ItemStack> getHeaterStacks(Tiers required, @Nullable Type type) {
+        return getHeaterStacks(required, type, false);
+    }
+
+    public static List<ItemStack> getHeaterStacks(Tiers required, @Nullable Type type, boolean strict) {
+        var out = new ArrayList<ItemStack>();
+        var seen = new HashSet<Block>();
+        var blocks = Temperatures.blocks;
+        for (var entry : blocks.entrySet()) addHeaterStack(out, seen, entry.getKey(), entry.getValue(), required, type, strict);
+        for (var tag : Temperatures.tags) for (var holder : BuiltInRegistries.BLOCK.getTagOrEmpty(tag.getFirst())) {
+            if (!blocks.containsKey(holder.value())) addHeaterStack(out, seen, holder.value(), tag.getSecond(), required, type, strict);
+        }
+        return out;
+    }
+
+    private static void addHeaterStack(List<ItemStack> out, Set<Block> seen, Block block, List<Temperatures.Entry> entries, Tiers required, @Nullable Type type, boolean strict) {
+        Heat best = null;
+        var speed = 0f;
+        for (var entry : entries) {
+            var entrySpeed = entry.heat.speed(required, type, strict);
+            if (entrySpeed <= speed) continue;
+            speed = entrySpeed;
+            best = entry.heat;
+        }
+        if (best == null || !seen.add(block)) return;
+        var stack = getStackFromBlock(block, false);
+        if (stack.isEmpty()) return;
+        stack.set(DataComponents.LORE, new ItemLore(List.of(AllLangs.heat(best, speed).withStyle(s -> s.withItalic(false).withColor(ChatFormatting.GOLD)))));
+        out.add(stack);
+    }
+
     public static ItemStack getStackFromBlock(Block block, boolean requireHeater) {
         var state = block.defaultBlockState();
         var fState = state.getFluidState();
-        if (!isStateHeater(state) && requireHeater) return ItemStack.EMPTY;
+        if (requireHeater && !Temperatures.get(state).hot) return ItemStack.EMPTY;
         ItemStack stack;
         if (state.getBlock() instanceof BaseFireBlock) {
             stack = Items.BLAZE_POWDER.getDefaultInstance();
@@ -149,12 +194,25 @@ public class AllUtils {
         return type.get().itemTags;
     }
 
+    private static final Map<TagKey<Item>, Map<TagKey<Item>, Boolean>> SUPERSETS = new ConcurrentHashMap<>();
+
+    public static void invalidateTags() {
+        SUPERSETS.clear();
+    }
+
     private static boolean eqOrSuperset(TagKey<Item> tag, TagKey<Item> child) {
         if (tag.equals(child)) return true;
         var regOpt = itemRegistry();
         if (regOpt.isEmpty()) return false;
-        var reg = regOpt.get();
+        var cache = SUPERSETS.computeIfAbsent(tag, t -> new ConcurrentHashMap<>());
+        var cached = cache.get(child);
+        if (cached != null) return cached;
+        var value = superset(regOpt.get(), tag, child);
+        cache.put(child, value);
+        return value;
+    }
 
+    private static boolean superset(Registry<Item> reg, TagKey<Item> tag, TagKey<Item> child) {
         var parentSet = reg.getTag(tag).orElse(null);
         var childSet  = reg.getTag(child).orElse(null);
         if (parentSet == null || childSet == null) return false;
@@ -168,6 +226,7 @@ public class AllUtils {
     private static Optional<Registry<Item>> itemRegistry() {
         var srv = ServerLifecycleHooks.getCurrentServer();
         if (srv != null) return Optional.of(srv.registryAccess().registryOrThrow(Registries.ITEM));
+        if (!FMLEnvironment.dist.isClient()) return Optional.empty();
         var mc = Minecraft.getInstance();
         if (mc.level != null) return Optional.of(mc.level.registryAccess().registryOrThrow(Registries.ITEM));
         return Optional.empty();

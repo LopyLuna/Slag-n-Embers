@@ -1,0 +1,51 @@
+{
+  "conditions": [
+    {
+      "type": "neoforge:not",
+      "value": {
+        "type": "neoforge:tag_empty",
+        "tag": "c:ingots/lead"
+      }
+    }
+  ],
+  "id": "slag:lead",
+  "molten_fluid": "slag:molten_lead",
+  "repair_ingredient": {
+    "tag": "c:ingots/lead"
+  },
+  "sort_order": 270,
+  "traits": [
+    {
+      "trait": "slag:attack_damage",
+      "value": 5.0
+    },
+    {
+      "trait": "slag:durability",
+      "value": 272.0
+    },
+    {
+      "trait": "slag:mining_tier",
+      "value": 4.0
+    },
+    {
+      "trait": "slag:mining_speed",
+      "value": 4.0
+    },
+    {
+      "trait": "slag:enchantability",
+      "value": 10.0
+    },
+    {
+      "trait": "slag:armor",
+      "value": 6.0
+    },
+    {
+      "trait": "slag:armor_toughness",
+      "value": 1.0
+    },
+    {
+      "trait": "slag:knockback_resistance",
+      "value": 0.1
+    }
+  ]
+}

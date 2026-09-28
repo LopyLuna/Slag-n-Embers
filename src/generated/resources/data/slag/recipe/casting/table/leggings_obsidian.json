@@ -3,7 +3,7 @@
   "cast": "slag:cast/leggings",
   "ingredient": {
     "amount": 3240,
-    "id": "slag:molten_obsidian"
+    "tag": "c:molten/obsidian"
   },
   "result": {
     "components": {

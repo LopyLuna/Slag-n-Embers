@@ -11,11 +11,11 @@
   },
   "pattern": [
     "M",
-    "M",
     "R"
   ],
   "result": {
     "components": {
+      "minecraft:fire_resistant": {},
       "slag:material_type": "slag:deep_alloy",
       "slag:part_type": "slag:sword_blade"
     },

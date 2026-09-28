@@ -1,0 +1,41 @@
+{
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:not",
+      "value": {
+        "type": "neoforge:tag_empty",
+        "tag": "c:nuggets/platinum"
+      }
+    }
+  ],
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_meltable_platinum_nuggets": {
+      "conditions": {
+        "items": [
+          {
+            "items": "#c:nuggets/platinum"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "slag:melting/platinum_nuggets"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    }
+  },
+  "requirements": [
+    [
+      "has_the_recipe",
+      "has_meltable_platinum_nuggets"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "slag:melting/platinum_nuggets"
+    ]
+  }
+}

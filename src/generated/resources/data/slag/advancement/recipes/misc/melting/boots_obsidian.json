@@ -1,11 +1,11 @@
 {
   "parent": "minecraft:recipes/root",
   "criteria": {
-    "has_boots": {
+    "has_melter": {
       "conditions": {
         "items": [
           {
-            "items": "#c:bootss"
+            "items": "slag:melter"
           }
         ]
       },
@@ -21,7 +21,7 @@
   "requirements": [
     [
       "has_the_recipe",
-      "has_boots"
+      "has_melter"
     ]
   ],
   "rewards": {

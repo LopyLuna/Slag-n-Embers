@@ -1,0 +1,25 @@
+{
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:not",
+      "value": {
+        "type": "neoforge:tag_empty",
+        "tag": "c:ingots/silver"
+      }
+    }
+  ],
+  "type": "slag:table_casting",
+  "cast": "slag:cast/guards",
+  "ingredient": {
+    "amount": 72,
+    "tag": "c:molten/silver"
+  },
+  "result": {
+    "components": {
+      "slag:material_type": "slag:silver",
+      "slag:part_type": "slag:guard"
+    },
+    "count": 1,
+    "id": "slag:dynamic_part"
+  }
+}

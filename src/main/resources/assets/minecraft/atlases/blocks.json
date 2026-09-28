@@ -38,300 +38,59 @@
 
     { "type": "single", "resource": "slag:fluid/molten_rose_gold_flow" },
     { "type": "single", "resource": "slag:fluid/molten_rose_gold_still" },
-    {
-      "type": "paletted_permutations",
-      "textures": [
-        "slag:armors/metal_layer_1",
-        "slag:armors/metal_layer_2",
-        "slag:armors/plate/metal_layer_1",
-        "slag:armors/plate/metal_layer_2"
-      ],
-      "palette_key": "slag:color_palettes/armor/base_palette",
-      "permutations": {
-        "amethyst": "slag:color_palettes/armor/amethyst",
-        "quartz": "slag:color_palettes/armor/quartz",
-        "echo": "slag:color_palettes/armor/echo",
-        "netherite": "slag:color_palettes/armor/netherite",
-        "flint": "slag:color_palettes/armor/flint"
-      }
-    },
-    {
-      "type": "paletted_permutations",
-      "textures": [
-        "slag:armors/soft_layer_1",
-        "slag:armors/soft_layer_2",
-        "slag:armors/plate/soft_layer_1",
-        "slag:armors/plate/soft_layer_2"
-      ],
-      "palette_key": "slag:color_palettes/armor/base_palette",
-      "permutations": {
-        "wooden": "slag:color_palettes/armor/wooden",
-        "stone": "slag:color_palettes/armor/stone",
-        "nautilus": "slag:color_palettes/armor/nautilus",
-        "bone": "slag:color_palettes/armor/bone"
-      }
-    },
-    {
-      "type": "paletted_permutations",
-      "textures": [
-        "slag:armors/shiny_layer_1",
-        "slag:armors/shiny_layer_2",
-        "slag:armors/plate/shiny_layer_1",
-        "slag:armors/plate/shiny_layer_2"
-      ],
-      "palette_key": "slag:color_palettes/armor/base_palette",
-      "permutations": {
-        "glowstone": "slag:color_palettes/armor/glowstone",
-        "redstone": "slag:color_palettes/armor/redstone",
-        "golden": "slag:color_palettes/armor/golden",
-        "rose_gold": "slag:color_palettes/armor/rose_gold",
-        "emerald": "slag:color_palettes/armor/emerald",
-        "deep_alloy": "slag:color_palettes/armor/deep_alloy",
-        "blue_icy": "slag:color_palettes/armor/blue_icy",
-        "diamond": "slag:color_palettes/armor/diamond",
-        "obsidian": "slag:color_palettes/armor/obsidian"
-      }
-    },
-    {
-      "type": "paletted_permutations",
-      "textures": [
-        "slag:armors/base_layer_1",
-        "slag:armors/base_layer_2",
-        "slag:armors/plate/base_layer_1",
-        "slag:armors/plate/base_layer_2"
-      ],
-      "palette_key": "slag:color_palettes/armor/base_palette",
-      "permutations": {
-        "iron": "slag:color_palettes/armor/iron",
-        "copper": "slag:color_palettes/armor/copper",
-        "lapis": "slag:color_palettes/armor/lapis",
-        "prismarine": "slag:color_palettes/armor/prismarine",
-        "purpur": "slag:color_palettes/armor/purpur"
-      }
-    },
-    {
-      "type": "paletted_permutations",
-      "textures": [
-        "slag:item/metal/axe_head",
-        "slag:item/metal/hoe_head",
-        "slag:item/metal/pickaxe_head",
-        "slag:item/metal/shovel_head",
-        "slag:item/metal/sword_blade",
-        "slag:item/metal/guard",
 
-        "slag:item/built/metal/axe_head",
-        "slag:item/built/metal/hoe_head",
-        "slag:item/built/metal/pickaxe_head",
-        "slag:item/built/metal/shovel_head",
-        "slag:item/built/metal/sword_blade",
-        "slag:item/built/metal/guard",
+    { "type": "single", "resource": "slag:fluid/molten_aluminium_flow" },
+    { "type": "single", "resource": "slag:fluid/molten_aluminium_still" },
 
-        "slag:item/built/metal/axe_hammer",
-        "slag:item/built/metal/axe_mallet",
-        "slag:item/built/metal/axe_mattock",
-        "slag:item/built/metal/axe_maul",
+    { "type": "single", "resource": "slag:fluid/molten_brass_flow" },
+    { "type": "single", "resource": "slag:fluid/molten_brass_still" },
 
-        "slag:item/built/metal/hoe_graip",
-        "slag:item/built/metal/hoe_mattock",
-        "slag:item/built/metal/hoe_scythe",
+    { "type": "single", "resource": "slag:fluid/molten_bronze_flow" },
+    { "type": "single", "resource": "slag:fluid/molten_bronze_still" },
 
-        "slag:item/built/metal/pickaxe_hammer",
-        "slag:item/built/metal/pickaxe_mallet",
-        "slag:item/built/metal/pickaxe_maul",
-        "slag:item/built/metal/pickaxe_prybar",
+    { "type": "single", "resource": "slag:fluid/molten_cast_iron_flow" },
+    { "type": "single", "resource": "slag:fluid/molten_cast_iron_still" },
 
-        "slag:item/built/metal/shovel_graip",
-        "slag:item/built/metal/shovel_hammer",
-        "slag:item/built/metal/shovel_prybar",
+    { "type": "single", "resource": "slag:fluid/molten_electrum_flow" },
+    { "type": "single", "resource": "slag:fluid/molten_electrum_still" },
 
-        "slag:item/built/metal/sword_maul",
-        "slag:item/built/metal/sword_scythe",
+    { "type": "single", "resource": "slag:fluid/molten_invar_flow" },
+    { "type": "single", "resource": "slag:fluid/molten_invar_still" },
 
-        "slag:item/built/metal/guard_scythe",
+    { "type": "single", "resource": "slag:fluid/molten_lead_flow" },
+    { "type": "single", "resource": "slag:fluid/molten_lead_still" },
 
-        "slag:item/built/metal/axe_paxel",
-        "slag:item/built/metal/hoe_paxel",
-        "slag:item/built/metal/pickaxe_paxel",
-        "slag:item/built/metal/shovel_paxel",
-        "slag:item/built/metal/sword_paxel"
+    { "type": "single", "resource": "slag:fluid/molten_nickel_flow" },
+    { "type": "single", "resource": "slag:fluid/molten_nickel_still" },
 
-      ],
-      "palette_key": "slag:color_palettes/base_palette",
-      "permutations": {
-        "amethyst": "slag:color_palettes/amethyst",
-        "quartz": "slag:color_palettes/quartz",
-        "echo": "slag:color_palettes/echo",
-        "netherite": "slag:color_palettes/netherite",
-        "flint": "slag:color_palettes/flint"
-      }
-    },
-    {
-      "type": "paletted_permutations",
-      "textures": [
-        "slag:item/soft/axe_head",
-        "slag:item/soft/hoe_head",
-        "slag:item/soft/pickaxe_head",
-        "slag:item/soft/shovel_head",
-        "slag:item/soft/sword_blade",
-        "slag:item/soft/guard",
+    { "type": "single", "resource": "slag:fluid/molten_osmium_flow" },
+    { "type": "single", "resource": "slag:fluid/molten_osmium_still" },
 
-        "slag:item/built/soft/axe_head",
-        "slag:item/built/soft/hoe_head",
-        "slag:item/built/soft/pickaxe_head",
-        "slag:item/built/soft/shovel_head",
-        "slag:item/built/soft/sword_blade",
-        "slag:item/built/soft/guard",
+    { "type": "single", "resource": "slag:fluid/molten_platinum_flow" },
+    { "type": "single", "resource": "slag:fluid/molten_platinum_still" },
 
-        "slag:item/built/soft/axe_hammer",
-        "slag:item/built/soft/axe_mallet",
-        "slag:item/built/soft/axe_mattock",
-        "slag:item/built/soft/axe_maul",
+    { "type": "single", "resource": "slag:fluid/molten_silver_flow" },
+    { "type": "single", "resource": "slag:fluid/molten_silver_still" },
 
-        "slag:item/built/soft/hoe_graip",
-        "slag:item/built/soft/hoe_mattock",
-        "slag:item/built/soft/hoe_scythe",
+    { "type": "single", "resource": "slag:fluid/molten_steel_flow" },
+    { "type": "single", "resource": "slag:fluid/molten_steel_still" },
 
-        "slag:item/built/soft/pickaxe_hammer",
-        "slag:item/built/soft/pickaxe_mallet",
-        "slag:item/built/soft/pickaxe_maul",
-        "slag:item/built/soft/pickaxe_prybar",
+    { "type": "single", "resource": "slag:fluid/molten_tin_flow" },
+    { "type": "single", "resource": "slag:fluid/molten_tin_still" },
 
-        "slag:item/built/soft/shovel_graip",
-        "slag:item/built/soft/shovel_hammer",
-        "slag:item/built/soft/shovel_prybar",
+    { "type": "single", "resource": "slag:fluid/molten_tungsten_flow" },
+    { "type": "single", "resource": "slag:fluid/molten_tungsten_still" },
 
-        "slag:item/built/soft/sword_maul",
-        "slag:item/built/soft/sword_scythe",
+    { "type": "single", "resource": "slag:fluid/molten_zinc_flow" },
+    { "type": "single", "resource": "slag:fluid/molten_zinc_still" },
 
-        "slag:item/built/soft/guard_scythe",
+    { "type": "single", "resource": "slag:fluid/molten_echo_flow" },
+    { "type": "single", "resource": "slag:fluid/molten_echo_still" },
 
-        "slag:item/built/soft/axe_paxel",
-        "slag:item/built/soft/hoe_paxel",
-        "slag:item/built/soft/pickaxe_paxel",
-        "slag:item/built/soft/shovel_paxel",
-        "slag:item/built/soft/sword_paxel"
-      ],
-      "palette_key": "slag:color_palettes/base_palette",
-      "permutations": {
-        "wooden": "slag:color_palettes/wooden",
-        "stone": "slag:color_palettes/stone",
-        "nautilus": "slag:color_palettes/nautilus",
-        "bone": "slag:color_palettes/bone"
-      }
-    },
-    {
-      "type": "paletted_permutations",
-      "textures": [
-        "slag:item/shiny/axe_head",
-        "slag:item/shiny/hoe_head",
-        "slag:item/shiny/pickaxe_head",
-        "slag:item/shiny/shovel_head",
-        "slag:item/shiny/sword_blade",
-        "slag:item/shiny/guard",
+    { "type": "single", "resource": "slag:fluid/molten_glowstone_flow" },
+    { "type": "single", "resource": "slag:fluid/molten_glowstone_still" },
 
-        "slag:item/built/shiny/axe_head",
-        "slag:item/built/shiny/hoe_head",
-        "slag:item/built/shiny/pickaxe_head",
-        "slag:item/built/shiny/shovel_head",
-        "slag:item/built/shiny/sword_blade",
-        "slag:item/built/shiny/guard",
-
-        "slag:item/built/shiny/axe_hammer",
-        "slag:item/built/shiny/axe_mallet",
-        "slag:item/built/shiny/axe_mattock",
-        "slag:item/built/shiny/axe_maul",
-
-        "slag:item/built/shiny/hoe_graip",
-        "slag:item/built/shiny/hoe_mattock",
-        "slag:item/built/shiny/hoe_scythe",
-
-        "slag:item/built/shiny/pickaxe_hammer",
-        "slag:item/built/shiny/pickaxe_mallet",
-        "slag:item/built/shiny/pickaxe_maul",
-        "slag:item/built/shiny/pickaxe_prybar",
-
-        "slag:item/built/shiny/shovel_graip",
-        "slag:item/built/shiny/shovel_hammer",
-        "slag:item/built/shiny/shovel_prybar",
-
-        "slag:item/built/shiny/sword_maul",
-        "slag:item/built/shiny/sword_scythe",
-
-        "slag:item/built/shiny/guard_scythe",
-
-        "slag:item/built/shiny/axe_paxel",
-        "slag:item/built/shiny/hoe_paxel",
-        "slag:item/built/shiny/pickaxe_paxel",
-        "slag:item/built/shiny/shovel_paxel",
-        "slag:item/built/shiny/sword_paxel"
-      ],
-      "palette_key": "slag:color_palettes/base_palette",
-      "permutations": {
-        "glowstone": "slag:color_palettes/glowstone",
-        "redstone": "slag:color_palettes/redstone",
-        "golden": "slag:color_palettes/golden",
-        "rose_gold": "slag:color_palettes/rose_gold",
-        "emerald": "slag:color_palettes/emerald",
-        "deep_alloy": "slag:color_palettes/deep_alloy",
-        "blue_icy": "slag:color_palettes/blue_icy",
-        "diamond": "slag:color_palettes/diamond",
-        "obsidian": "slag:color_palettes/obsidian"
-      }
-    },
-    {
-      "type": "paletted_permutations",
-      "textures": [
-        "slag:item/axe_head",
-        "slag:item/hoe_head",
-        "slag:item/pickaxe_head",
-        "slag:item/shovel_head",
-        "slag:item/sword_blade",
-        "slag:item/guard",
-
-        "slag:item/built/axe_head",
-        "slag:item/built/hoe_head",
-        "slag:item/built/pickaxe_head",
-        "slag:item/built/shovel_head",
-        "slag:item/built/sword_blade",
-        "slag:item/built/guard",
-
-        "slag:item/built/axe_hammer",
-        "slag:item/built/axe_mallet",
-        "slag:item/built/axe_mattock",
-        "slag:item/built/axe_maul",
-
-        "slag:item/built/hoe_graip",
-        "slag:item/built/hoe_mattock",
-        "slag:item/built/hoe_scythe",
-
-        "slag:item/built/pickaxe_hammer",
-        "slag:item/built/pickaxe_mallet",
-        "slag:item/built/pickaxe_maul",
-        "slag:item/built/pickaxe_prybar",
-
-        "slag:item/built/shovel_graip",
-        "slag:item/built/shovel_hammer",
-        "slag:item/built/shovel_prybar",
-
-        "slag:item/built/sword_maul",
-        "slag:item/built/sword_scythe",
-
-        "slag:item/built/guard_scythe",
-
-        "slag:item/built/axe_paxel",
-        "slag:item/built/hoe_paxel",
-        "slag:item/built/pickaxe_paxel",
-        "slag:item/built/shovel_paxel",
-        "slag:item/built/sword_paxel"
-      ],
-      "palette_key": "slag:color_palettes/base_palette",
-      "permutations": {
-        "iron": "slag:color_palettes/iron",
-        "copper": "slag:color_palettes/copper",
-        "lapis": "slag:color_palettes/lapis",
-        "prismarine": "slag:color_palettes/prismarine",
-        "purpur": "slag:color_palettes/purpur"
-      }
-    }
+    { "type": "single", "resource": "slag:fluid/molten_rose_quartz_flow" },
+    { "type": "single", "resource": "slag:fluid/molten_rose_quartz_still" }
   ]
 }

@@ -1,0 +1,22 @@
+{
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:not",
+      "value": {
+        "type": "neoforge:tag_empty",
+        "tag": "c:ores/aluminium"
+      }
+    }
+  ],
+  "type": "slag:melting",
+  "ingredient": {
+    "tag": "c:ores/aluminium"
+  },
+  "ingredients": [],
+  "result": [
+    {
+      "amount": 96,
+      "id": "slag:molten_aluminium"
+    }
+  ]
+}

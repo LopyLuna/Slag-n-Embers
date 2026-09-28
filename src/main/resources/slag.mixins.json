@@ -8,12 +8,24 @@
     "BuildCreativeModeTabContentsEventMixin",
     "FurnaceResultSlotAccessor",
     "IngredientMixin",
+    "LevelChunkMixin",
     "ItemStackMixin",
-    "LivingEntityMixin"
+    "LivingEntityMixin",
+    "PlayerMixin",
+    "RecipeManagerAccessor",
+    "RecipeManagerMixin",
+    "ReloadableServerResourcesMixin",
+    "SmithingMenuMixin",
+    "SmithingTransformRecipeAccessor"
   ],
   "client": [
+    "BlockEntityRenderDispatcherMixin",
+    "CapeLayerMixin",
+    "ElytraLayerMixin",
     "HumanoidArmorLayerMixin",
-    "LevelRendererAccessor"
+    "LevelRendererAccessor",
+    "LocalPlayerMixin",
+    "RenderChunkMixin"
   ],
   "injectors": {
     "defaultRequire": 1

@@ -4,7 +4,8 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.neoforged.neoforge.client.model.BakedModelWrapper;
-import org.jetbrains.annotations.NotNull;
+
+import javax.annotation.Nonnull;
 
 public class CustomRenderedItemModel extends BakedModelWrapper<BakedModel> {
 	public CustomRenderedItemModel(BakedModel originalModel) {
@@ -13,7 +14,7 @@ public class CustomRenderedItemModel extends BakedModelWrapper<BakedModel> {
 	@Override public boolean isCustomRenderer() {
 		return true;
 	}
-	@Override public @NotNull BakedModel applyTransform(@NotNull ItemDisplayContext cameraItemDisplayContext, @NotNull PoseStack mat, boolean leftHand) {
+	@Override public @Nonnull BakedModel applyTransform(@Nonnull ItemDisplayContext cameraItemDisplayContext, @Nonnull PoseStack mat, boolean leftHand) {
 		super.applyTransform(cameraItemDisplayContext, mat, leftHand);
 		return this;
 	}

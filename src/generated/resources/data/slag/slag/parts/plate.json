@@ -1,12 +1,20 @@
 {
-  "defence_modifier": 9.8765434E8,
-  "durability": 64.0,
-  "durability_modifier": 9.8765434E8,
   "id": "slag:plate",
   "item_tags": [
-    "slag:cast/plates"
+    "slag:cast/plates",
+    "slag:imprintable"
   ],
   "segment_part": "slag:parts/plates",
-  "sharpness_modifier": 0.0,
-  "sort_order": 6
+  "sort_order": 6,
+  "traits": [
+    {
+      "operation": "multiply",
+      "trait": "slag:attack_damage",
+      "value": 0.0
+    },
+    {
+      "trait": "slag:durability",
+      "value": 64.0
+    }
+  ]
 }

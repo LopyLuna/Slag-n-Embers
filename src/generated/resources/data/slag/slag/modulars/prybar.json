@@ -1,9 +1,4 @@
 {
-  "actions": [
-    "pickaxe",
-    "shovel",
-    "isTool"
-  ],
   "final_segment_stacks": [
     {
       "count": 2,
@@ -20,5 +15,11 @@
     "slag:parts/pickaxe_heads",
     "slag:parts/shovel_heads"
   ],
-  "sort_order": 7
+  "sort_order": 7,
+  "traits": [
+    "slag:tool",
+    "slag:pickaxe_mining",
+    "slag:shovel_mining",
+    "slag:flattening"
+  ]
 }

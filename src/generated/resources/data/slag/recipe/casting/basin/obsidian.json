@@ -2,7 +2,7 @@
   "type": "slag:basin_casting",
   "ingredient": {
     "amount": 648,
-    "id": "slag:molten_obsidian"
+    "tag": "c:molten/obsidian"
   },
   "result": {
     "count": 1,

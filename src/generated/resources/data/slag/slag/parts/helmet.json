@@ -1,12 +1,30 @@
 {
-  "defence_modifier": 0.36,
-  "durability": 256.0,
-  "durability_modifier": 0.32,
   "id": "slag:helmet",
   "item_tags": [
-    "slag:cast/helmets"
+    "slag:cast/helmets",
+    "slag:imprintable"
   ],
   "segment_part": "slag:parts/helmets",
-  "sharpness_modifier": 0.0,
-  "sort_order": 7
+  "sort_order": 7,
+  "traits": [
+    {
+      "operation": "multiply",
+      "trait": "slag:attack_damage",
+      "value": 0.0
+    },
+    {
+      "trait": "slag:durability",
+      "value": 256.0
+    },
+    {
+      "operation": "multiply",
+      "trait": "slag:durability",
+      "value": 0.32
+    },
+    {
+      "operation": "multiply",
+      "trait": "slag:armor",
+      "value": 0.36
+    }
+  ]
 }

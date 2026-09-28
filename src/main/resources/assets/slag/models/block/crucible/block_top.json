@@ -12,7 +12,6 @@
 		{
 			"from": [0, 0, 0],
 			"to": [16, 16, 16],
-			"rotation": {"angle": 0, "axis": "y", "origin": [8, 2, 8]},
 			"faces": {
 				"north": {"uv": [0, 0, 4, 4], "texture": "#1", "cullface": "north"},
 				"east": {"uv": [0, 0, 4, 4], "texture": "#1", "cullface": "east"},
@@ -24,7 +23,6 @@
 		{
 			"from": [0, 10, 0],
 			"to": [16, 0, 16],
-			"rotation": {"angle": 0, "axis": "y", "origin": [8, 12, 8]},
 			"faces": {
 				"down": {"uv": [0, 12, 4, 16], "texture": "#2"}
 			}
@@ -32,7 +30,6 @@
 		{
 			"from": [0, 0, 16],
 			"to": [16, 16, 0],
-			"rotation": {"angle": 0, "axis": "y", "origin": [8, 2, 24]},
 			"faces": {
 				"north": {"uv": [0, 0, 4, 4], "texture": "#1"},
 				"east": {"uv": [0, 0, 4, 4], "texture": "#1"},
@@ -44,7 +41,6 @@
 		{
 			"from": [3, 16, 3],
 			"to": [13, 0, 13],
-			"rotation": {"angle": 0, "axis": "y", "origin": [8, 16, 8]},
 			"faces": {
 				"north": {"uv": [0.75, 4, 3.25, 0], "texture": "#1"},
 				"east": {"uv": [0.75, 4, 3.25, 0], "texture": "#1"},
@@ -55,7 +51,6 @@
 		{
 			"from": [10, 0, 0],
 			"to": [6, 10, 3],
-			"rotation": {"angle": 0, "axis": "y", "origin": [8, 1, 8]},
 			"faces": {
 				"east": {"uv": [3.75, 4, 3, 1.5], "texture": "#1"},
 				"west": {"uv": [1, 4, 0.25, 1.5], "texture": "#1"}
@@ -64,7 +59,6 @@
 		{
 			"from": [10, 0, 13],
 			"to": [6, 10, 16],
-			"rotation": {"angle": 0, "axis": "y", "origin": [8, 1, 8]},
 			"faces": {
 				"east": {"uv": [1, 4, 0.25, 1.5], "texture": "#1"},
 				"west": {"uv": [3.75, 4, 3, 1.5], "texture": "#1"}
@@ -73,7 +67,6 @@
 		{
 			"from": [13, 0, 10],
 			"to": [16, 10, 6],
-			"rotation": {"angle": 0, "axis": "y", "origin": [8, 1, 8]},
 			"faces": {
 				"north": {"uv": [1, 4, 0.25, 1.5], "texture": "#1"},
 				"south": {"uv": [3.75, 4, 3, 1.5], "texture": "#1"}
@@ -82,7 +75,6 @@
 		{
 			"from": [0, 0, 10],
 			"to": [3, 10, 6],
-			"rotation": {"angle": 0, "axis": "y", "origin": [8, 1, 8]},
 			"faces": {
 				"north": {"uv": [3.75, 4, 3, 1.5], "texture": "#1"},
 				"south": {"uv": [1, 4, 0.25, 1.5], "texture": "#1"}

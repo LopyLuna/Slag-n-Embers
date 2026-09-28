@@ -1,11 +1,30 @@
 {
-  "durability": 416.0,
-  "durability_modifier": 0.35,
   "id": "slag:chestplate",
   "item_tags": [
-    "slag:cast/chestplates"
+    "slag:cast/chestplates",
+    "slag:imprintable"
   ],
   "segment_part": "slag:parts/chestplates",
-  "sharpness_modifier": 0.0,
-  "sort_order": 8
+  "sort_order": 8,
+  "traits": [
+    {
+      "operation": "multiply",
+      "trait": "slag:attack_damage",
+      "value": 0.0
+    },
+    {
+      "trait": "slag:durability",
+      "value": 416.0
+    },
+    {
+      "operation": "multiply",
+      "trait": "slag:durability",
+      "value": 0.35
+    },
+    {
+      "operation": "multiply",
+      "trait": "slag:armor",
+      "value": 1.0
+    }
+  ]
 }

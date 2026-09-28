@@ -3,7 +3,7 @@
   "cast": "slag:cast/leggings",
   "ingredient": {
     "amount": 360,
-    "id": "slag:molten_copper"
+    "tag": "c:molten/copper"
   },
   "result": {
     "components": {

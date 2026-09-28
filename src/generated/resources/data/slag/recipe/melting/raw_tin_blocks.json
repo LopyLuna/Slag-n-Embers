@@ -1,0 +1,22 @@
+{
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:not",
+      "value": {
+        "type": "neoforge:tag_empty",
+        "tag": "c:storage_blocks/raw_tin"
+      }
+    }
+  ],
+  "type": "slag:melting",
+  "ingredient": {
+    "tag": "c:storage_blocks/raw_tin"
+  },
+  "ingredients": [],
+  "result": [
+    {
+      "amount": 864,
+      "id": "slag:molten_tin"
+    }
+  ]
+}

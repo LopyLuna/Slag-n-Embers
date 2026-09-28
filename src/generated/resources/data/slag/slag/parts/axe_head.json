@@ -1,10 +1,25 @@
 {
   "id": "slag:axe_head",
   "item_tags": [
-    "slag:cast/axe_heads"
+    "slag:cast/axe_heads",
+    "slag:imprintable"
   ],
   "segment_part": "slag:parts/axe_heads",
-  "sharpness_modifier": 1.6,
   "sort_order": 2,
-  "speed_modifier": 3.0
+  "traits": [
+    {
+      "operation": "multiply",
+      "trait": "slag:durability",
+      "value": 1.0
+    },
+    {
+      "operation": "multiply",
+      "trait": "slag:attack_damage",
+      "value": 1.6
+    },
+    {
+      "trait": "slag:attack_speed",
+      "value": 3.0
+    }
+  ]
 }

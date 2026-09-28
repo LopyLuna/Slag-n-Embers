@@ -3,7 +3,7 @@
   "cast": "slag:cast/gems",
   "ingredient": {
     "amount": 72,
-    "id": "slag:molten_prismarine"
+    "tag": "c:molten/prismarine"
   },
   "result": {
     "count": 1,

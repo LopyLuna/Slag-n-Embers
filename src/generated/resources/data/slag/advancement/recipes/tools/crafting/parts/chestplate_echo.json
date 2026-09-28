@@ -1,11 +1,17 @@
 {
+  "neoforge:conditions": [
+    {
+      "type": "slag:cast_only",
+      "tier": 6.0
+    }
+  ],
   "parent": "minecraft:recipes/root",
   "criteria": {
-    "has_chestplate": {
+    "has_paper": {
       "conditions": {
         "items": [
           {
-            "items": "#c:chestplates"
+            "items": "minecraft:paper"
           }
         ]
       },
@@ -21,7 +27,7 @@
   "requirements": [
     [
       "has_the_recipe",
-      "has_chestplate"
+      "has_paper"
     ]
   ],
   "rewards": {

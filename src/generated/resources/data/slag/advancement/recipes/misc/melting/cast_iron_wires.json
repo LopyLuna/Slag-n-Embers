@@ -1,0 +1,41 @@
+{
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:not",
+      "value": {
+        "type": "neoforge:tag_empty",
+        "tag": "c:wires/cast_iron"
+      }
+    }
+  ],
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_meltable_cast_iron_wires": {
+      "conditions": {
+        "items": [
+          {
+            "items": "#c:wires/cast_iron"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "slag:melting/cast_iron_wires"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    }
+  },
+  "requirements": [
+    [
+      "has_the_recipe",
+      "has_meltable_cast_iron_wires"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "slag:melting/cast_iron_wires"
+    ]
+  }
+}

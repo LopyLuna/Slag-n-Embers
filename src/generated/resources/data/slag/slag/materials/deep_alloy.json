@@ -1,17 +1,43 @@
 {
-  "defense": 6.0,
-  "durability": 704.0,
-  "enchantability": 11.0,
-  "fireproof": true,
   "id": "slag:deep_alloy",
-  "knockback_resistance": 0.1,
   "repair_ingredient": {
     "tag": "c:ingots/deep_alloy"
   },
-  "sharpness": 5.0,
   "sort_order": 140,
-  "speed": 5.0,
   "texture": "shiny",
-  "tier": 4.0,
-  "toughness": 1.0
+  "traits": [
+    {
+      "trait": "slag:attack_damage",
+      "value": 5.0
+    },
+    {
+      "trait": "slag:durability",
+      "value": 704.0
+    },
+    {
+      "trait": "slag:mining_tier",
+      "value": 4.0
+    },
+    {
+      "trait": "slag:mining_speed",
+      "value": 5.0
+    },
+    {
+      "trait": "slag:enchantability",
+      "value": 11.0
+    },
+    {
+      "trait": "slag:armor",
+      "value": 6.0
+    },
+    {
+      "trait": "slag:armor_toughness",
+      "value": 1.0
+    },
+    {
+      "trait": "slag:knockback_resistance",
+      "value": 0.1
+    },
+    "slag:fire_resistant"
+  ]
 }

@@ -3,6 +3,7 @@
   "ingredients": [
     {
       "components": {
+        "minecraft:fire_resistant": {},
         "slag:material_type": "slag:netherite",
         "slag:part_type": "slag:helmet"
       },

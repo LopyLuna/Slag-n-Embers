@@ -1,0 +1,16 @@
+{
+  "type": "slag:table_casting",
+  "cast_item": {
+    "ingredient": {
+      "tag": "c:cobblestones"
+    }
+  },
+  "ingredient": {
+    "amount": 72,
+    "tag": "c:molten/quartz"
+  },
+  "result": {
+    "count": 1,
+    "id": "minecraft:diorite"
+  }
+}

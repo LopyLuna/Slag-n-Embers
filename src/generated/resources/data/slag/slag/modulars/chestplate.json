@@ -1,16 +1,16 @@
 {
-  "actions": [
-    "chestplate",
-    "isArmor"
-  ],
   "id": "slag:chestplate",
   "item_tags": [
-    "minecraft:chest_armor"
+    "minecraft:chest_armor",
+    "minecraft:trimmable_armor"
   ],
   "model_type": "equipable",
   "segments": [
     "slag:parts/plates",
     "slag:parts/chestplates"
   ],
-  "sort_order": 14
+  "sort_order": 14,
+  "traits": [
+    "slag:chest_slot"
+  ]
 }

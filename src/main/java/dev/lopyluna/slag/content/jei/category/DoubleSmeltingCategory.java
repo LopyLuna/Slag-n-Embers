@@ -18,7 +18,7 @@ import mezz.jei.library.util.RecipeUtil;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.crafting.RecipeHolder;
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
 
 public class DoubleSmeltingCategory extends AbstractRecipeCategory<RecipeHolder<DoubleSmeltingRecipe>> {
     public DoubleSmeltingCategory(IGuiHelper guiHelper) {
@@ -26,7 +26,7 @@ public class DoubleSmeltingCategory extends AbstractRecipeCategory<RecipeHolder<
     }
 
     @Override
-    public void setRecipe(IRecipeLayoutBuilder builder, RecipeHolder<DoubleSmeltingRecipe> holder, @NotNull IFocusGroup group) {
+    public void setRecipe(IRecipeLayoutBuilder builder, RecipeHolder<DoubleSmeltingRecipe> holder, @Nonnull IFocusGroup group) {
         var recipe = holder.value();
 
         builder.addInputSlot(1, 1)
@@ -45,7 +45,7 @@ public class DoubleSmeltingCategory extends AbstractRecipeCategory<RecipeHolder<
     }
 
     @Override
-    public void createRecipeExtras(@NotNull IRecipeExtrasBuilder builder, RecipeHolder<DoubleSmeltingRecipe> holder, @NotNull IFocusGroup group) {
+    public void createRecipeExtras(@Nonnull IRecipeExtrasBuilder builder, RecipeHolder<DoubleSmeltingRecipe> holder, @Nonnull IFocusGroup group) {
         var recipe = holder.value();
         int cookTime = recipe.getCookingTime();
         if (cookTime <= 0) cookTime = 200;
@@ -89,7 +89,7 @@ public class DoubleSmeltingCategory extends AbstractRecipeCategory<RecipeHolder<
         return recipe.id();
     }
     @Override
-    public @NotNull Codec<RecipeHolder<DoubleSmeltingRecipe>> getCodec(ICodecHelper helper, @NotNull IRecipeManager manager) {
+    public @Nonnull Codec<RecipeHolder<DoubleSmeltingRecipe>> getCodec(ICodecHelper helper, @Nonnull IRecipeManager manager) {
         return helper.getRecipeHolderCodec();
     }
 }

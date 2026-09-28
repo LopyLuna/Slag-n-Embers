@@ -1,0 +1,16 @@
+{
+  "type": "slag:table_casting",
+  "cast_item": {
+    "ingredient": {
+      "item": "minecraft:melon_slice"
+    }
+  },
+  "ingredient": {
+    "amount": 64,
+    "tag": "c:molten/gold"
+  },
+  "result": {
+    "count": 1,
+    "id": "minecraft:glistering_melon_slice"
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:not",
+      "value": {
+        "type": "neoforge:tag_empty",
+        "tag": "c:plates/prismarine"
+      }
+    }
+  ],
+  "type": "slag:melting",
+  "ingredient": {
+    "tag": "c:plates/prismarine"
+  },
+  "ingredients": [],
+  "result": [
+    {
+      "amount": 72,
+      "id": "slag:molten_prismarine"
+    }
+  ]
+}

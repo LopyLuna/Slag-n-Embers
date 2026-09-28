@@ -1,0 +1,13 @@
+{
+  "effects": [
+    {
+      "type": "slag:attribute",
+      "attribute": "minecraft:generic.armor",
+      "id": "minecraft:armor",
+      "round": true
+    }
+  ],
+  "hidden": true,
+  "id": "slag:armor",
+  "sort_order": 30
+}

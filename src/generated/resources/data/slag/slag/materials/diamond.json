@@ -1,16 +1,39 @@
 {
-  "defense": 8.0,
-  "durability": 1024.0,
-  "enchantability": 10.0,
   "id": "slag:diamond",
   "molten_fluid": "slag:molten_diamond",
   "repair_ingredient": {
     "tag": "c:gems/diamond"
   },
-  "sharpness": 6.0,
   "sort_order": 60,
-  "speed": 8.0,
   "texture": "shiny",
-  "tier": 5.0,
-  "toughness": 2.0
+  "traits": [
+    {
+      "trait": "slag:attack_damage",
+      "value": 6.0
+    },
+    {
+      "trait": "slag:durability",
+      "value": 1024.0
+    },
+    {
+      "trait": "slag:mining_tier",
+      "value": 5.0
+    },
+    {
+      "trait": "slag:mining_speed",
+      "value": 8.0
+    },
+    {
+      "trait": "slag:enchantability",
+      "value": 10.0
+    },
+    {
+      "trait": "slag:armor",
+      "value": 8.0
+    },
+    {
+      "trait": "slag:armor_toughness",
+      "value": 2.0
+    }
+  ]
 }

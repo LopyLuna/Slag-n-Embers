@@ -1,0 +1,17 @@
+{
+  "effects": [
+    {
+      "type": "slag:block_action",
+      "action": "till"
+    },
+    {
+      "type": "slag:abilities",
+      "abilities": [
+        "till"
+      ]
+    }
+  ],
+  "hidden": true,
+  "id": "slag:tilling",
+  "sort_order": 210
+}

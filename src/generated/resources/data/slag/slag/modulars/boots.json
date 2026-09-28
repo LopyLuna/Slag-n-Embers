@@ -1,16 +1,16 @@
 {
-  "actions": [
-    "boots",
-    "isArmor"
-  ],
   "id": "slag:boots",
   "item_tags": [
-    "minecraft:foot_armor"
+    "minecraft:foot_armor",
+    "minecraft:trimmable_armor"
   ],
   "model_type": "equipable",
   "segments": [
     "slag:parts/plates",
     "slag:parts/boots"
   ],
-  "sort_order": 16
+  "sort_order": 16,
+  "traits": [
+    "slag:feet_slot"
+  ]
 }

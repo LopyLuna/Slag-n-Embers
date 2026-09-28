@@ -1,0 +1,17 @@
+{
+  "color": "#009295",
+  "effects": [
+    {
+      "type": "slag:item_tags",
+      "tags": [
+        "minecraft:dampens_vibrations"
+      ]
+    },
+    {
+      "type": "slag:flag",
+      "flag": "silent"
+    }
+  ],
+  "id": "slag:silent",
+  "sort_order": 300
+}

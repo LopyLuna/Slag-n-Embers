@@ -1,0 +1,72 @@
+{
+  "values": [
+    {
+      "id": "#slag:cast/axe_heads",
+      "required": false
+    },
+    {
+      "id": "#slag:cast/pickaxe_heads",
+      "required": false
+    },
+    {
+      "id": "#slag:cast/shovel_heads",
+      "required": false
+    },
+    {
+      "id": "#slag:cast/hoe_heads",
+      "required": false
+    },
+    {
+      "id": "#slag:cast/sword_blades",
+      "required": false
+    },
+    {
+      "id": "#slag:cast/guards",
+      "required": false
+    },
+    {
+      "id": "#slag:cast/plates",
+      "required": false
+    },
+    {
+      "id": "#slag:cast/helmets",
+      "required": false
+    },
+    {
+      "id": "#slag:cast/chestplates",
+      "required": false
+    },
+    {
+      "id": "#slag:cast/leggings",
+      "required": false
+    },
+    {
+      "id": "#slag:cast/boots",
+      "required": false
+    },
+    {
+      "id": "#slag:cast/ingots",
+      "required": false
+    },
+    {
+      "id": "#slag:cast/gems",
+      "required": false
+    },
+    {
+      "id": "#slag:cast/balls",
+      "required": false
+    },
+    {
+      "id": "#slag:cast/nuggets",
+      "required": false
+    },
+    {
+      "id": "#slag:cast/dusts",
+      "required": false
+    },
+    {
+      "id": "#slag:cast/rods",
+      "required": false
+    }
+  ]
+}

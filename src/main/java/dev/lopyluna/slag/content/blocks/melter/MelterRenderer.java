@@ -7,6 +7,7 @@ import dev.lopyluna.slag.content.blocks.multiblock.renderer.SafeBlockEntityRende
 import dev.lopyluna.slag.content.utils.ShapeUtils;
 import net.createmod.catnip.animation.AnimationTickHolder;
 import net.createmod.catnip.math.AngleHelper;
+import net.createmod.catnip.math.VoxelShaper;
 import net.createmod.catnip.platform.NeoForgeCatnipServices;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -20,6 +21,9 @@ import org.joml.Random;
 
 @SuppressWarnings("unused")
 public class MelterRenderer extends SafeBlockEntityRenderer<MelterBE> {
+    public static final VoxelShaper SPOUT = ShapeUtils.shape(4, 7, -0.01, 6, 10, 0.99)
+            .add(7, 7, -0.01, 9, 10, 0.99).add(10, 7, -0.01, 12, 10, 0.99).forHorizontal(Direction.NORTH);
+
     public MelterRenderer(BlockEntityRendererProvider.Context context) {}
 
     @Override
@@ -65,12 +69,10 @@ public class MelterRenderer extends SafeBlockEntityRenderer<MelterBE> {
         var fluidLevel = be.getFluidLevel();
         if (fluidLevel == null) return;
         var tank = be.tankInventory;
-        var fluidStack = tank.getFluid();
+        var fluidStack = tank.first;
         if (fluidStack.isEmpty()) return;
         ms.pushPose();
-        ClientUtils.renderFluidShape(fluidStack, ShapeUtils.shape(4, 7, -0.01, 6, 10, 0.99)
-                .add(7, 7, -0.01, 9, 10, 0.99).add(10, 7, -0.01, 12, 10, 0.99)
-                .forHorizontal(Direction.NORTH).get(facing), buffer, ms, light, true, true);
+        ClientUtils.renderFluidShape(fluidStack, SPOUT.get(facing), buffer, ms, light, true, true);
         ms.popPose();
 
         float capHeight = 1 / 16f;
@@ -83,9 +85,20 @@ public class MelterRenderer extends SafeBlockEntityRenderer<MelterBE> {
         float clampedLevel = Mth.clamp(level * totalHeight, 0, totalHeight);
         float xMax = tankHullWidth + 1 - 2 * tankHullWidth, yMin = totalHeight + capHeight + minPuddleHeight - clampedLevel, yMax = yMin + clampedLevel, zMax = tankHullWidth + 1 - 2 * tankHullWidth;
 
+        var fluids = tank.getFluids();
+        var total = tank.total;
+        if (total <= 0) return;
+
         ms.pushPose();
         ms.translate(0, clampedLevel - totalHeight, 0);
-        NeoForgeCatnipServices.FLUID_RENDERER.renderFluidBox(fluidStack, tankHullWidth, yMin, tankHullWidth, xMax, yMax, zMax, buffer, ms, light, false, true);
+        var bottom = yMin;
+        for (var i = 0; i < fluids.size(); i++) {
+            var fluid = fluids.get(i);
+            if (fluid.isEmpty()) continue;
+            var top = i == fluids.size() - 1 ? yMax : bottom + clampedLevel * fluid.getAmount() / total;
+            NeoForgeCatnipServices.FLUID_RENDERER.renderFluidBox(fluid, tankHullWidth, bottom, tankHullWidth, xMax, top, zMax, buffer, ms, light, false, true);
+            bottom = top;
+        }
         ms.popPose();
     }
     protected void renderItem(PoseStack ms, MultiBufferSource buffer, int light, int overlay, ItemStack stack) {

@@ -1,11 +1,11 @@
 {
   "parent": "minecraft:recipes/root",
   "criteria": {
-    "has_pickaxe_head": {
+    "has_paper": {
       "conditions": {
         "items": [
           {
-            "items": "#c:pickaxe_heads"
+            "items": "minecraft:paper"
           }
         ]
       },
@@ -21,7 +21,7 @@
   "requirements": [
     [
       "has_the_recipe",
-      "has_pickaxe_head"
+      "has_paper"
     ]
   ],
   "rewards": {

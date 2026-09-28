@@ -1,12 +1,30 @@
 {
-  "defence_modifier": 0.7,
-  "durability": 376.0,
-  "durability_modifier": 0.35,
   "id": "slag:leggings",
   "item_tags": [
-    "slag:cast/leggings"
+    "slag:cast/leggings",
+    "slag:imprintable"
   ],
   "segment_part": "slag:parts/leggings",
-  "sharpness_modifier": 0.0,
-  "sort_order": 9
+  "sort_order": 9,
+  "traits": [
+    {
+      "operation": "multiply",
+      "trait": "slag:attack_damage",
+      "value": 0.0
+    },
+    {
+      "trait": "slag:durability",
+      "value": 376.0
+    },
+    {
+      "operation": "multiply",
+      "trait": "slag:durability",
+      "value": 0.35
+    },
+    {
+      "operation": "multiply",
+      "trait": "slag:armor",
+      "value": 0.7
+    }
+  ]
 }

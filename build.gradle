@@ -12,10 +12,6 @@ tasks.named('wrapper', Wrapper).configure {
 version = mod_version
 group = mod_group_id
 
-repositories {
-    mavenLocal()
-}
-
 base {
     archivesName = "Slag-n-Embers-$minecraft_version"
 }
@@ -78,6 +74,7 @@ repositories {
     maven { url = "https://mvn.devos.one/snapshots" }
     maven { url = "https://dl.cloudsmith.io/public/novamachina-mods/release/maven/" }
     maven { url = "https://maven.createmod.net" }
+    maven { url = "https://maven.ryanhcode.dev/releases" }
     mavenLocal()
 }
 
@@ -105,7 +102,12 @@ dependencies {
     runtimeOnly("top.theillusivec4.curios:curios-neoforge:${curios_version}+${minecraft_version}")
 
     implementation("maven.modrinth:sodium:mc${minecraft_version}-${sodium_version}-neoforge")
-    implementation("maven.modrinth:jade:43sRR8f6")
+    implementation("maven.modrinth:jade:15.10.6+neoforge")
+
+
+    //compats
+    compileOnly("com.simibubi.create:create-1.21.1:6.0.10-280:slim") { transitive = false }
+    compileOnly("dev.ryanhcode.sable-companion:sable-companion-common-1.21.1:1.6.0") { transitive = false }
 }
 
 var generateModMetadata = tasks.register("generateModMetadata", ProcessResources) {

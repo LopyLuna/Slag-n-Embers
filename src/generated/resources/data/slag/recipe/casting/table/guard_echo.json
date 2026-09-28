@@ -1,0 +1,16 @@
+{
+  "type": "slag:table_casting",
+  "cast": "slag:cast/guards",
+  "ingredient": {
+    "amount": 72,
+    "tag": "c:molten/echo"
+  },
+  "result": {
+    "components": {
+      "slag:material_type": "slag:echo",
+      "slag:part_type": "slag:guard"
+    },
+    "count": 1,
+    "id": "slag:dynamic_part"
+  }
+}

@@ -4,6 +4,21 @@
     "slag:molten_gold",
     "slag:molten_iron",
     "slag:molten_netherite",
-    "slag:molten_rose_gold"
+    "slag:molten_rose_gold",
+    "slag:molten_aluminium",
+    "slag:molten_brass",
+    "slag:molten_bronze",
+    "slag:molten_cast_iron",
+    "slag:molten_electrum",
+    "slag:molten_invar",
+    "slag:molten_lead",
+    "slag:molten_nickel",
+    "slag:molten_osmium",
+    "slag:molten_platinum",
+    "slag:molten_silver",
+    "slag:molten_steel",
+    "slag:molten_tin",
+    "slag:molten_tungsten",
+    "slag:molten_zinc"
   ]
 }

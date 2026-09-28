@@ -3,6 +3,10 @@ package dev.lopyluna.slag.content.blocks.melter;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import dev.lopyluna.slag.content.temperature.Temperatures;
+import dev.lopyluna.slag.content.temperature.Temperatures.Tiers;
+import dev.lopyluna.slag.content.temperature.Temperatures.Type;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
@@ -11,11 +15,13 @@ import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.neoforged.neoforge.fluids.FluidStack;
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
+@SuppressWarnings("OptionalUsedAsFieldOrParameterType")
 public class MeltingRecipeSer implements RecipeSerializer<MeltingRecipe> {
     private final MeltingRecipe.Factory factory;
     private final MapCodec<MeltingRecipe> codec;
@@ -28,16 +34,20 @@ public class MeltingRecipeSer implements RecipeSerializer<MeltingRecipe> {
                     Codec.STRING.optionalFieldOf("group", "").forGetter(Recipe::getGroup),
                     ItemStack.CODEC.listOf().fieldOf("ingredients").forGetter(MeltingRecipe::getInputs),
                     Ingredient.CODEC.optionalFieldOf("ingredient", Ingredient.EMPTY).forGetter(MeltingRecipe::getInput),
-                    FluidStack.CODEC.listOf().fieldOf("result").forGetter(MeltingRecipe::getOutputs));
+                    FluidStack.CODEC.listOf().fieldOf("result").forGetter(MeltingRecipe::getOutputs),
+                    Temperatures.TIER_CODEC.optionalFieldOf("temperature", Tiers.HEATED).forGetter(r -> r.temperature),
+                    Temperatures.TYPE_CODEC.optionalFieldOf("heat_type").forGetter(r -> Optional.ofNullable(r.heatType)),
+                    Codec.INT.optionalFieldOf("duration", 0).forGetter(MeltingRecipe::getDuration),
+                    Codec.FLOAT.optionalFieldOf("speed", 1f).forGetter(MeltingRecipe::getSpeed));
             Objects.requireNonNull(factory);
             return recipe.apply(instance, factory::create);
         });
         this.streamCodec = StreamCodec.of(this::toNetwork, this::fromNetwork);
     }
-    @Override public @NotNull MapCodec<MeltingRecipe> codec() {
+    @Override public @Nonnull MapCodec<MeltingRecipe> codec() {
         return codec;
     }
-    @Override public @NotNull StreamCodec<RegistryFriendlyByteBuf, MeltingRecipe> streamCodec() {
+    @Override public @Nonnull StreamCodec<RegistryFriendlyByteBuf, MeltingRecipe> streamCodec() {
         return streamCodec;
     }
     @Override public String toString() {
@@ -50,7 +60,11 @@ public class MeltingRecipeSer implements RecipeSerializer<MeltingRecipe> {
         List<ItemStack> inputs = ItemStack.LIST_STREAM_CODEC.decode(buffer);
         Ingredient input = Ingredient.CONTENTS_STREAM_CODEC.decode(buffer);
         List<FluidStack> fluidStack = FluidStack.STREAM_CODEC.apply(ByteBufCodecs.list()).decode(buffer);
-        return this.factory.create(s, inputs, input, fluidStack);
+        var temperature = buffer.readEnum(Tiers.class);
+        var heatType = buffer.readOptional(buf -> buf.readEnum(Type.class));
+        var duration = buffer.readVarInt();
+        var speed = buffer.readFloat();
+        return this.factory.create(s, inputs, input, fluidStack, temperature, heatType, duration, speed);
     }
 
     private void toNetwork(RegistryFriendlyByteBuf buffer, MeltingRecipe recipe) {
@@ -58,9 +72,13 @@ public class MeltingRecipeSer implements RecipeSerializer<MeltingRecipe> {
         ItemStack.LIST_STREAM_CODEC.encode(buffer, recipe.getInputs());
         Ingredient.CONTENTS_STREAM_CODEC.encode(buffer, recipe.getInput());
         FluidStack.STREAM_CODEC.apply(ByteBufCodecs.list()).encode(buffer, recipe.getOutputs());
+        buffer.writeEnum(recipe.temperature);
+        buffer.writeOptional(Optional.ofNullable(recipe.heatType), FriendlyByteBuf::writeEnum);
+        buffer.writeVarInt(recipe.duration);
+        buffer.writeFloat(recipe.speed);
     }
 
-    public MeltingRecipe create(String group, List<ItemStack> inputs, Ingredient input, List<FluidStack> result) {
-        return this.factory.create(group, inputs, input, result);
+    public MeltingRecipe create(String group, List<ItemStack> inputs, Ingredient input, List<FluidStack> result, Tiers temperature, Optional<Type> heatType, int duration, float speed) {
+        return this.factory.create(group, inputs, input, result, temperature, heatType, duration, speed);
     }
 }

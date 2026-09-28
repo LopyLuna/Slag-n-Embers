@@ -27,8 +27,9 @@ public record SelectFluidIndexC2S(BlockPos pos, int index) implements CustomPack
             int i = msg.index;
             if (i < 0) return;
             var level = player.level();
+            if (!level.isLoaded(msg.pos) || !player.canInteractWithBlock(msg.pos, 4.0)) return;
             if (!(level.getBlockEntity(msg.pos) instanceof CrucibleBE cr) || !(cr.getControllerBE() instanceof CrucibleBE be)) return;
-            var inv = be.getTankInventory();
+            var inv = be.tankInventory;
             if (inv == null || !inv.moveFluidToFront(i)) return;
             be.setChanged();
             level.sendBlockUpdated(msg.pos, be.getBlockState(), be.getBlockState(), 3);

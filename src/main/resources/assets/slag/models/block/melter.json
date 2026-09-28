@@ -5,7 +5,6 @@
 	"textures": {
 		"3": "slag:block/crucible_inside",
 		"6": "slag:block/basin_inside",
-		"7": "slag:block/drain",
 		"8": "slag:block/melter",
 		"9": "slag:block/melter_side",
 		"10": "slag:block/melter_top",
@@ -36,19 +35,6 @@
 				"south": {"uv": [3, 12, 13, 0], "texture": "#6"},
 				"west": {"uv": [3, 12, 13, 0], "texture": "#6"},
 				"up": {"uv": [0.5, 12.5, 3.5, 15.5], "texture": "#3"}
-			}
-		},
-		{
-			"from": [3.9375, 2.375, 15.5],
-			"to": [12.0625, 10.375, 23],
-			"rotation": {"angle": 22.5, "axis": "x", "origin": [8, 10.375, 15]},
-			"faces": {
-				"north": {"uv": [0, 8, 8, 16], "texture": "#7"},
-				"east": {"uv": [8, 0, 0.5, 8], "texture": "#7"},
-				"south": {"uv": [8, 0, 16, 8], "texture": "#7"},
-				"west": {"uv": [0.5, 0, 8, 8], "texture": "#7"},
-				"up": {"uv": [8, 0, 16, 7.5], "rotation": 180, "texture": "#7"},
-				"down": {"uv": [0, 15.5, 8, 8], "rotation": 180, "texture": "#7"}
 			}
 		}
 	]

@@ -1,11 +1,10 @@
 package dev.lopyluna.slag.content.blocks.table;
 
 import com.mojang.serialization.MapCodec;
+import dev.lopyluna.slag.content.blocks.casting.CastingBE;
 import dev.lopyluna.slag.content.blocks.smart.SmartBlock;
-import dev.lopyluna.slag.content.items.dynamic_mold.DynamicMoldItem;
 import dev.lopyluna.slag.content.utils.ShapeUtils;
 import dev.lopyluna.slag.register.AllBETypes;
-import dev.lopyluna.slag.register.AllDataComponents;
 import dev.lopyluna.slag.register.AllLangs;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
@@ -33,25 +32,34 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 import net.neoforged.neoforge.items.ItemHandlerHelper;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.List;
 
 @ParametersAreNonnullByDefault
 public class TableBlock extends SmartBlock<TableBE> {
     public static final MapCodec<TableBlock> CODEC = simpleCodec(TableBlock::new);
+    public static final VoxelShape SHAPE = ShapeUtils.shape(0, 0, 0, 5, 4, 5)
+            .add(0, 0, 11, 5, 4, 16)
+            .add(11, 0, 11, 16, 4, 16)
+            .add(11, 0, 0, 16, 4, 5)
+            .add(0, 4, 0, 16, 9, 16)
+            .add(0, 9, 0, 2, 12, 16)
+            .add(14, 9, 0, 16, 12, 16)
+            .add(0, 9, 14, 16, 12, 16)
+            .add(0, 9, 0, 16, 12, 2).build();
     public static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
     public TableBlock(Properties properties) {
         super(properties);
         registerDefaultState(defaultBlockState().setValue(FACING, Direction.NORTH));
     }
-    @Override protected @NotNull MapCodec<? extends BaseEntityBlock> codec() { return CODEC; }
+    @Override protected @Nonnull MapCodec<? extends BaseEntityBlock> codec() { return CODEC; }
     @Override public Class<TableBE> getBlockEntityClass() { return TableBE.class; }
     @Override public BlockEntityType<? extends TableBE> getBlockEntityType() { return AllBETypes.TABLE.get(); }
     @Override protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) { builder.add(FACING); }
-    @Nullable @Override public BlockState getStateForPlacement(@NotNull BlockPlaceContext context) {
+    @Nullable @Override public BlockState getStateForPlacement(BlockPlaceContext context) {
         return defaultBlockState().setValue(FACING, context.getHorizontalDirection().getOpposite());
     }
 
@@ -64,49 +72,48 @@ public class TableBlock extends SmartBlock<TableBE> {
     }
 
     @Override
-    protected @NotNull InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hitResult) {
+    protected @Nonnull InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hitResult) {
         if (!(level.getBlockEntity(pos) instanceof TableBE be) || be.coolingProgress > 0) return InteractionResult.PASS;
         var shift = player.isShiftKeyDown();
-        var empty = player.getMainHandItem().isEmpty();
-        if (shift && empty && be.tankInventory != null && !be.tankInventory.isEmpty()) {
-            be.tankInventory.drain(be.tankInventory.getFluidAmount(), IFluidHandler.FluidAction.EXECUTE);
-            return InteractionResult.SUCCESS;
+        if (shift && !player.getMainHandItem().isEmpty()) return InteractionResult.PASS;
+        var tank = be.tankInventory;
+        if (shift && !tank.isEmpty()) {
+            if (!level.isClientSide) tank.drain(tank.getFluidAmount(), IFluidHandler.FluidAction.EXECUTE);
+            return InteractionResult.sidedSuccess(level.isClientSide);
         }
-        if (be.itemInventory == null || (player.isShiftKeyDown() && !empty)) return InteractionResult.PASS;
-        var stack = be.getStack();
-        if (stack.isEmpty()) {
-            var mold = be.getMold();
-            if (mold.isEmpty()) return InteractionResult.PASS;
-            ItemHandlerHelper.giveItemToPlayer(player, mold);
-            be.itemInventory.getFirstMoldItem().setCount(0);
-            return InteractionResult.SUCCESS;
+        var inventory = be.itemInventory;
+        var slot = inventory.getItem(CastingBE.RESULT).isEmpty() ? TableBE.MOLD : CastingBE.RESULT;
+        var stack = inventory.getItem(slot);
+        if (stack.isEmpty() || (slot == TableBE.MOLD && !tank.isEmpty())) return InteractionResult.PASS;
+        if (!level.isClientSide) {
+            ItemHandlerHelper.giveItemToPlayer(player, stack.copy());
+            inventory.setItem(slot, ItemStack.EMPTY);
         }
-        ItemHandlerHelper.giveItemToPlayer(player, stack);
-        be.itemInventory.getFirstItem().setCount(0);
-        return InteractionResult.SUCCESS;
+        return InteractionResult.sidedSuccess(level.isClientSide);
     }
 
     @Override
-    protected @NotNull ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
+    protected @Nonnull ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
         var pass = ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
-        if (!(level.getBlockEntity(pos) instanceof TableBE be) || player.isShiftKeyDown() || !(stack.getItem() instanceof DynamicMoldItem)) return pass;
-        if (be.itemInventory == null || !stack.has(AllDataComponents.CAST_TYPE)) return pass;
-        if (!be.getMold().isEmpty()) return pass;
-        be.itemInventory.insertItem(1, stack.copyWithCount(1), false);
-        stack.shrink(1);
-        return ItemInteractionResult.SUCCESS;
+        if (player.isShiftKeyDown() || !(level.getBlockEntity(pos) instanceof TableBE be)) return pass;
+        var inventory = be.itemInventory;
+        var slot = inventory.isItemValid(TableBE.MOLD, stack) ? TableBE.MOLD : CastingBE.RESULT;
+        if (!inventory.isItemValid(slot, stack) || !inventory.getItem(slot).isEmpty()) return pass;
+        if (slot == CastingBE.RESULT && !be.tankInventory.isEmpty()) return pass;
+        if (!level.isClientSide) {
+            inventory.insertItem(slot, stack.copyWithCount(1), false);
+            stack.shrink(1);
+        }
+        return ItemInteractionResult.sidedSuccess(level.isClientSide);
     }
 
     @Override
-    protected @NotNull VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
-        return ShapeUtils.shape(0, 0, 0, 5, 4, 5)
-                .add(0, 0, 11, 5, 4, 16)
-                .add(11, 0, 11, 16, 4, 16)
-                .add(11, 0, 0, 16, 4, 5)
-                .add(0, 4, 0, 16, 9, 16)
-                .add(0, 9, 0, 2, 12, 16)
-                .add(14, 9, 0, 16, 12, 16)
-                .add(0, 9, 14, 16, 12, 16)
-                .add(0, 9, 0, 16, 12, 2).build();
+    public int getLightEmission(BlockState state, BlockGetter level, BlockPos pos) {
+        return level.getBlockEntity(pos) instanceof TableBE be ? be.getLuminosity() : 0;
+    }
+
+    @Override
+    protected @Nonnull VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
+        return SHAPE;
     }
 }

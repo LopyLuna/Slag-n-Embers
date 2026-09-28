@@ -3,6 +3,7 @@ package dev.lopyluna.slag.register;
 import com.tterrag.registrate.providers.RegistrateTagsProvider;
 import dev.lopyluna.slag.SlagEmbers;
 import net.minecraft.core.Holder;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
@@ -13,10 +14,13 @@ import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.material.Fluid;
 import net.neoforged.neoforge.common.Tags;
+import net.neoforged.neoforge.common.conditions.ICondition;
+import net.neoforged.neoforge.common.conditions.NotCondition;
+import net.neoforged.neoforge.common.conditions.TagEmptyCondition;
 
+import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
@@ -42,12 +46,32 @@ public class AllTags {
     public static void genFluidTags(RegistrateTagsProvider<Fluid> provIn) {
         TagsProvider<Fluid> prov = new TagsProvider<>(provIn, Fluid::builtInRegistryHolder);
 
+        for (var fluid : BuiltInRegistries.FLUID) {
+            var tag = AllFluids.commonTag(fluid);
+            if (tag != null && fluid.isSource(fluid.defaultFluidState())) prov.tag(tag).add(fluid);
+        }
+
         prov.tag(MOLTEN_METALS)
                 .add(AllFluids.MOLTEN_COPPER.getSource())
                 .add(AllFluids.MOLTEN_GOLD.getSource())
                 .add(AllFluids.MOLTEN_IRON.getSource())
                 .add(AllFluids.MOLTEN_NETHERITE.getSource())
                 .add(AllFluids.MOLTEN_ROSE_GOLD.getSource())
+                .add(AllFluids.MOLTEN_ALUMINIUM.getSource())
+                .add(AllFluids.MOLTEN_BRASS.getSource())
+                .add(AllFluids.MOLTEN_BRONZE.getSource())
+                .add(AllFluids.MOLTEN_CAST_IRON.getSource())
+                .add(AllFluids.MOLTEN_ELECTRUM.getSource())
+                .add(AllFluids.MOLTEN_INVAR.getSource())
+                .add(AllFluids.MOLTEN_LEAD.getSource())
+                .add(AllFluids.MOLTEN_NICKEL.getSource())
+                .add(AllFluids.MOLTEN_OSMIUM.getSource())
+                .add(AllFluids.MOLTEN_PLATINUM.getSource())
+                .add(AllFluids.MOLTEN_SILVER.getSource())
+                .add(AllFluids.MOLTEN_STEEL.getSource())
+                .add(AllFluids.MOLTEN_TIN.getSource())
+                .add(AllFluids.MOLTEN_TUNGSTEN.getSource())
+                .add(AllFluids.MOLTEN_ZINC.getSource())
         ;
         prov.tag(MOLTEN_GEMS)
                 .add(AllFluids.MOLTEN_DIAMOND.getSource())
@@ -58,27 +82,28 @@ public class AllTags {
                 .add(AllFluids.MOLTEN_AMETHYST.getSource())
                 .add(AllFluids.MOLTEN_PRISMARINE.getSource())
                 .add(AllFluids.MOLTEN_QUARTZ.getSource())
+                .add(AllFluids.MOLTEN_ECHO.getSource())
+                .add(AllFluids.MOLTEN_ROSE_QUARTZ.getSource())
         ;
         prov.tag(MOLTEN_DUSTS)
                 .add(AllFluids.MOLTEN_REDSTONE.getSource())
                 .add(AllFluids.MOLTEN_OBSIDIAN.getSource())
         ;
+        prov.tag(MOLTEN_DUSTS_SMALL)
+                .add(AllFluids.MOLTEN_GLOWSTONE.getSource())
+        ;
     }
 
-    public static TagKey<Block> MELTER_HEATER = block("melter_heater");
+    public static TagKey<Block> HEATED_FLUIDS = block("heated_fluids");
 
     public static TagKey<Block> HARVESTABLE = block("harvestable");
     public static TagKey<Block> VEIN_MINEABLE = block("vein_mineable");
-
+    public static TagKey<Block> KNIFE_MINEABLE = TagKey.create(Registries.BLOCK, ResourceLocation.fromNamespaceAndPath("farmersdelight", "mineable/knife"));
+    public static TagKey<Item> KNIVES = itemC("tools/knife");
+    public static TagKey<Item> FD_KNIVES = TagKey.create(Registries.ITEM, ResourceLocation.fromNamespaceAndPath("farmersdelight", "tools/knives"));
 
     public static void genBlockTags(RegistrateTagsProvider<Block> provIn) {
         TagsProvider<Block> prov = new TagsProvider<>(provIn, Block::builtInRegistryHolder);
-        prov.tag(MELTER_HEATER)
-                .add(Blocks.LAVA)
-                .add(Blocks.LAVA_CAULDRON)
-                .addTag(BlockTags.FIRE)
-                .addTag(BlockTags.CAMPFIRES)
-        ;
         prov.tag(HARVESTABLE)
                 .addTag(BlockTags.CROPS)
         ;
@@ -123,16 +148,89 @@ public class AllTags {
     public static TagKey<Item> CAST_NUGGETS = item("cast/nuggets");
     public static TagKey<Item> CAST_DUSTS = item("cast/dusts");
     public static TagKey<Item> CAST_RODS = item("cast/rods");
+    public static List<TagKey<Item>> CASTS = List.of(CAST_AXE_HEADS, CAST_PICKAXE_HEADS, CAST_SHOVEL_HEADS, CAST_HOE_HEADS, CAST_SWORD_BLADES, CAST_GUARDS, CAST_PLATES, CAST_HELMETS, CAST_CHESTPLATES, CAST_LEGGINGS, CAST_BOOTS, CAST_INGOTS, CAST_GEMS, CAST_BALLS, CAST_NUGGETS, CAST_DUSTS, CAST_RODS);
 
+    public static TagKey<Item> IMPRINTABLE = item("imprintable");
     public static TagKey<Item> MOLDS_REUSABLE = item("molds/reusable");
     public static TagKey<Item> MOLDS_SINGLE = item("molds/single");
 
+    public static TagKey<Item> BARS_COPPER = itemC("bars/copper");
+    public static TagKey<Item> BARS_BRASS = itemC("bars/brass");
+    public static TagKey<Item> ROSE_QUARTZ = itemC("gems/rose_quartz");
+    public static TagKey<Item> POLISHED_ROSE_QUARTZ = item("polished_rose_quartz");
+    public static TagKey<Item> ANDESITE_ALLOY = itemC("alloys/andesite");
+
+    public static TagKey<Item> RECYCLING_BLACKLIST = item("recycling_blacklist");
+    public static TagKey<Item> RECYCLING_FREE = item("recycling_free");
     public static TagKey<Item> BLACKLISTED_HOTBAR_ITEMS = item("blacklisted_hotbar_items");
+    public static TagKey<Item> MEKANISM_CLUMPS = TagKey.create(Registries.ITEM, SlagEmbers.loc("mekanism", "clumps"));
 
     public static void genItemTags(RegistrateTagsProvider<Item> provIn) {
         TagsProvider<Item> prov = new TagsProvider<>(provIn, Item::builtInRegistryHolder);
 
         prov.tag(BLACKLISTED_HOTBAR_ITEMS).addOptional(SlagEmbers.loc("create", "wand_of_symmetry"));
+
+        prov.tag(BARS_COPPER).addOptional(SlagEmbers.loc("create", "copper_bars"));
+        prov.tag(BARS_BRASS).addOptional(SlagEmbers.loc("create", "brass_bars"));
+        prov.tag(ROSE_QUARTZ).addOptional(SlagEmbers.loc("create", "rose_quartz"));
+        prov.tag(POLISHED_ROSE_QUARTZ).addOptional(SlagEmbers.loc("create", "polished_rose_quartz"));
+        prov.tag(ANDESITE_ALLOY).addOptional(SlagEmbers.loc("create", "andesite_alloy"));
+
+        for (var path : List.of("ingots/", "nuggets/", "storage_blocks/", "storage_blocks/raw_", "raw_materials/", "ores/", "dusts/", "plates/", "rods/", "wires/", "clumps/")) prov.tag(itemC(path + "aluminium")).addOptionalTag(itemC(path + "aluminum").location());
+        for (var metal : List.of("copper", "gold", "iron", "aluminum", "lead", "nickel", "osmium", "platinum", "silver", "tin", "zinc")) {
+            prov.tag(itemC("clumps/" + metal)).addOptional(SlagEmbers.loc("create", "crushed_raw_" + metal));
+            prov.tag(MEKANISM_CLUMPS).addOptionalTag(itemC("clumps/" + metal).location());
+        }
+
+        for (var cast : CASTS) prov.tag(IMPRINTABLE).addOptionalTag(cast.location());
+
+        for (var gem : List.of("diamond", "emerald", "lapis")) prov.tag(itemC("nuggets/" + gem));
+
+        prov.tag(RECYCLING_FREE)
+                .add(Items.PAPER)
+                .add(Items.BOOK)
+                .add(Items.STRING)
+                .add(Items.FEATHER)
+                .add(Items.RABBIT_HIDE)
+                .add(Items.RABBIT_FOOT)
+                .add(Items.SADDLE)
+                .add(Items.ENDER_PEARL)
+                .add(Items.ENDER_EYE)
+                .add(Items.GUNPOWDER)
+                .add(Items.BLAZE_POWDER)
+                .add(Items.FLINT)
+                .add(Items.HONEYCOMB)
+                .add(Items.HONEYCOMB_BLOCK)
+                .add(Items.TORCH)
+                .add(Items.SOUL_TORCH)
+                .add(Items.SCULK)
+                .add(Items.SCULK_VEIN)
+                .add(Items.SCULK_SENSOR)
+                .addTag(Tags.Items.DYES)
+                .addTag(Tags.Items.LEATHERS)
+                .addTag(Tags.Items.RODS_WOODEN)
+                .addTag(Tags.Items.STRIPPED_LOGS)
+                .addTag(Tags.Items.STRIPPED_WOODS)
+                .addTag(Tags.Items.FENCES_WOODEN)
+                .addTag(Tags.Items.FENCE_GATES_WOODEN)
+                .addTag(Tags.Items.CHESTS_WOODEN)
+                .addTag(Tags.Items.BARRELS_WOODEN)
+                .addTag(ItemTags.LOGS)
+                .addTag(ItemTags.PLANKS)
+                .addTag(ItemTags.WOODEN_SLABS)
+                .addTag(ItemTags.WOODEN_STAIRS)
+                .addTag(ItemTags.WOODEN_FENCES)
+                .addTag(ItemTags.WOODEN_DOORS)
+                .addTag(ItemTags.WOODEN_TRAPDOORS)
+                .addTag(ItemTags.WOODEN_BUTTONS)
+                .addTag(ItemTags.WOODEN_PRESSURE_PLATES)
+                .addTag(ItemTags.SIGNS)
+                .addTag(ItemTags.HANGING_SIGNS)
+                .addTag(ItemTags.BOATS)
+                .addTag(ItemTags.CHEST_BOATS)
+                .addTag(ItemTags.BAMBOO_BLOCKS)
+                .addTag(ItemTags.SAPLINGS)
+                .addTag(ItemTags.LEAVES);
 
         prov.tag(CAST_INGOTS).addTag(Tags.Items.INGOTS).addTag(Tags.Items.BRICKS);
         prov.tag(CAST_GEMS).add(Items.ECHO_SHARD).addTag(ItemTags.COALS).addTag(Tags.Items.GEMS).addTag(Tags.Items.NETHER_STARS);
@@ -226,6 +324,7 @@ public class AllTags {
     public static TagKey<Block> blockC(String name) { return TagKey.create(Registries.BLOCK, ResourceLocation.fromNamespaceAndPath("c", name)); }
     public static TagKey<Block> blockMC(String name) { return TagKey.create(Registries.BLOCK, ResourceLocation.withDefaultNamespace(name)); }
     public static TagKey<Item> item(String name) { return TagKey.create(Registries.ITEM, SlagEmbers.loc(name)); }
+    public static ICondition present(TagKey<Item> tag) { return new NotCondition(new TagEmptyCondition(tag)); }
     public static TagKey<Item> itemC(String name) { return TagKey.create(Registries.ITEM, ResourceLocation.fromNamespaceAndPath("c", name)); }
     public static TagKey<Item> itemMC(String name) { return TagKey.create(Registries.ITEM, ResourceLocation.withDefaultNamespace(name)); }
     public static TagKey<Fluid> fluid(String name) { return TagKey.create(Registries.FLUID, SlagEmbers.loc(name)); }
@@ -274,6 +373,5 @@ public class AllTags {
                     .forEach(this::add);
             return this;
         }
-
     }
 }

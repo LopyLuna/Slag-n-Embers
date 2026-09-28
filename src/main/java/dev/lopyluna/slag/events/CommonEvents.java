@@ -1,10 +1,10 @@
 package dev.lopyluna.slag.events;
 
 import dev.lopyluna.slag.content.blocks.SimpleBE;
-import dev.lopyluna.slag.content.blocks.basin.BasinBE;
+import dev.lopyluna.slag.content.blocks.casting.CastingBE;
 import dev.lopyluna.slag.content.blocks.melter.MelterBE;
 import dev.lopyluna.slag.content.blocks.multiblock.FluidMultiBlockEntity;
-import dev.lopyluna.slag.content.blocks.table.TableBE;
+import dev.lopyluna.slag.register.AllBETypes;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
@@ -18,8 +18,8 @@ public class CommonEvents {
     public static void registerCapabilities(RegisterCapabilitiesEvent event) {
         for (var be : SimpleBE.regCap) be.registerCapabilities(event);
         FluidMultiBlockEntity.registerCapabilities(event);
-        BasinBE.registerCapabilities(event);
+        CastingBE.registerCapabilities(event, AllBETypes.BASIN.get());
         MelterBE.registerCapabilities(event);
-        TableBE.registerCapabilities(event);
+        CastingBE.registerCapabilities(event, AllBETypes.TABLE.get());
     }
 }

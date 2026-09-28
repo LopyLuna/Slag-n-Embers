@@ -1,0 +1,17 @@
+{
+  "effects": [
+    {
+      "type": "slag:mining",
+      "blocks": "#minecraft:mineable/hoe"
+    },
+    {
+      "type": "slag:abilities",
+      "abilities": [
+        "hoe_dig"
+      ]
+    }
+  ],
+  "hidden": true,
+  "id": "slag:hoe_mining",
+  "sort_order": 150
+}

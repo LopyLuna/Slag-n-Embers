@@ -1,64 +1,93 @@
 package dev.lopyluna.slag.content.blocks.table;
 
+import dev.lopyluna.slag.content.blocks.casting.CastItem;
+import dev.lopyluna.slag.content.blocks.casting.CastingInput;
+import dev.lopyluna.slag.content.utils.FluidInput;
+import dev.lopyluna.slag.content.utils.ItemResult;
 import dev.lopyluna.slag.register.AllRecipes;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Recipe;
-import net.minecraft.world.item.crafting.RecipeInput;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.material.Fluid;
-import net.minecraft.world.level.material.Fluids;
 import net.neoforged.neoforge.fluids.FluidStack;
-import org.jetbrains.annotations.NotNull;
+import net.neoforged.neoforge.fluids.crafting.SizedFluidIngredient;
+import javax.annotation.Nonnull;
 
+import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
+import java.util.Optional;
 
+@SuppressWarnings({"unused", "OptionalUsedAsFieldOrParameterType"})
 @ParametersAreNonnullByDefault
-public class TableCastingRecipe implements Recipe<TableCastingRecipe.SingleRecipeFluidInput> {
+public class TableCastingRecipe implements Recipe<CastingInput> {
     protected final RecipeType<?> type;
     protected final String group;
 
-    private final TagKey<Item> castType;
-    private final FluidStack input;
-    private final ItemStack output;
+    private final @Nullable TagKey<Item> castType;
+    private final SizedFluidIngredient input;
+    private final @Nullable CastItem castItem;
+    private final int duration;
+    private final float speed;
+    private final ItemResult output;
 
-    public TableCastingRecipe(String group, TagKey<Item> castType, FluidStack inputs, ItemStack output) {
-        this(AllRecipes.TABLE_CASTING.get(), group, castType, inputs, output);
+    public TableCastingRecipe(String group, Optional<TagKey<Item>> castType, SizedFluidIngredient inputs, Optional<CastItem> castItem, int duration, float speed, ItemResult output) {
+        this(AllRecipes.TABLE_CASTING.get(), group, castType, inputs, castItem, duration, speed, output);
     }
-    public TableCastingRecipe(RecipeType<?> type, String group, TagKey<Item> castType, FluidStack inputs, ItemStack output) {
+    public TableCastingRecipe(RecipeType<?> type, String group, Optional<TagKey<Item>> castType, SizedFluidIngredient inputs, Optional<CastItem> castItem, int duration, float speed, ItemResult output) {
         this.type = type;
         this.group = group;
-        this.castType = castType;
+        this.castType = castType.orElse(null);
         this.input = inputs;
+        this.castItem = castItem.orElse(null);
+        this.duration = duration;
+        this.speed = speed;
         this.output = output;
     }
 
-    public TagKey<Item> getCastType() {
+    public @Nullable TagKey<Item> getCastType() {
         return castType;
     }
-    public FluidStack getInput() {
+    public Optional<TagKey<Item>> getCast() {
+        return Optional.ofNullable(castType);
+    }
+    public SizedFluidIngredient getInput() {
         return input;
     }
+    public @Nullable CastItem getCastItem() {
+        return castItem;
+    }
+    public Optional<CastItem> getItem() {
+        return Optional.ofNullable(castItem);
+    }
+    public int getDuration() {
+        return duration;
+    }
+    public float getSpeed() {
+        return speed;
+    }
     public ItemStack getOutput() {
+        return output.stack();
+    }
+    public ItemResult getResult() {
         return output;
     }
 
     @Override
-    public boolean matches(SingleRecipeFluidInput fluidInput, Level level) {
-        return input.is(fluidInput.fluid);
+    public boolean matches(CastingInput fluidInput, Level level) {
+        return FluidInput.test(input, fluidInput.fluid());
     }
 
     public boolean hasEnoughFluid(FluidStack stack) {
-        return input.is(stack.getFluid()) && stack.getAmount() >= input.getAmount();
+        return input.test(stack);
     }
 
     @Override
-    public @NotNull ItemStack assemble(SingleRecipeFluidInput singleRecipeFluidInput, HolderLookup.Provider provider) {
-        return output.copy();
+    public @Nonnull ItemStack assemble(CastingInput fluidInput, HolderLookup.Provider provider) {
+        return output.stack().copy();
     }
 
     @Override
@@ -67,17 +96,17 @@ public class TableCastingRecipe implements Recipe<TableCastingRecipe.SingleRecip
     }
 
     @Override
-    public @NotNull ItemStack getResultItem(HolderLookup.Provider provider) {
-        return output.copy();
+    public @Nonnull ItemStack getResultItem(HolderLookup.Provider provider) {
+        return output.stack().copy();
     }
 
     @Override
-    public @NotNull RecipeSerializer<?> getSerializer() {
+    public @Nonnull RecipeSerializer<?> getSerializer() {
         return AllRecipes.TABLE_CASTING_SER.get();
     }
 
     @Override
-    public @NotNull RecipeType<?> getType() {
+    public @Nonnull RecipeType<?> getType() {
         return type;
     }
 
@@ -92,25 +121,7 @@ public class TableCastingRecipe implements Recipe<TableCastingRecipe.SingleRecip
     }
 
     public interface Factory {
-        TableCastingRecipe create(String var1, TagKey<Item> var2, FluidStack var3, ItemStack var4);
-    }
-
-    public record SingleRecipeFluidInput(Fluid fluid) implements RecipeInput {
-        @Override
-        public boolean isEmpty() {
-            return fluid == null || fluid == Fluids.EMPTY;
-        }
-        @Override
-        public int hashCode() {
-            return fluid.hashCode();
-        }
-        @Override
-        public @NotNull ItemStack getItem(int i) {
-            return ItemStack.EMPTY;
-        }
-        public int size() {
-            return 1;
-        }
+        TableCastingRecipe create(String var1, Optional<TagKey<Item>> var2, SizedFluidIngredient var3, Optional<CastItem> var4, int var5, float var6, ItemResult var7);
     }
 
 }

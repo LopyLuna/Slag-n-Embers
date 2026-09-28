@@ -1,0 +1,17 @@
+{
+  "effects": [
+    {
+      "type": "slag:mining",
+      "blocks": "#minecraft:mineable/pickaxe"
+    },
+    {
+      "type": "slag:abilities",
+      "abilities": [
+        "pickaxe_dig"
+      ]
+    }
+  ],
+  "hidden": true,
+  "id": "slag:pickaxe_mining",
+  "sort_order": 120
+}

@@ -20,7 +20,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.RegisterEvent;
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -98,12 +98,12 @@ public class AllSoundEvents {
         }
 
         @Override
-        public @NotNull CompletableFuture<?> run(@NotNull CachedOutput cache) {
+        public @Nonnull CompletableFuture<?> run(@Nonnull CachedOutput cache) {
             return generate(output.getOutputFolder(), cache);
         }
 
         @Override
-        public @NotNull String getName() {
+        public @Nonnull String getName() {
             return SlagEmbers.NAME + "'s Custom Sounds";
         }
 

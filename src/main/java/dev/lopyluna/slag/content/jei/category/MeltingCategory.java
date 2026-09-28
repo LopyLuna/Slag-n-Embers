@@ -3,10 +3,11 @@ package dev.lopyluna.slag.content.jei.category;
 import com.mojang.serialization.Codec;
 import dev.lopyluna.slag.SlagEmbers;
 import dev.lopyluna.slag.content.AllUtils;
+import dev.lopyluna.slag.content.blocks.melter.MelterBE;
 import dev.lopyluna.slag.content.blocks.melter.MeltingRecipe;
 import dev.lopyluna.slag.content.jei.EmbersRecipesJEI;
 import dev.lopyluna.slag.register.AllBlocks;
-import dev.lopyluna.slag.register.AllTags;
+import dev.lopyluna.slag.register.AllLangs;
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
 import mezz.jei.api.gui.drawable.IDrawable;
 import mezz.jei.api.gui.widgets.IRecipeExtrasBuilder;
@@ -30,7 +31,7 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.neoforged.neoforge.fluids.FluidStack;
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.ArrayList;
@@ -41,6 +42,8 @@ import static dev.lopyluna.slag.content.blocks.crucible_interface.client.Interfa
 @SuppressWarnings("all")
 @ParametersAreNonnullByDefault
 public class MeltingCategory extends AbstractRecipeCategory<RecipeHolder<MeltingRecipe>> {
+    private static final int MIN_HEIGHT = 3;
+
     private final IDrawable tankBackground;
     private final IDrawable tankOverlay;
     private final IDrawable validHeaterSlot;
@@ -67,9 +70,10 @@ public class MeltingCategory extends AbstractRecipeCategory<RecipeHolder<Melting
                 .setStandardSlotBackground()
                 .addItemStacks(inputs);
 
-        builder.addSlot(RecipeIngredientRole.RENDER_ONLY, 20, 38)
+        builder.addSlot(RecipeIngredientRole.CATALYST, 20, 38)
                 .setBackground(validHeaterSlot, -2, -2)
-                .addItemStacks(AllUtils.getStacksFromTag(AllTags.MELTER_HEATER));
+                .addItemStacks(AllUtils.getHeaterStacks(recipe.temperature, recipe.heatType))
+                .addRichTooltipCallback((view, tooltip) -> tooltip.add(AllLangs.requires(recipe.temperature, recipe.heatType).withStyle(ChatFormatting.GRAY)));
 
         var fluids = getResultFluids(recipe);
 
@@ -81,20 +85,14 @@ public class MeltingCategory extends AbstractRecipeCategory<RecipeHolder<Melting
 
         int tankHeight = 48;
 
-        int filledHeight = getFilledHeight(totalMb, tankHeight);
+        int filledHeight = Math.max(getFilledHeight(totalMb, tankHeight), Math.min(tankHeight, fluids.size() * MIN_HEIGHT));
+        int[] heights = getHeights(fluids, totalMb, filledHeight);
 
-        float unit = (float) filledHeight / (float) totalMb;
-
-        int yBase = 3 + (tankHeight - filledHeight);
-        int yCur = yBase;
+        int yCur = 3 + (tankHeight - filledHeight);
 
         for (int i = 0; i < fluids.size(); i++) {
             var fluid = fluids.get(i);
-            int fluidHeight = Math.max(2, (int) (fluid.getAmount() * unit));
-
-            if (i == fluids.size() - 1) fluidHeight = Math.max(2, (yBase + filledHeight) - yCur);
-
-            if (fluidHeight < 2) continue;
+            int fluidHeight = heights[i];
 
             var fluidSlot = builder.addOutputSlot(83, yCur)
                     .setFluidRenderer(fluid.getAmount(), false, 24, fluidHeight)
@@ -131,6 +129,27 @@ public class MeltingCategory extends AbstractRecipeCategory<RecipeHolder<Melting
         }
     }
 
+    private static int[] getHeights(List<FluidStack> fluids, int totalMb, int filledHeight) {
+        var heights = new int[fluids.size()];
+        var sum = 0;
+        for (var i = 0; i < heights.length; i++) {
+            heights[i] = Math.max(MIN_HEIGHT, Math.round((float) fluids.get(i).getAmount() * filledHeight / totalMb));
+            sum += heights[i];
+        }
+        while (sum != filledHeight) {
+            var step = sum > filledHeight ? -1 : 1;
+            var best = -1;
+            for (var i = 0; i < heights.length; i++) {
+                if (step < 0 && heights[i] <= MIN_HEIGHT) continue;
+                if (best < 0 || heights[i] > heights[best]) best = i;
+            }
+            if (best < 0) break;
+            heights[best] += step;
+            sum += step;
+        }
+        return heights;
+    }
+
     private static int getFilledHeight(int totalMb, int tankHeight) {
         int maxCapacity = 2500;
         int tankCapacity;
@@ -163,7 +182,10 @@ public class MeltingCategory extends AbstractRecipeCategory<RecipeHolder<Melting
 
     @Override
     public void createRecipeExtras(IRecipeExtrasBuilder builder, RecipeHolder<MeltingRecipe> holder, IFocusGroup focuses) {
-        builder.addAnimatedRecipeArrow(200).setPosition(49, 17);
+        var recipe = holder.value();
+        var total = 0;
+        for (var fluid : recipe.getOutputs()) total += fluid.getAmount();
+        builder.addAnimatedRecipeArrow(MelterBE.meltingTicks(total, recipe.duration, recipe.speed)).setPosition(49, 17);
         builder.addAnimatedRecipeFlame(999999).setPosition(21, 20);
     }
 
@@ -176,7 +198,7 @@ public class MeltingCategory extends AbstractRecipeCategory<RecipeHolder<Melting
     @Override public ResourceLocation getRegistryName(RecipeHolder<MeltingRecipe> recipe) {
         return recipe.id();
     }
-    @Override public @NotNull Codec<RecipeHolder<MeltingRecipe>> getCodec(ICodecHelper helper, @NotNull IRecipeManager manager) {
+    @Override public @Nonnull Codec<RecipeHolder<MeltingRecipe>> getCodec(ICodecHelper helper, @Nonnull IRecipeManager manager) {
         return helper.getRecipeHolderCodec();
     }
 

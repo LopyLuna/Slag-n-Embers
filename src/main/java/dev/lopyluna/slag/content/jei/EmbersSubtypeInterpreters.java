@@ -5,14 +5,17 @@ import mezz.jei.api.ingredients.subtypes.ISubtypeInterpreter;
 import mezz.jei.api.ingredients.subtypes.UidContext;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.item.ItemStack;
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
 
 import javax.annotation.ParametersAreNonnullByDefault;
+import java.util.ArrayList;
+import java.util.Comparator;
 
 @SuppressWarnings("all")
 public class EmbersSubtypeInterpreters {
     public static final DynamicPartSubtype PART_INSTANCE = new DynamicPartSubtype();
     public static final ModularItemSubtype MODULAR_INSTANCE = new ModularItemSubtype();
+    public static final MoldSubtype MOLD_INSTANCE = new MoldSubtype();
 
     public static class DynamicPartSubtype extends SimpleInterpreterAdapter<ItemStack> {
         private DynamicPartSubtype() {
@@ -40,13 +43,11 @@ public class EmbersSubtypeInterpreters {
 
                 if (data == null || data.isEmpty()) return "";
 
-                var sb = new StringBuilder();
-                if (bakedId != null) sb.append("baked:").append(bakedId).append(';');
-
+                var parts = new ArrayList<String>();
                 for (var s : data.itemsCopy()) {
                     if (s.isEmpty()) continue;
-                    var id = BuiltInRegistries.ITEM.getKey(s.getItem());
-                    sb.append(id);
+                    var sb = new StringBuilder();
+                    sb.append(BuiltInRegistries.ITEM.getKey(s.getItem()));
 
                     var modularId = s.get(AllDataComponents.BUILT);
                     var materialId = s.get(AllDataComponents.MATERIAL_TYPE);
@@ -55,9 +56,23 @@ public class EmbersSubtypeInterpreters {
                     if (materialId != null) sb.append("[mat:").append(materialId).append("]");
                     if (partId != null) sb.append("[part:").append(partId).append("]");
 
-                    sb.append('#').append(s.getCount()).append(';');
+                    parts.add(sb.append('#').append(s.getCount()).append(';').toString());
                 }
-                return sb.toString();
+                parts.sort(Comparator.naturalOrder());
+
+                var uid = new StringBuilder();
+                if (bakedId != null) uid.append("baked:").append(bakedId).append(';');
+                for (var part : parts) uid.append(part);
+                return uid.toString();
+            });
+        }
+    }
+
+    public static class MoldSubtype extends SimpleInterpreterAdapter<ItemStack> {
+        private MoldSubtype() {
+            super((stack, ctx) -> {
+                var cast = stack.get(AllDataComponents.CAST_TYPE);
+                return cast == null ? "" : "cast:" + cast.location() + ';';
             });
         }
     }
@@ -72,7 +87,7 @@ public class EmbersSubtypeInterpreters {
             if (result.isEmpty()) return null;
             return result;
         }
-        @Override public @NotNull String getLegacyStringSubtypeInfo(T stack, UidContext ctx) { return interpreter.apply(stack, ctx); }
+        @Override public @Nonnull String getLegacyStringSubtypeInfo(T stack, UidContext ctx) { return interpreter.apply(stack, ctx); }
     }
     public interface IInterpreter<T> {
         String apply(T ingredient, UidContext context);

@@ -1,6 +1,5 @@
 package dev.lopyluna.slag.content.blocks;
 
-import dev.lopyluna.slag.SlagEmbers;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.ItemInteractionResult;
@@ -18,6 +17,7 @@ import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
+@SuppressWarnings("unused")
 public abstract class SimpleBE extends BlockEntity {
     public static List<SimpleBE> regCap = new ArrayList<>();
     private int maxTicker = 5;
@@ -28,7 +28,6 @@ public abstract class SimpleBE extends BlockEntity {
     }
 
     public void registerCapabilities(RegisterCapabilitiesEvent event) {
-        SlagEmbers.LOGGER.info("Registered Capabilities for {}", getBlockState().getBlock().getName().getString());
     }
 
     public void onRemoved(Level level, BlockPos pos, BlockState state) {

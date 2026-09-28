@@ -1,0 +1,22 @@
+{
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:not",
+      "value": {
+        "type": "neoforge:tag_empty",
+        "tag": "c:wires/aluminium"
+      }
+    }
+  ],
+  "type": "slag:melting",
+  "ingredient": {
+    "tag": "c:wires/aluminium"
+  },
+  "ingredients": [],
+  "result": [
+    {
+      "amount": 18,
+      "id": "slag:molten_aluminium"
+    }
+  ]
+}

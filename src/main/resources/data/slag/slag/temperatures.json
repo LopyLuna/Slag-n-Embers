@@ -1,0 +1,40 @@
+{
+  "minecraft:water": {"temperature": "COOL", "type": "NONE"},
+  "minecraft:water_cauldron": {"temperature": "COOL", "type": "NONE", "level": 3},
+  "minecraft:frosted_ice": {"temperature": "COOL", "type": "NONE"},
+  "minecraft:ice": {"temperature": "FREEZING", "type": "NONE"},
+  "minecraft:packed_ice": {"temperature": "FREEZING", "type": "NONE"},
+  "minecraft:blue_ice": {"temperature": "FREEZING", "type": "NONE"},
+  "minecraft:snow_block": {"temperature": "FREEZING", "type": "NONE"},
+  "minecraft:powder_snow": {"temperature": "FREEZING", "type": "NONE"},
+  "minecraft:powder_snow_cauldron": [
+    {"temperature": "COOL", "type": "NONE", "level": 2},
+    {"temperature": "FREEZING", "type": "NONE", "level": 3}
+  ],
+  "minecraft:snow": {"temperature": "COOL", "type": "NONE"},
+  "minecraft:campfire": {"temperature": "HEATED", "type": "ORANGE", "lit": true},
+  "minecraft:fire": {"temperature": "HEATED", "type": "ORANGE"},
+  "minecraft:lava_cauldron": {"temperature": "HEATED", "type": "ORANGE"},
+  "minecraft:magma_block": {"temperature": "SMOLDERING", "type": "ORANGE"},
+  "minecraft:soul_fire": {"temperature": "HEATED", "type": "CYAN"},
+  "minecraft:lava": {"temperature": "HEATED", "type": "ORANGE"},
+  "#slag:heated_fluids": {"temperature": "HEATED", "type": "ORANGE"},
+  "minecraft:soul_campfire": {"temperature": "HEATED", "type": "CYAN", "lit": true},
+  "create:lit_blaze_burner": [
+    {"temperature": "HEATED", "type": "ORANGE", "flame_type": "REGULAR"},
+    {"temperature": "HEATED", "type": "CYAN", "flame_type": "SOUL"}
+  ],
+  "create:blaze_burner": [
+    {"temperature": "SMOLDERING", "type": "ORANGE", "blaze": "SMOULDERING"},
+    {"temperature": "HEATED", "type": "ORANGE", "blaze": "FADING"},
+    {"temperature": "BLAZING", "type": "ORANGE", "blaze": "KINDLED"},
+    {"temperature": "BLAZING", "type": "TEAL", "blaze": "SEETHING"}
+  ],
+  "aeronautics:adjustable_burner": [
+    {"temperature": "HEATED", "type": "CYAN", "variant": "soulful", "powered": true},
+    {"temperature": "HEATED", "type": "ORANGE", "variant": "fire", "powered": true}
+  ],
+  "mekanism:resistive_heater": {"temperature": "HEATED", "type": "ORANGE", "active": true},
+  "immersiveengineering:furnace_heater": {"temperature": "HEATED", "type": "ORANGE", "active": true}
+}
+

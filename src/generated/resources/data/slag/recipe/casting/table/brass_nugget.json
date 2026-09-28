@@ -1,0 +1,20 @@
+{
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:not",
+      "value": {
+        "type": "neoforge:tag_empty",
+        "tag": "c:nuggets/brass"
+      }
+    }
+  ],
+  "type": "slag:table_casting",
+  "cast": "slag:cast/nuggets",
+  "ingredient": {
+    "amount": 8,
+    "tag": "c:molten/brass"
+  },
+  "result": {
+    "tag": "c:nuggets/brass"
+  }
+}

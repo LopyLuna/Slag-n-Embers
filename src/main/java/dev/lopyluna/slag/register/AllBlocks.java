@@ -5,6 +5,7 @@ import com.tterrag.registrate.util.entry.BlockEntry;
 import com.tterrag.registrate.util.entry.FluidEntry;
 import dev.lopyluna.slag.SlagEmbers;
 import dev.lopyluna.slag.content.blocks.basin.BasinBlock;
+import dev.lopyluna.slag.content.blocks.casting.CastItem;
 import dev.lopyluna.slag.content.blocks.crucible.CrucibleBlock;
 import dev.lopyluna.slag.content.blocks.crucible.CrucibleItem;
 import dev.lopyluna.slag.content.blocks.crucible_interface.InterfaceBlock;
@@ -14,6 +15,7 @@ import dev.lopyluna.slag.content.blocks.melter.MelterBE;
 import dev.lopyluna.slag.content.blocks.melter.MelterBlock;
 import dev.lopyluna.slag.content.blocks.table.TableBlock;
 import dev.lopyluna.slag.content.datagen.*;
+import dev.lopyluna.slag.content.temperature.Temperatures.Tiers;
 import dev.lopyluna.slag.content.utils.BlockHelper;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.data.recipes.RecipeCategory;
@@ -35,6 +37,7 @@ import net.minecraft.world.level.material.MapColor;
 import net.neoforged.neoforge.client.model.generators.ConfiguredModel;
 import net.neoforged.neoforge.client.model.generators.ModelFile;
 import net.neoforged.neoforge.common.Tags;
+import net.neoforged.neoforge.fluids.FluidStack;
 
 import java.util.function.Function;
 
@@ -57,6 +60,16 @@ public class AllBlocks {
             .build()
             .register();
 
+    public static final BlockEntry<Block> CAST_IRON_BLOCK = REG.block("cast_iron_block", Block::new)
+            .lang("Block of Cast Iron")
+            .initialProperties(() -> Blocks.IRON_BLOCK)
+            .properties(p -> p.sound(SoundType.NETHERITE_BLOCK).mapColor(MapColor.COLOR_GRAY).requiresCorrectToolForDrops())
+            .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.NEEDS_STONE_TOOL, BlockTags.BEACON_BASE_BLOCKS, AllTags.blockC("storage_blocks"), AllTags.blockC("storage_blocks/cast_iron"))
+            .item()
+            .tag(AllTags.itemC("storage_blocks"), AllTags.itemC("storage_blocks/cast_iron"))
+            .build()
+            .register();
+
     public static final BlockEntry<Block> DEEP_ALLOY_BLOCK = REG.block("deep_alloy_block", Block::new)
             .lang("Block of Deep Alloy")
             .initialProperties(() -> Blocks.GOLD_BLOCK)
@@ -68,8 +81,7 @@ public class AllBlocks {
             .register();
 
     public static final BlockEntry<CrucibleBlock> CRUCIBLE = REG.block("crucible", CrucibleBlock::new)
-            .initialProperties(() -> Blocks.CAULDRON)
-            .blockstate((c, p) -> p.getVariantBuilder(c.get()).forAllStates(state -> {
+            .blockstate((c, p) -> p.getVariantBuilder(c.get()).forAllStatesExcept(state -> {
                 Function<BlockState, ModelFile> modelFunc = s -> {
                     var model = getExistingModel(c, p,
                             switch (s.getValue(SHAPE)) { case PLAIN -> ""; case INNER -> "inner"; case NW -> "nw"; case SW -> "sw"; case NE -> "ne"; case SE -> "se"; case NORTH -> "north"; case SOUTH -> "south"; case WEST -> "west"; case EAST -> "east"; },
@@ -81,7 +93,7 @@ public class AllBlocks {
                     return s.getValue(WINDOW) ? wModel : model;
                 };
                 return ConfiguredModel.builder().modelFile(modelFunc.apply(state)).build();
-            })).properties(p -> p.sound(AllSoundTypes.CRUCIBLE).noOcclusion().mapColor(MapColor.COLOR_GRAY).requiresCorrectToolForDrops())
+            }, LIGHT)).properties(p -> p.strength(2.0F).sound(AllSoundTypes.CRUCIBLE).mapColor(MapColor.COLOR_GRAY).requiresCorrectToolForDrops())
             .recipe((c, p) -> {
                 ShapedRecipeBuilder.shaped(RecipeCategory.MISC, c.get(), 4)
                         .pattern("D D")
@@ -94,6 +106,12 @@ public class AllBlocks {
                         .unlockedBy("has_lava", has(Items.LAVA_BUCKET)).save(p, SlagEmbers.loc("alloying/molten_obsidian"));
                 AlloyingRecipeBuilder.create(AllFluids.MOLTEN_ROSE_GOLD.getSource(), MelterBE.NUGGET_SIZE * 2, fluid(AllFluids.MOLTEN_GOLD.getSource(), MelterBE.NUGGET_SIZE), fluid(AllFluids.MOLTEN_COPPER.getSource(), MelterBE.NUGGET_SIZE))
                         .unlockedBy("has_lava", has(Items.LAVA_BUCKET)).save(p, SlagEmbers.loc("alloying/molten_rose_gold"));
+                AlloyingRecipeBuilder.create(AllFluids.MOLTEN_ROSE_QUARTZ.getSource(), MelterBE.NUGGET_SIZE, fluid(AllFluids.MOLTEN_QUARTZ.getSource(), MelterBE.NUGGET_SIZE), fluid(AllFluids.MOLTEN_REDSTONE.getSource(), MelterBE.NUGGET_SIZE * 4))
+                        .unlockedBy("has_quartz", has(Tags.Items.GEMS_QUARTZ)).save(p.withConditions(AllTags.present(AllTags.ROSE_QUARTZ)), SlagEmbers.loc("alloying/molten_rose_quartz"));
+                alloy(p, AllFluids.MOLTEN_BRONZE, 4, Tiers.HEATED, false, "bronze", fluid(AllFluids.MOLTEN_COPPER.getSource(), MelterBE.NUGGET_SIZE * 3), "tin", fluid(AllFluids.MOLTEN_TIN.getSource(), MelterBE.NUGGET_SIZE));
+                alloy(p, AllFluids.MOLTEN_BRASS, 2, Tiers.BLAZING, true, "brass", fluid(AllFluids.MOLTEN_COPPER.getSource(), MelterBE.NUGGET_SIZE), "zinc", fluid(AllFluids.MOLTEN_ZINC.getSource(), MelterBE.NUGGET_SIZE));
+                alloy(p, AllFluids.MOLTEN_ELECTRUM, 2, Tiers.HEATED, false, "electrum", fluid(AllFluids.MOLTEN_GOLD.getSource(), MelterBE.NUGGET_SIZE), "silver", fluid(AllFluids.MOLTEN_SILVER.getSource(), MelterBE.NUGGET_SIZE));
+                alloy(p, AllFluids.MOLTEN_INVAR, 3, Tiers.BLAZING, false, "invar", fluid(AllFluids.MOLTEN_IRON.getSource(), MelterBE.NUGGET_SIZE * 2), "nickel", fluid(AllFluids.MOLTEN_NICKEL.getSource(), MelterBE.NUGGET_SIZE));
             })
             .addLayer(() -> RenderType::cutoutMipped)
             .tag(BlockTags.MINEABLE_WITH_PICKAXE)
@@ -128,19 +146,176 @@ public class AllBlocks {
                 create(p, "gem", "quartz", Items.QUARTZ, AllFluids.MOLTEN_QUARTZ, MelterBE.INGOT_SIZE, AllTags.CAST_GEMS);
                 create(p, "gem", "amethyst", Items.AMETHYST_SHARD, AllFluids.MOLTEN_AMETHYST, MelterBE.INGOT_SIZE, AllTags.CAST_GEMS);
                 create(p, "gem", "prismarine", Items.PRISMARINE_CRYSTALS, AllFluids.MOLTEN_PRISMARINE, MelterBE.INGOT_SIZE, AllTags.CAST_GEMS);
+                create(p, "gem", "echo", Items.ECHO_SHARD, AllFluids.MOLTEN_ECHO, MelterBE.INGOT_SIZE, AllTags.CAST_GEMS);
+                createTag(p, "gem", "rose_quartz", AllFluids.MOLTEN_ROSE_QUARTZ, MelterBE.INGOT_SIZE, AllTags.CAST_GEMS);
+                TableCastingRecipeBuilder.create(AllTags.POLISHED_ROSE_QUARTZ, 1, AllFluids.MOLTEN_ROSE_QUARTZ.getSource(), MelterBE.INGOT_SIZE, AllTags.CAST_INGOTS)
+                        .unlockedBy("has_rose_quartz", has(AllTags.ROSE_QUARTZ)).save(p.withConditions(AllTags.present(AllTags.POLISHED_ROSE_QUARTZ)), SlagEmbers.loc("casting/table/polished_rose_quartz"));
 
                 create(p, "dust", "redstone", Items.REDSTONE, AllFluids.MOLTEN_REDSTONE, MelterBE.INGOT_SIZE, AllTags.CAST_DUSTS);
+                create(p, "dust", "glowstone", Items.GLOWSTONE_DUST, AllFluids.MOLTEN_GLOWSTONE, MelterBE.INGOT_SIZE, AllTags.CAST_DUSTS);
 
                 create(p, "nugget", "gold", Items.GOLD_NUGGET, AllFluids.MOLTEN_GOLD, MelterBE.NUGGET_SIZE, AllTags.CAST_NUGGETS);
                 create(p, "nugget", "iron", Items.IRON_NUGGET, AllFluids.MOLTEN_IRON, MelterBE.NUGGET_SIZE, AllTags.CAST_NUGGETS);
                 create(p, "nugget", "rose_gold", AllItems.ROSE_GOLD_NUGGET.get(), AllFluids.MOLTEN_ROSE_GOLD, MelterBE.NUGGET_SIZE, AllTags.CAST_NUGGETS);
+                createTag(p, "nugget", "copper", AllFluids.MOLTEN_COPPER, MelterBE.NUGGET_SIZE, AllTags.CAST_NUGGETS);
+                createTag(p, "nugget", "netherite", AllFluids.MOLTEN_NETHERITE, MelterBE.NUGGET_SIZE, AllTags.CAST_NUGGETS);
 
+                createTag(p, "dust", "copper", AllFluids.MOLTEN_COPPER, MelterBE.INGOT_SIZE, AllTags.CAST_DUSTS);
+                createTag(p, "dust", "gold", AllFluids.MOLTEN_GOLD, MelterBE.INGOT_SIZE, AllTags.CAST_DUSTS);
+                createTag(p, "dust", "iron", AllFluids.MOLTEN_IRON, MelterBE.INGOT_SIZE, AllTags.CAST_DUSTS);
+                createTag(p, "dust", "netherite", AllFluids.MOLTEN_NETHERITE, MelterBE.INGOT_SIZE, AllTags.CAST_DUSTS);
+                createTag(p, "dust", "diamond", AllFluids.MOLTEN_DIAMOND, MelterBE.INGOT_SIZE, AllTags.CAST_DUSTS);
+                createTag(p, "dust", "emerald", AllFluids.MOLTEN_EMERALD, MelterBE.INGOT_SIZE, AllTags.CAST_DUSTS);
+                createTag(p, "dust", "lapis", AllFluids.MOLTEN_LAPIS, MelterBE.INGOT_SIZE, AllTags.CAST_DUSTS);
+                createTag(p, "dust", "quartz", AllFluids.MOLTEN_QUARTZ, MelterBE.INGOT_SIZE, AllTags.CAST_DUSTS);
+                createTag(p, "dust", "amethyst", AllFluids.MOLTEN_AMETHYST, MelterBE.INGOT_SIZE, AllTags.CAST_DUSTS);
+                createTag(p, "dust", "prismarine", AllFluids.MOLTEN_PRISMARINE, MelterBE.INGOT_SIZE, AllTags.CAST_DUSTS);
+
+                createTag(p, "rod", "copper", AllFluids.MOLTEN_COPPER, MelterBE.INGOT_SIZE / 2, AllTags.CAST_RODS);
+                createTag(p, "rod", "gold", AllFluids.MOLTEN_GOLD, MelterBE.INGOT_SIZE / 2, AllTags.CAST_RODS);
+                createTag(p, "rod", "iron", AllFluids.MOLTEN_IRON, MelterBE.INGOT_SIZE / 2, AllTags.CAST_RODS);
+                createTag(p, "rod", "netherite", AllFluids.MOLTEN_NETHERITE, MelterBE.INGOT_SIZE / 2, AllTags.CAST_RODS);
+                createTag(p, "rod", "diamond", AllFluids.MOLTEN_DIAMOND, MelterBE.INGOT_SIZE / 2, AllTags.CAST_RODS);
+                createTag(p, "rod", "emerald", AllFluids.MOLTEN_EMERALD, MelterBE.INGOT_SIZE / 2, AllTags.CAST_RODS);
+                createTag(p, "rod", "lapis", AllFluids.MOLTEN_LAPIS, MelterBE.INGOT_SIZE / 2, AllTags.CAST_RODS);
+                createTag(p, "rod", "quartz", AllFluids.MOLTEN_QUARTZ, MelterBE.INGOT_SIZE / 2, AllTags.CAST_RODS);
+                createTag(p, "rod", "amethyst", AllFluids.MOLTEN_AMETHYST, MelterBE.INGOT_SIZE / 2, AllTags.CAST_RODS);
+                createTag(p, "rod", "prismarine", AllFluids.MOLTEN_PRISMARINE, MelterBE.INGOT_SIZE / 2, AllTags.CAST_RODS);
+
+                createTag(p, "ingot", "aluminium", AllFluids.MOLTEN_ALUMINIUM, MelterBE.INGOT_SIZE, AllTags.CAST_INGOTS);
+                createTag(p, "nugget", "aluminium", AllFluids.MOLTEN_ALUMINIUM, MelterBE.NUGGET_SIZE, AllTags.CAST_NUGGETS);
+                createTag(p, "dust", "aluminium", AllFluids.MOLTEN_ALUMINIUM, MelterBE.INGOT_SIZE, AllTags.CAST_DUSTS);
+                createTag(p, "rod", "aluminium", AllFluids.MOLTEN_ALUMINIUM, MelterBE.INGOT_SIZE / 2, AllTags.CAST_RODS);
+                createTag(p, "ingot", "brass", AllFluids.MOLTEN_BRASS, MelterBE.INGOT_SIZE, AllTags.CAST_INGOTS);
+                createTag(p, "nugget", "brass", AllFluids.MOLTEN_BRASS, MelterBE.NUGGET_SIZE, AllTags.CAST_NUGGETS);
+                createTag(p, "dust", "brass", AllFluids.MOLTEN_BRASS, MelterBE.INGOT_SIZE, AllTags.CAST_DUSTS);
+                createTag(p, "rod", "brass", AllFluids.MOLTEN_BRASS, MelterBE.INGOT_SIZE / 2, AllTags.CAST_RODS);
+                createTag(p, "ingot", "bronze", AllFluids.MOLTEN_BRONZE, MelterBE.INGOT_SIZE, AllTags.CAST_INGOTS);
+                createTag(p, "nugget", "bronze", AllFluids.MOLTEN_BRONZE, MelterBE.NUGGET_SIZE, AllTags.CAST_NUGGETS);
+                createTag(p, "dust", "bronze", AllFluids.MOLTEN_BRONZE, MelterBE.INGOT_SIZE, AllTags.CAST_DUSTS);
+                createTag(p, "rod", "bronze", AllFluids.MOLTEN_BRONZE, MelterBE.INGOT_SIZE / 2, AllTags.CAST_RODS);
+                createTag(p, "ingot", "cast_iron", AllFluids.MOLTEN_CAST_IRON, MelterBE.INGOT_SIZE, AllTags.CAST_INGOTS);
+                createTag(p, "nugget", "cast_iron", AllFluids.MOLTEN_CAST_IRON, MelterBE.NUGGET_SIZE, AllTags.CAST_NUGGETS);
+                createTag(p, "dust", "cast_iron", AllFluids.MOLTEN_CAST_IRON, MelterBE.INGOT_SIZE, AllTags.CAST_DUSTS);
+                createTag(p, "rod", "cast_iron", AllFluids.MOLTEN_CAST_IRON, MelterBE.INGOT_SIZE / 2, AllTags.CAST_RODS);
+                createTag(p, "ingot", "electrum", AllFluids.MOLTEN_ELECTRUM, MelterBE.INGOT_SIZE, AllTags.CAST_INGOTS);
+                createTag(p, "nugget", "electrum", AllFluids.MOLTEN_ELECTRUM, MelterBE.NUGGET_SIZE, AllTags.CAST_NUGGETS);
+                createTag(p, "dust", "electrum", AllFluids.MOLTEN_ELECTRUM, MelterBE.INGOT_SIZE, AllTags.CAST_DUSTS);
+                createTag(p, "rod", "electrum", AllFluids.MOLTEN_ELECTRUM, MelterBE.INGOT_SIZE / 2, AllTags.CAST_RODS);
+                createTag(p, "ingot", "invar", AllFluids.MOLTEN_INVAR, MelterBE.INGOT_SIZE, AllTags.CAST_INGOTS);
+                createTag(p, "nugget", "invar", AllFluids.MOLTEN_INVAR, MelterBE.NUGGET_SIZE, AllTags.CAST_NUGGETS);
+                createTag(p, "dust", "invar", AllFluids.MOLTEN_INVAR, MelterBE.INGOT_SIZE, AllTags.CAST_DUSTS);
+                createTag(p, "rod", "invar", AllFluids.MOLTEN_INVAR, MelterBE.INGOT_SIZE / 2, AllTags.CAST_RODS);
+                createTag(p, "ingot", "lead", AllFluids.MOLTEN_LEAD, MelterBE.INGOT_SIZE, AllTags.CAST_INGOTS);
+                createTag(p, "nugget", "lead", AllFluids.MOLTEN_LEAD, MelterBE.NUGGET_SIZE, AllTags.CAST_NUGGETS);
+                createTag(p, "dust", "lead", AllFluids.MOLTEN_LEAD, MelterBE.INGOT_SIZE, AllTags.CAST_DUSTS);
+                createTag(p, "rod", "lead", AllFluids.MOLTEN_LEAD, MelterBE.INGOT_SIZE / 2, AllTags.CAST_RODS);
+                createTag(p, "ingot", "nickel", AllFluids.MOLTEN_NICKEL, MelterBE.INGOT_SIZE, AllTags.CAST_INGOTS);
+                createTag(p, "nugget", "nickel", AllFluids.MOLTEN_NICKEL, MelterBE.NUGGET_SIZE, AllTags.CAST_NUGGETS);
+                createTag(p, "dust", "nickel", AllFluids.MOLTEN_NICKEL, MelterBE.INGOT_SIZE, AllTags.CAST_DUSTS);
+                createTag(p, "rod", "nickel", AllFluids.MOLTEN_NICKEL, MelterBE.INGOT_SIZE / 2, AllTags.CAST_RODS);
+                createTag(p, "ingot", "osmium", AllFluids.MOLTEN_OSMIUM, MelterBE.INGOT_SIZE, AllTags.CAST_INGOTS);
+                createTag(p, "nugget", "osmium", AllFluids.MOLTEN_OSMIUM, MelterBE.NUGGET_SIZE, AllTags.CAST_NUGGETS);
+                createTag(p, "dust", "osmium", AllFluids.MOLTEN_OSMIUM, MelterBE.INGOT_SIZE, AllTags.CAST_DUSTS);
+                createTag(p, "rod", "osmium", AllFluids.MOLTEN_OSMIUM, MelterBE.INGOT_SIZE / 2, AllTags.CAST_RODS);
+                createTag(p, "ingot", "platinum", AllFluids.MOLTEN_PLATINUM, MelterBE.INGOT_SIZE, AllTags.CAST_INGOTS);
+                createTag(p, "nugget", "platinum", AllFluids.MOLTEN_PLATINUM, MelterBE.NUGGET_SIZE, AllTags.CAST_NUGGETS);
+                createTag(p, "dust", "platinum", AllFluids.MOLTEN_PLATINUM, MelterBE.INGOT_SIZE, AllTags.CAST_DUSTS);
+                createTag(p, "rod", "platinum", AllFluids.MOLTEN_PLATINUM, MelterBE.INGOT_SIZE / 2, AllTags.CAST_RODS);
+                createTag(p, "ingot", "silver", AllFluids.MOLTEN_SILVER, MelterBE.INGOT_SIZE, AllTags.CAST_INGOTS);
+                createTag(p, "nugget", "silver", AllFluids.MOLTEN_SILVER, MelterBE.NUGGET_SIZE, AllTags.CAST_NUGGETS);
+                createTag(p, "dust", "silver", AllFluids.MOLTEN_SILVER, MelterBE.INGOT_SIZE, AllTags.CAST_DUSTS);
+                createTag(p, "rod", "silver", AllFluids.MOLTEN_SILVER, MelterBE.INGOT_SIZE / 2, AllTags.CAST_RODS);
+                createTag(p, "ingot", "steel", AllFluids.MOLTEN_STEEL, MelterBE.INGOT_SIZE, AllTags.CAST_INGOTS);
+                createTag(p, "nugget", "steel", AllFluids.MOLTEN_STEEL, MelterBE.NUGGET_SIZE, AllTags.CAST_NUGGETS);
+                createTag(p, "dust", "steel", AllFluids.MOLTEN_STEEL, MelterBE.INGOT_SIZE, AllTags.CAST_DUSTS);
+                createTag(p, "rod", "steel", AllFluids.MOLTEN_STEEL, MelterBE.INGOT_SIZE / 2, AllTags.CAST_RODS);
+                createTag(p, "ingot", "tin", AllFluids.MOLTEN_TIN, MelterBE.INGOT_SIZE, AllTags.CAST_INGOTS);
+                createTag(p, "nugget", "tin", AllFluids.MOLTEN_TIN, MelterBE.NUGGET_SIZE, AllTags.CAST_NUGGETS);
+                createTag(p, "dust", "tin", AllFluids.MOLTEN_TIN, MelterBE.INGOT_SIZE, AllTags.CAST_DUSTS);
+                createTag(p, "rod", "tin", AllFluids.MOLTEN_TIN, MelterBE.INGOT_SIZE / 2, AllTags.CAST_RODS);
+                createTag(p, "ingot", "tungsten", AllFluids.MOLTEN_TUNGSTEN, MelterBE.INGOT_SIZE, AllTags.CAST_INGOTS);
+                createTag(p, "nugget", "tungsten", AllFluids.MOLTEN_TUNGSTEN, MelterBE.NUGGET_SIZE, AllTags.CAST_NUGGETS);
+                createTag(p, "dust", "tungsten", AllFluids.MOLTEN_TUNGSTEN, MelterBE.INGOT_SIZE, AllTags.CAST_DUSTS);
+                createTag(p, "rod", "tungsten", AllFluids.MOLTEN_TUNGSTEN, MelterBE.INGOT_SIZE / 2, AllTags.CAST_RODS);
+                createTag(p, "ingot", "zinc", AllFluids.MOLTEN_ZINC, MelterBE.INGOT_SIZE, AllTags.CAST_INGOTS);
+                createTag(p, "nugget", "zinc", AllFluids.MOLTEN_ZINC, MelterBE.NUGGET_SIZE, AllTags.CAST_NUGGETS);
+                createTag(p, "dust", "zinc", AllFluids.MOLTEN_ZINC, MelterBE.INGOT_SIZE, AllTags.CAST_DUSTS);
+                createTag(p, "rod", "zinc", AllFluids.MOLTEN_ZINC, MelterBE.INGOT_SIZE / 2, AllTags.CAST_RODS);
+
+                TableCastingRecipeBuilder.create(Items.IRON_BARS, AllFluids.MOLTEN_IRON.getSource(), MelterBE.INGOT_SIZE * 3 / 8)
+                        .unlockedBy("has_iron", has(AllTags.itemC("ingots/iron"))).save(p, SlagEmbers.loc("casting/table/iron_bars"));
+                TableCastingRecipeBuilder.create(AllTags.BARS_COPPER, 1, AllFluids.MOLTEN_COPPER.getSource(), MelterBE.INGOT_SIZE / 4)
+                        .unlockedBy("has_copper", has(AllTags.itemC("ingots/copper"))).save(p.withConditions(AllTags.present(AllTags.BARS_COPPER)), SlagEmbers.loc("casting/table/copper_bars"));
+                TableCastingRecipeBuilder.create(AllTags.BARS_BRASS, 1, AllFluids.MOLTEN_BRASS.getSource(), MelterBE.INGOT_SIZE / 4)
+                        .unlockedBy("has_brass", has(AllTags.itemC("ingots/brass"))).save(p.withConditions(AllTags.present(AllTags.BARS_BRASS)), SlagEmbers.loc("casting/table/brass_bars"));
+
+                stone(p, Items.GRANITE, Ingredient.of(Items.DIORITE), "granite");
+                stone(p, Items.DIORITE, Ingredient.of(Tags.Items.COBBLESTONES), "diorite");
+                stone(p, Items.ANDESITE, Ingredient.of(Items.STONE), "andesite");
+
+                TableCastingRecipeBuilder.create(Items.WET_SPONGE, Fluids.WATER, 1000).duration(60)
+                        .castItem(CastItem.of(Ingredient.of(Items.SPONGE), CastItem.Mode.CONSUME))
+                        .unlockedBy("has_sponge", has(Items.SPONGE)).save(p, SlagEmbers.loc("casting/table/wet_sponge"));
+
+                TableCastingRecipeBuilder.create(AllTags.ROSE_QUARTZ, 1, AllFluids.MOLTEN_REDSTONE.getSource(), MelterBE.INGOT_SIZE * 4)
+                        .castItem(CastItem.of(Ingredient.of(Tags.Items.GEMS_QUARTZ), CastItem.Mode.CONSUME))
+                        .unlockedBy("has_quartz", has(Tags.Items.GEMS_QUARTZ)).save(p.withConditions(AllTags.present(AllTags.ROSE_QUARTZ)), SlagEmbers.loc("casting/table/rose_quartz"));
+
+                andesite(p, AllFluids.MOLTEN_ZINC.getSource(), "zinc");
+                andesite(p, AllFluids.MOLTEN_IRON.getSource(), "iron");
+
+                gold(p, Items.GOLDEN_APPLE, Items.APPLE, MelterBE.INGOT_SIZE * 8, "golden_apple");
+                gold(p, Items.GOLDEN_CARROT, Items.CARROT, MelterBE.NUGGET_SIZE * 8, "golden_carrot");
+                gold(p, Items.GLISTERING_MELON_SLICE, Items.MELON_SLICE, MelterBE.NUGGET_SIZE * 8, "glistering_melon_slice");
             })
             .addLayer(() -> RenderType::cutoutMipped)
             .item()
             .model((c, p) -> p.withExistingParent("item/" + c.getName(), p.modLoc("block/table")))
             .build()
             .register();
+
+    private static void alloy(RegistrateRecipeProvider p, FluidEntry<?> result, int nuggets, Tiers temperature, boolean strict, String name, FluidStack base, String metal, FluidStack added) {
+        var builder = AlloyingRecipeBuilder.create(result.getSource(), MelterBE.NUGGET_SIZE * nuggets, base, added).temperature(temperature);
+        if (strict) builder.strict();
+        builder.unlockedBy("has_lava", has(Items.LAVA_BUCKET)).save(p.withConditions(AllTags.present(AllTags.itemC("ingots/" + name)), AllTags.present(AllTags.itemC("ingots/" + metal))), SlagEmbers.loc("alloying/molten_" + name));
+    }
+
+    public static void andesite(RegistrateRecipeProvider p, Fluid fluid, String metal) {
+        TableCastingRecipeBuilder.create(AllTags.ANDESITE_ALLOY, 1, fluid, MelterBE.NUGGET_SIZE)
+                .castItem(CastItem.of(Ingredient.of(Items.ANDESITE), CastItem.Mode.CONSUME))
+                .unlockedBy("has_andesite", has(Items.ANDESITE)).save(p.withConditions(AllTags.present(AllTags.ANDESITE_ALLOY)), SlagEmbers.loc("casting/table/andesite_alloy_" + metal));
+    }
+
+    public static void gold(RegistrateRecipeProvider p, Item result, Item input, int mb, String name) {
+        TableCastingRecipeBuilder.create(result, AllFluids.MOLTEN_GOLD.getSource(), mb)
+                .castItem(CastItem.of(Ingredient.of(input), CastItem.Mode.CONSUME))
+                .unlockedBy("has_gold", has(AllTags.itemC("ingots/gold"))).save(p, SlagEmbers.loc("casting/table/" + name));
+    }
+
+    public static void soak(RegistrateRecipeProvider p, Item result, Ingredient input, Fluid fluid, int mb, String name) {
+        BasinCastingRecipeBuilder.create(result, 1, fluid, mb)
+                .castItem(CastItem.of(input, CastItem.Mode.CONSUME))
+                .unlockedBy("has_basin", has(BASIN.get())).save(p, SlagEmbers.loc("casting/basin/" + name));
+    }
+
+    public static void stone(RegistrateRecipeProvider p, Item result, Ingredient input, String name) {
+        TableCastingRecipeBuilder.create(result, AllFluids.MOLTEN_QUARTZ.getSource(), MelterBE.INGOT_SIZE)
+                .castItem(CastItem.of(input, CastItem.Mode.CONSUME))
+                .unlockedBy("has_quartz", has(Tags.Items.GEMS_QUARTZ)).save(p, SlagEmbers.loc("casting/table/" + name));
+    }
+
+    public static void createTag(RegistrateRecipeProvider p, String key, String type, FluidEntry<?> fluid, int mb, TagKey<Item> castType) {
+        var result = AllTags.itemC(key + "s/" + type);
+        TableCastingRecipeBuilder.create(result, 1, fluid.getSource(), mb, castType)
+                .unlockedBy("has_" + key, has(result)).save(p.withConditions(AllTags.present(result)), SlagEmbers.loc("casting/table/" + type + "_" + key));
+    }
+
+    public static void createTagBlock(RegistrateRecipeProvider p, String type, FluidEntry<?> fluid) {
+        var result = AllTags.itemC("storage_blocks/" + type);
+        BasinCastingRecipeBuilder.create(result, 1, fluid.getSource(), MelterBE.BLOCK_SIZE)
+                .unlockedBy("has_block", has(result)).save(p.withConditions(AllTags.present(result)), SlagEmbers.loc("casting/basin/" + type + "_block"));
+    }
 
     public static void create(RegistrateRecipeProvider p, String key, String type, Item result, FluidEntry<?> fluid, int mb, TagKey<Item> castType) {
         create(p, key, type, result, fluid.getSource(), mb, castType);
@@ -173,6 +348,7 @@ public class AllBlocks {
                 BasinCastingRecipeBuilder.create(Items.COPPER_BLOCK, 1, AllFluids.MOLTEN_COPPER.getSource(), MelterBE.BLOCK_SIZE).unlockedBy("has_block", has(AllTags.COPPER_BLOCKS)).save(p, SlagEmbers.loc("casting/basin/copper_block"));
                 BasinCastingRecipeBuilder.create(Items.DIAMOND_BLOCK, 1, AllFluids.MOLTEN_DIAMOND.getSource(), MelterBE.BLOCK_SIZE).unlockedBy("has_block", has(AllTags.itemC("storage_blocks/diamond"))).save(p, SlagEmbers.loc("casting/basin/diamond_block"));
                 BasinCastingRecipeBuilder.create(Items.EMERALD_BLOCK, 1, AllFluids.MOLTEN_EMERALD.getSource(), MelterBE.BLOCK_SIZE).unlockedBy("has_block", has(AllTags.itemC("storage_blocks/emerald"))).save(p, SlagEmbers.loc("casting/basin/emerald_block"));
+                BasinCastingRecipeBuilder.create(Items.GLOWSTONE, 1, AllFluids.MOLTEN_GLOWSTONE.getSource(), MelterBE.SMALL_BLOCK_SIZE).unlockedBy("has_block", has(Items.GLOWSTONE)).save(p, SlagEmbers.loc("casting/basin/glowstone"));
                 BasinCastingRecipeBuilder.create(Items.GOLD_BLOCK, 1, AllFluids.MOLTEN_GOLD.getSource(), MelterBE.BLOCK_SIZE).unlockedBy("has_block", has(AllTags.itemC("storage_blocks/gold"))).save(p, SlagEmbers.loc("casting/basin/gold_block"));
                 BasinCastingRecipeBuilder.create(Items.IRON_BLOCK, 1, AllFluids.MOLTEN_IRON.getSource(), MelterBE.BLOCK_SIZE).unlockedBy("has_block", has(AllTags.itemC("storage_blocks/iron"))).save(p, SlagEmbers.loc("casting/basin/iron_block"));
                 BasinCastingRecipeBuilder.create(Items.LAPIS_BLOCK, 1, AllFluids.MOLTEN_LAPIS.getSource(), MelterBE.BLOCK_SIZE).unlockedBy("has_block", has(AllTags.itemC("storage_blocks/lapis"))).save(p, SlagEmbers.loc("casting/basin/lapis_block"));
@@ -182,6 +358,29 @@ public class AllBlocks {
                 BasinCastingRecipeBuilder.create(ROSE_GOLD_BLOCK.asItem(), 1, AllFluids.MOLTEN_ROSE_GOLD.getSource(), MelterBE.BLOCK_SIZE).unlockedBy("has_block", has(AllTags.itemC("storage_blocks/rose_gold"))).save(p, SlagEmbers.loc("casting/basin/rose_gold_block"));
 
                 BasinCastingRecipeBuilder.create(Items.OBSIDIAN, 1, AllFluids.MOLTEN_OBSIDIAN.getSource(), MelterBE.BLOCK_SIZE).unlockedBy("has_block", has(Tags.Items.OBSIDIANS)).save(p, SlagEmbers.loc("casting/basin/obsidian"));
+
+                soak(p, Items.TINTED_GLASS, Ingredient.of(Tags.Items.GLASS_BLOCKS_COLORLESS), AllFluids.MOLTEN_AMETHYST.getSource(), MelterBE.INGOT_SIZE * 2, "tinted_glass");
+                soak(p, Items.REDSTONE_LAMP, Ingredient.of(Items.GLOWSTONE), AllFluids.MOLTEN_REDSTONE.getSource(), MelterBE.INGOT_SIZE * 4, "redstone_lamp");
+                soak(p, Items.MUD, Ingredient.of(Items.DIRT), Fluids.WATER, 250, "mud");
+                soak(p, Items.STONE, Ingredient.of(Items.COBBLESTONE), Fluids.LAVA, 50, "stone");
+                soak(p, Items.DEEPSLATE, Ingredient.of(Items.COBBLED_DEEPSLATE), Fluids.LAVA, 50, "deepslate");
+                soak(p, Items.GLASS, Ingredient.of(ItemTags.SAND), Fluids.LAVA, 50, "glass");
+
+                createTagBlock(p, "aluminium", AllFluids.MOLTEN_ALUMINIUM);
+                createTagBlock(p, "brass", AllFluids.MOLTEN_BRASS);
+                createTagBlock(p, "bronze", AllFluids.MOLTEN_BRONZE);
+                createTagBlock(p, "cast_iron", AllFluids.MOLTEN_CAST_IRON);
+                createTagBlock(p, "electrum", AllFluids.MOLTEN_ELECTRUM);
+                createTagBlock(p, "invar", AllFluids.MOLTEN_INVAR);
+                createTagBlock(p, "lead", AllFluids.MOLTEN_LEAD);
+                createTagBlock(p, "nickel", AllFluids.MOLTEN_NICKEL);
+                createTagBlock(p, "osmium", AllFluids.MOLTEN_OSMIUM);
+                createTagBlock(p, "platinum", AllFluids.MOLTEN_PLATINUM);
+                createTagBlock(p, "silver", AllFluids.MOLTEN_SILVER);
+                createTagBlock(p, "steel", AllFluids.MOLTEN_STEEL);
+                createTagBlock(p, "tin", AllFluids.MOLTEN_TIN);
+                createTagBlock(p, "tungsten", AllFluids.MOLTEN_TUNGSTEN);
+                createTagBlock(p, "zinc", AllFluids.MOLTEN_ZINC);
             })
             .addLayer(() -> RenderType::cutoutMipped)
             .item()
@@ -215,97 +414,10 @@ public class AllBlocks {
                         .define('A', AllTags.itemC("ingots/deep_alloy")).define('R', AllTags.itemC("ingots/rose_gold")).define('D', DRAIN.get())
                         .unlockedBy("has_deep_alloy", has(AllTags.itemC("ingots/deep_alloy"))).save(p, SlagEmbers.loc("crafting/" + c.getName()));
 
-                MeltingRecipeBuilder.create(p, AllFluids.MOLTEN_NETHERITE.getSource(), MelterBE.INGOT_SIZE, Items.NETHERITE_HELMET);
-                MeltingRecipeBuilder.create(p, AllFluids.MOLTEN_NETHERITE.getSource(), MelterBE.INGOT_SIZE, Items.NETHERITE_CHESTPLATE);
-                MeltingRecipeBuilder.create(p, AllFluids.MOLTEN_NETHERITE.getSource(), MelterBE.INGOT_SIZE, Items.NETHERITE_LEGGINGS);
-                MeltingRecipeBuilder.create(p, AllFluids.MOLTEN_NETHERITE.getSource(), MelterBE.INGOT_SIZE, Items.NETHERITE_BOOTS);
-                MeltingRecipeBuilder.create(p, AllFluids.MOLTEN_NETHERITE.getSource(), MelterBE.INGOT_SIZE, Items.NETHERITE_SWORD);
-                MeltingRecipeBuilder.create(p, AllFluids.MOLTEN_NETHERITE.getSource(), MelterBE.INGOT_SIZE, Items.NETHERITE_PICKAXE);
-                MeltingRecipeBuilder.create(p, AllFluids.MOLTEN_NETHERITE.getSource(), MelterBE.INGOT_SIZE, Items.NETHERITE_AXE);
-                MeltingRecipeBuilder.create(p, AllFluids.MOLTEN_NETHERITE.getSource(), MelterBE.INGOT_SIZE, Items.NETHERITE_SHOVEL);
-                MeltingRecipeBuilder.create(p, AllFluids.MOLTEN_NETHERITE.getSource(), MelterBE.INGOT_SIZE, Items.NETHERITE_HOE);
-
-                MeltingRecipeBuilder.create(p, AllFluids.MOLTEN_DIAMOND.getSource(), MelterBE.INGOT_SIZE * 5, Items.DIAMOND_HELMET);
-                MeltingRecipeBuilder.create(p, AllFluids.MOLTEN_DIAMOND.getSource(), MelterBE.INGOT_SIZE * 8, Items.DIAMOND_CHESTPLATE);
-                MeltingRecipeBuilder.create(p, AllFluids.MOLTEN_DIAMOND.getSource(), MelterBE.INGOT_SIZE * 7, Items.DIAMOND_LEGGINGS);
-                MeltingRecipeBuilder.create(p, AllFluids.MOLTEN_DIAMOND.getSource(), MelterBE.INGOT_SIZE * 4, Items.DIAMOND_BOOTS);
-                MeltingRecipeBuilder.create(p, AllFluids.MOLTEN_DIAMOND.getSource(), MelterBE.INGOT_SIZE * 2, Items.DIAMOND_SWORD);
-                MeltingRecipeBuilder.create(p, AllFluids.MOLTEN_DIAMOND.getSource(), MelterBE.INGOT_SIZE * 3, Items.DIAMOND_PICKAXE);
-                MeltingRecipeBuilder.create(p, AllFluids.MOLTEN_DIAMOND.getSource(), MelterBE.INGOT_SIZE * 3, Items.DIAMOND_AXE);
-                MeltingRecipeBuilder.create(p, AllFluids.MOLTEN_DIAMOND.getSource(), MelterBE.INGOT_SIZE, Items.DIAMOND_SHOVEL);
-                MeltingRecipeBuilder.create(p, AllFluids.MOLTEN_DIAMOND.getSource(), MelterBE.INGOT_SIZE * 2, Items.DIAMOND_HOE);
-
-                MeltingRecipeBuilder.create(p, AllFluids.MOLTEN_GOLD.getSource(), MelterBE.INGOT_SIZE * 5, Items.GOLDEN_HELMET);
-                MeltingRecipeBuilder.create(p, AllFluids.MOLTEN_GOLD.getSource(), MelterBE.INGOT_SIZE * 8, Items.GOLDEN_CHESTPLATE);
-                MeltingRecipeBuilder.create(p, AllFluids.MOLTEN_GOLD.getSource(), MelterBE.INGOT_SIZE * 7, Items.GOLDEN_LEGGINGS);
-                MeltingRecipeBuilder.create(p, AllFluids.MOLTEN_GOLD.getSource(), MelterBE.INGOT_SIZE * 4, Items.GOLDEN_BOOTS);
-                MeltingRecipeBuilder.create(p, AllFluids.MOLTEN_GOLD.getSource(), MelterBE.INGOT_SIZE * 2, Items.GOLDEN_SWORD);
-                MeltingRecipeBuilder.create(p, AllFluids.MOLTEN_GOLD.getSource(), MelterBE.INGOT_SIZE * 3, Items.GOLDEN_PICKAXE);
-                MeltingRecipeBuilder.create(p, AllFluids.MOLTEN_GOLD.getSource(), MelterBE.INGOT_SIZE * 3, Items.GOLDEN_AXE);
-                MeltingRecipeBuilder.create(p, AllFluids.MOLTEN_GOLD.getSource(), MelterBE.INGOT_SIZE, Items.GOLDEN_SHOVEL);
-                MeltingRecipeBuilder.create(p, AllFluids.MOLTEN_GOLD.getSource(), MelterBE.INGOT_SIZE * 2, Items.GOLDEN_HOE);
-
-                MeltingRecipeBuilder.create(p, AllFluids.MOLTEN_IRON.getSource(), MelterBE.INGOT_SIZE * 5, Items.IRON_HELMET);
-                MeltingRecipeBuilder.create(p, AllFluids.MOLTEN_IRON.getSource(), MelterBE.INGOT_SIZE * 8, Items.IRON_CHESTPLATE);
-                MeltingRecipeBuilder.create(p, AllFluids.MOLTEN_IRON.getSource(), MelterBE.INGOT_SIZE * 7, Items.IRON_LEGGINGS);
-                MeltingRecipeBuilder.create(p, AllFluids.MOLTEN_IRON.getSource(), MelterBE.INGOT_SIZE * 4, Items.IRON_BOOTS);
-                MeltingRecipeBuilder.create(p, AllFluids.MOLTEN_IRON.getSource(), MelterBE.INGOT_SIZE * 2, Items.IRON_SWORD);
-                MeltingRecipeBuilder.create(p, AllFluids.MOLTEN_IRON.getSource(), MelterBE.INGOT_SIZE * 3, Items.IRON_PICKAXE);
-                MeltingRecipeBuilder.create(p, AllFluids.MOLTEN_IRON.getSource(), MelterBE.INGOT_SIZE * 3, Items.IRON_AXE);
-                MeltingRecipeBuilder.create(p, AllFluids.MOLTEN_IRON.getSource(), MelterBE.INGOT_SIZE, Items.IRON_SHOVEL);
-                MeltingRecipeBuilder.create(p, AllFluids.MOLTEN_IRON.getSource(), MelterBE.INGOT_SIZE * 2, Items.IRON_HOE);
-
-                MeltingRecipeBuilder.create(p, AllFluids.MOLTEN_IRON.getSource(), 27, Items.IRON_BARS);
-                MeltingRecipeBuilder.create(p, AllFluids.MOLTEN_IRON.getSource(), 108, Items.CROSSBOW);
-                MeltingRecipeBuilder.create(p, AllFluids.MOLTEN_IRON.getSource(), 36, Items.TRIPWIRE_HOOK);
-                MeltingRecipeBuilder.create(p, AllFluids.MOLTEN_IRON.getSource(), 36, Items.TRAPPED_CHEST);
-                MeltingRecipeBuilder.create(p, AllFluids.MOLTEN_IRON.getSource(), 27, Items.RAIL);
-                MeltingRecipeBuilder.create(p, AllFluids.MOLTEN_IRON.getSource(), MelterBE.INGOT_SIZE * 3, Items.IRON_DOOR);
-                MeltingRecipeBuilder.create(p, AllFluids.MOLTEN_IRON.getSource(), MelterBE.INGOT_SIZE * 4, Items.IRON_TRAPDOOR);
-                MeltingRecipeBuilder.create(p, AllFluids.MOLTEN_IRON.getSource(), MelterBE.INGOT_SIZE * 3, Items.BUCKET);
-                MeltingRecipeBuilder.create(p, AllFluids.MOLTEN_IRON.getSource(), MelterBE.INGOT_SIZE * 2, Items.SHEARS);
-                MeltingRecipeBuilder.create(p, AllFluids.MOLTEN_IRON.getSource(), MelterBE.INGOT_SIZE * 2, Items.HEAVY_WEIGHTED_PRESSURE_PLATE);
-                MeltingRecipeBuilder.create(p, AllFluids.MOLTEN_IRON.getSource(), MelterBE.INGOT_SIZE, Items.FLINT_AND_STEEL);
-                MeltingRecipeBuilder.create(p, AllFluids.MOLTEN_IRON.getSource(), MelterBE.INGOT_SIZE, Items.SHIELD);
-                MeltingRecipeBuilder.create(p, AllFluids.MOLTEN_IRON.getSource(), MelterBE.INGOT_SIZE, Items.ACTIVATOR_RAIL);
-                MeltingRecipeBuilder.create(p, AllFluids.MOLTEN_IRON.getSource(), MelterBE.INGOT_SIZE, Items.DETECTOR_RAIL);
                 MeltingRecipeBuilder.create(p, AllFluids.MOLTEN_IRON.getSource(), MelterBE.INGOT_SIZE, Items.LODESTONE);
-                MeltingRecipeBuilder.create(p, AllFluids.MOLTEN_IRON.getSource(), MelterBE.INGOT_SIZE * 4, Items.COMPASS);
-                MeltingRecipeBuilder.create(p, AllFluids.MOLTEN_IRON.getSource(), MelterBE.INGOT_SIZE * 4, Items.RECOVERY_COMPASS);
-                MeltingRecipeBuilder.create(p, AllFluids.MOLTEN_IRON.getSource(), MelterBE.INGOT_SIZE * 5, Items.HOPPER);
-                MeltingRecipeBuilder.create(p, AllFluids.MOLTEN_IRON.getSource(), MelterBE.INGOT_SIZE * 7, Items.CAULDRON);
-                MeltingRecipeBuilder.create(p, AllFluids.MOLTEN_IRON.getSource(), MelterBE.INGOT_SIZE * 5, Items.MINECART);
-                MeltingRecipeBuilder.create(p, AllFluids.MOLTEN_IRON.getSource(), MelterBE.INGOT_SIZE * 5, Items.CHEST_MINECART);
-                MeltingRecipeBuilder.create(p, AllFluids.MOLTEN_IRON.getSource(), MelterBE.INGOT_SIZE * 12, Items.HOPPER_MINECART);
                 MeltingRecipeBuilder.create(p, AllFluids.MOLTEN_IRON.getSource(), MelterBE.INGOT_SIZE * 24, Items.HEAVY_CORE);
-                MeltingRecipeBuilder.create(p, AllFluids.MOLTEN_IRON.getSource(), MelterBE.INGOT_SIZE + MelterBE.NUGGET_SIZE * 2, Items.CHAIN);
-                MeltingRecipeBuilder.create(p, AllFluids.MOLTEN_IRON.getSource(), MelterBE.INGOT_SIZE * 2, Items.SMITHING_TABLE);
-                MeltingRecipeBuilder.create(p, AllFluids.MOLTEN_IRON.getSource(), MelterBE.NUGGET_SIZE * 8, Items.SOUL_LANTERN);
-                MeltingRecipeBuilder.create(p, AllFluids.MOLTEN_IRON.getSource(), MelterBE.NUGGET_SIZE * 8, Items.LANTERN);
-
-                MeltingRecipeBuilder.create(p, AllFluids.MOLTEN_GOLD.getSource(), MelterBE.INGOT_SIZE * 8, Items.GOLDEN_APPLE);
                 MeltingRecipeBuilder.create(p, AllFluids.MOLTEN_GOLD.getSource(), MelterBE.INGOT_SIZE * 8 * 4, Items.ENCHANTED_GOLDEN_APPLE);
-                MeltingRecipeBuilder.create(p, AllFluids.MOLTEN_GOLD.getSource(), MelterBE.NUGGET_SIZE * 8, Items.GOLDEN_CARROT);
                 MeltingRecipeBuilder.create(p, AllFluids.MOLTEN_GOLD.getSource(), MelterBE.BLOCK_SIZE, Items.BELL);
-                MeltingRecipeBuilder.create(p, AllFluids.MOLTEN_GOLD.getSource(), MelterBE.INGOT_SIZE * 2, Items.LIGHT_WEIGHTED_PRESSURE_PLATE);
-                MeltingRecipeBuilder.create(p, AllFluids.MOLTEN_GOLD.getSource(), MelterBE.INGOT_SIZE * 4, Items.CLOCK);
-                MeltingRecipeBuilder.create(p, AllFluids.MOLTEN_GOLD.getSource(), MelterBE.INGOT_SIZE, Items.POWERED_RAIL);
-
-                MeltingRecipeBuilder.create(p, AllFluids.MOLTEN_COPPER.getSource(), MelterBE.INGOT_SIZE, Items.BRUSH);
-                MeltingRecipeBuilder.create(p, fluids(fluid(AllFluids.MOLTEN_COPPER.getSource(), MelterBE.INGOT_SIZE * 2), fluid(AllFluids.MOLTEN_AMETHYST.getSource(), MelterBE.INGOT_SIZE)), Items.SPYGLASS);
-                MeltingRecipeBuilder.create(p, AllFluids.MOLTEN_COPPER.getSource(), MelterBE.INGOT_SIZE * 3, Items.LIGHTNING_ROD);
-                MeltingRecipeBuilder.create(p, "copper_doors", AllFluids.MOLTEN_COPPER.getSource(), MelterBE.INGOT_SIZE * 3, AllTags.itemC("doors/copper"));
-                MeltingRecipeBuilder.create(p, "copper_trapdoors", AllFluids.MOLTEN_COPPER.getSource(), MelterBE.INGOT_SIZE * 3, AllTags.itemC("trapdoors/copper"));
-                MeltingRecipeBuilder.create(p, "copper_chiseled_blocks", AllFluids.MOLTEN_COPPER.getSource(), 162, AllTags.itemC("chiseled_blocks/copper"));
-                MeltingRecipeBuilder.create(p, "copper_grate_blocks", AllFluids.MOLTEN_COPPER.getSource(), 162, AllTags.itemC("grate_blocks/copper"));
-                MeltingRecipeBuilder.create(p, "copper_cut_blocks", AllFluids.MOLTEN_COPPER.getSource(), 162, AllTags.itemC("cut_blocks/copper"));
-
-                MeltingRecipeBuilder.create(p, AllFluids.MOLTEN_DIAMOND.getSource(), MelterBE.INGOT_SIZE, Items.JUKEBOX);
-                MeltingRecipeBuilder.create(p, AllFluids.MOLTEN_REDSTONE.getSource(), MelterBE.INGOT_SIZE, Items.NOTE_BLOCK);
-                MeltingRecipeBuilder.create(p, AllFluids.MOLTEN_REDSTONE.getSource(), MelterBE.INGOT_SIZE * 4, Items.TARGET);
-                MeltingRecipeBuilder.create(p, AllFluids.MOLTEN_AMETHYST.getSource(), MelterBE.INGOT_SIZE * 3, Items.CALIBRATED_SCULK_SENSOR);
-                MeltingRecipeBuilder.create(p, AllFluids.MOLTEN_PRISMARINE.getSource(), MelterBE.INGOT_SIZE * 5, Items.SEA_LANTERN);
-                MeltingRecipeBuilder.create(p, AllFluids.MOLTEN_OBSIDIAN.getSource(), MelterBE.BLOCK_SIZE * 6, Items.RESPAWN_ANCHOR);
 
                 gemMeltable(p, "diamond", AllFluids.MOLTEN_DIAMOND.getSource(), Tags.Items.STORAGE_BLOCKS_DIAMOND, Tags.Items.GEMS_DIAMOND, AllTags.itemC("nuggets/diamond"));
                 gemMeltable(p, "emerald", AllFluids.MOLTEN_EMERALD.getSource(), Tags.Items.STORAGE_BLOCKS_EMERALD, Tags.Items.GEMS_EMERALD, AllTags.itemC("nuggets/emerald"));
@@ -314,6 +426,11 @@ public class AllBlocks {
                 crystalMeltable(p, "quartz", AllFluids.MOLTEN_QUARTZ.getSource(), AllTags.QUARTZ_BLOCKS, Tags.Items.GEMS_QUARTZ);
                 crystalMeltable(p, "amethyst", AllFluids.MOLTEN_AMETHYST.getSource(), AllTags.AMETHYST_BLOCKS, Tags.Items.GEMS_AMETHYST);
                 crystalMeltable(p, "prismarine", AllFluids.MOLTEN_PRISMARINE.getSource(), null, Tags.Items.GEMS_PRISMARINE);
+                compatMeltable(p, "rose_quartz_crystals", AllFluids.MOLTEN_ROSE_QUARTZ.getSource(), MelterBE.INGOT_SIZE, AllTags.ROSE_QUARTZ);
+                compatMeltable(p, "polished_rose_quartz", AllFluids.MOLTEN_ROSE_QUARTZ.getSource(), MelterBE.INGOT_SIZE, AllTags.POLISHED_ROSE_QUARTZ);
+                MeltingRecipeBuilder.create(p, "echo_shards", AllFluids.MOLTEN_ECHO.getSource(), MelterBE.INGOT_SIZE, Items.ECHO_SHARD);
+                dustMeltable(p, "glowstone", AllFluids.MOLTEN_GLOWSTONE.getSource(), null, Tags.Items.DUSTS_GLOWSTONE);
+                MeltingRecipeBuilder.create(p, "glowstone_blocks", AllFluids.MOLTEN_GLOWSTONE.getSource(), MelterBE.SMALL_BLOCK_SIZE, Items.GLOWSTONE);
                 ingotMeltable(p, "copper", AllFluids.MOLTEN_COPPER.getSource(), AllTags.COPPER_BLOCKS, Tags.Items.INGOTS_COPPER, AllTags.itemC("nuggets/copper"));
                 ingotMeltable(p, "gold", AllFluids.MOLTEN_GOLD.getSource(), Tags.Items.STORAGE_BLOCKS_GOLD, Tags.Items.INGOTS_GOLD, Tags.Items.NUGGETS_GOLD);
                 ingotMeltable(p, "iron", AllFluids.MOLTEN_IRON.getSource(), Tags.Items.STORAGE_BLOCKS_IRON, Tags.Items.INGOTS_IRON, Tags.Items.NUGGETS_IRON);
@@ -328,9 +445,38 @@ public class AllBlocks {
                 oreMeltableGem(p, "raw_emerald", AllFluids.MOLTEN_EMERALD.getSource(), null, Tags.Items.ORES_EMERALD, null);
                 oreMeltableGem(p, "raw_quartz", AllFluids.MOLTEN_QUARTZ.getSource(), null, Tags.Items.ORES_QUARTZ, null);
 
+                metalMeltable(p, "copper", AllFluids.MOLTEN_COPPER.getSource(), true);
+                metalMeltable(p, "gold", AllFluids.MOLTEN_GOLD.getSource(), true);
+                metalMeltable(p, "iron", AllFluids.MOLTEN_IRON.getSource(), true);
+                metalMeltable(p, "netherite", AllFluids.MOLTEN_NETHERITE.getSource(), false);
+                formMeltable(p, "diamond", AllFluids.MOLTEN_DIAMOND.getSource());
+                formMeltable(p, "emerald", AllFluids.MOLTEN_EMERALD.getSource());
+                formMeltable(p, "lapis", AllFluids.MOLTEN_LAPIS.getSource());
+                formMeltable(p, "quartz", AllFluids.MOLTEN_QUARTZ.getSource());
+                formMeltable(p, "amethyst", AllFluids.MOLTEN_AMETHYST.getSource());
+                formMeltable(p, "prismarine", AllFluids.MOLTEN_PRISMARINE.getSource());
+                formMeltable(p, "rose_quartz", AllFluids.MOLTEN_ROSE_QUARTZ.getSource());
+
+                compatMeltable(p, "aluminium", AllFluids.MOLTEN_ALUMINIUM.getSource(), true);
+                compatMeltable(p, "brass", AllFluids.MOLTEN_BRASS.getSource(), false);
+                compatMeltable(p, "bronze", AllFluids.MOLTEN_BRONZE.getSource(), false);
+                compatMeltable(p, "cast_iron", AllFluids.MOLTEN_CAST_IRON.getSource(), false);
+                compatMeltable(p, "electrum", AllFluids.MOLTEN_ELECTRUM.getSource(), false);
+                compatMeltable(p, "invar", AllFluids.MOLTEN_INVAR.getSource(), false);
+                compatMeltable(p, "lead", AllFluids.MOLTEN_LEAD.getSource(), true);
+                compatMeltable(p, "nickel", AllFluids.MOLTEN_NICKEL.getSource(), true);
+                compatMeltable(p, "osmium", AllFluids.MOLTEN_OSMIUM.getSource(), true);
+                compatMeltable(p, "platinum", AllFluids.MOLTEN_PLATINUM.getSource(), true);
+                compatMeltable(p, "silver", AllFluids.MOLTEN_SILVER.getSource(), true);
+                compatMeltable(p, "steel", AllFluids.MOLTEN_STEEL.getSource(), false);
+                compatMeltable(p, "tin", AllFluids.MOLTEN_TIN.getSource(), true);
+                compatMeltable(p, "tungsten", AllFluids.MOLTEN_TUNGSTEN.getSource(), true);
+                compatMeltable(p, "zinc", AllFluids.MOLTEN_ZINC.getSource(), true);
+
                 MeltingRecipeBuilder.create(AllFluids.MOLTEN_OBSIDIAN.getSource(), MelterBE.BLOCK_SIZE, Tags.Items.OBSIDIANS)
                         .unlockedBy("has_meltable_obsidian", has(Tags.Items.OBSIDIANS))
                         .save(p, SlagEmbers.loc("melting/obsidian_blocks"));
+                compatMeltable(p, "obsidian_plates", AllFluids.MOLTEN_OBSIDIAN.getSource(), MelterBE.INGOT_SIZE, AllTags.itemC("plates/obsidian"));
 
                 MeltingRecipeBuilder.create(AllFluids.MOLTEN_AMETHYST.getSource(), MelterBE.INGOT_SIZE * 3, Items.LARGE_AMETHYST_BUD)
                         .unlockedBy("has_meltable_buds", has(Tags.Items.BUDS))

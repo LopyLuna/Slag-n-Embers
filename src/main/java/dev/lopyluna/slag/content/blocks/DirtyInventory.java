@@ -10,7 +10,6 @@ import net.minecraft.world.ContainerHelper;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.items.IItemHandlerModifiable;
-import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
 import java.util.Collections;
@@ -59,12 +58,12 @@ public abstract class DirtyInventory<BE extends SyncedBlockEntity> implements Co
     }
 
     @Override
-    public @NotNull ItemStack getItem(int slot) {
+    public @Nonnull ItemStack getItem(int slot) {
         return stacks.get(slot);
     }
 
     @Override
-    public @NotNull ItemStack removeItem(int slot, int amount) {
+    public @Nonnull ItemStack removeItem(int slot, int amount) {
         var stack = ContainerHelper.removeItem(stacks, slot, amount);
         if (!stack.isEmpty()) {
             setChanged();
@@ -74,12 +73,12 @@ public abstract class DirtyInventory<BE extends SyncedBlockEntity> implements Co
     }
 
     @Override
-    public @NotNull ItemStack removeItemNoUpdate(int slot) {
+    public @Nonnull ItemStack removeItemNoUpdate(int slot) {
         return ContainerHelper.takeItem(stacks, slot);
     }
 
     @Override
-    public void setItem(int slot, @NotNull ItemStack stack) {
+    public void setItem(int slot, @Nonnull ItemStack stack) {
         stacks.set(slot, stack);
         stack.limitSize(getMaxStackSize(stack));
         setChanged();
@@ -87,7 +86,7 @@ public abstract class DirtyInventory<BE extends SyncedBlockEntity> implements Co
     }
 
     @Override
-    public boolean stillValid(@NotNull Player player) {
+    public boolean stillValid(@Nonnull Player player) {
         return Container.stillValidBlockEntity(be, player);
     }
 
@@ -97,7 +96,7 @@ public abstract class DirtyInventory<BE extends SyncedBlockEntity> implements Co
     }
 
     @Override
-    public void setStackInSlot(int slot, @NotNull ItemStack stack) {
+    public void setStackInSlot(int slot, @Nonnull ItemStack stack) {
         validateSlotIndex(slot);
         setItem(slot, stack);
     }
@@ -108,13 +107,13 @@ public abstract class DirtyInventory<BE extends SyncedBlockEntity> implements Co
     }
 
     @Override
-    public @NotNull ItemStack getStackInSlot(int slot) {
+    public @Nonnull ItemStack getStackInSlot(int slot) {
         validateSlotIndex(slot);
         return getItem(slot);
     }
 
     @Override
-    public @NotNull ItemStack insertItem(int slot, @NotNull ItemStack stack, boolean simulate) {
+    public @Nonnull ItemStack insertItem(int slot, @Nonnull ItemStack stack, boolean simulate) {
         if (!insertionAllowed) return stack;
         if (stack.isEmpty()) return ItemStack.EMPTY;
         else if (!isItemValid(slot, stack)) return stack;
@@ -141,7 +140,7 @@ public abstract class DirtyInventory<BE extends SyncedBlockEntity> implements Co
     }
 
     @Override
-    public @NotNull ItemStack extractItem(int slot, int amount, boolean simulate) {
+    public @Nonnull ItemStack extractItem(int slot, int amount, boolean simulate) {
         if (!extractionAllowed) return ItemStack.EMPTY;
         if (stackNonStackables) {
             var extractItem = extractingItem(slot, amount, true);
@@ -194,7 +193,7 @@ public abstract class DirtyInventory<BE extends SyncedBlockEntity> implements Co
     }
 
     @Override
-    public boolean isItemValid(int slot, @NotNull ItemStack stack) {
+    public boolean isItemValid(int slot, @Nonnull ItemStack stack) {
         return true;
     }
 

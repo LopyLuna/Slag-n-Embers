@@ -1,5 +1,6 @@
 package dev.lopyluna.slag.mixin;
 
+import dev.lopyluna.slag.content.items.dynamic_part.IDynamicPart;
 import dev.lopyluna.slag.content.items.modular.ModularItem;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
@@ -32,7 +33,10 @@ public class IngredientMixin {
 
     @Inject(method = "test(Lnet/minecraft/world/item/ItemStack;)Z", at = @At("HEAD"), cancellable = true)
     public void test(ItemStack stack, CallbackInfoReturnable<Boolean> cir) {
-        if (stack != null && stack.getItem() instanceof ModularItem) for (var tag : this.slag$getTags()) if (stack.is(tag)) {
+        if (stack == null) return;
+        var item = stack.getItem();
+        if (!(item instanceof ModularItem) && !(item instanceof IDynamicPart)) return;
+        for (var tag : this.slag$getTags()) if (stack.is(tag)) {
             cir.setReturnValue(true);
             return;
         }

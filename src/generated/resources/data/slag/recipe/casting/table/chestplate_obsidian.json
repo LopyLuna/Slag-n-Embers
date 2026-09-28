@@ -3,7 +3,7 @@
   "cast": "slag:cast/chestplates",
   "ingredient": {
     "amount": 3888,
-    "id": "slag:molten_obsidian"
+    "tag": "c:molten/obsidian"
   },
   "result": {
     "components": {

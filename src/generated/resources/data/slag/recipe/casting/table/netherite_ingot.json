@@ -3,7 +3,7 @@
   "cast": "slag:cast/ingots",
   "ingredient": {
     "amount": 72,
-    "id": "slag:molten_netherite"
+    "tag": "c:molten/netherite"
   },
   "result": {
     "count": 1,

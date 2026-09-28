@@ -7,7 +7,7 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 
-@SuppressWarnings("unused")
+@SuppressWarnings({"unused", "NullableProblems"})
 public abstract class SmartBlockEntity extends CachedRenderBBBlockEntity implements VirtualBlockEntity {
 
     private final Map<BehaviourType<?>, BlockEntityBehaviour> behaviours = new Reference2ObjectArrayMap<>();
@@ -53,7 +53,7 @@ public abstract class SmartBlockEntity extends CachedRenderBBBlockEntity impleme
     }
 
     public void tick() {
-        if (!initialized && hasLevel()) {
+        if (!initialized && level != null) {
             initialize();
             initialized = true;
         }
@@ -76,14 +76,6 @@ public abstract class SmartBlockEntity extends CachedRenderBBBlockEntity impleme
         forEachBehaviour(tb -> tb.write(tag, registries, clientPacket));
     }
 
-    //@Override
-    //public void writeSafe(CompoundTag tag, HolderLookup.Provider registries) {
-    //    super.saveAdditional(tag, registries);
-    //    forEachBehaviour(tb -> {
-    //        if (tb.isSafeNBT()) tb.writeSafe(tag, registries);
-    //    });
-    //}
-
     /**
      * Hook only these in future subclasses of STE
      */
@@ -99,7 +91,7 @@ public abstract class SmartBlockEntity extends CachedRenderBBBlockEntity impleme
     }
 
     @Override
-    protected void loadAdditional(@NotNull CompoundTag tag, HolderLookup.@NotNull Provider registries) {
+    protected void loadAdditional(@Nonnull CompoundTag tag, HolderLookup.Provider registries) {
         read(tag, registries, false);
     }
 
@@ -136,17 +128,17 @@ public abstract class SmartBlockEntity extends CachedRenderBBBlockEntity impleme
     }
 
     @Override
-    public final void saveAdditional(@NotNull CompoundTag tag, HolderLookup.@NotNull Provider registries) {
+    public final void saveAdditional(@Nonnull CompoundTag tag, HolderLookup.Provider registries) {
         write(tag, registries, false);
     }
 
     @Override
-    public final void readClient(@NotNull CompoundTag tag, HolderLookup.@NotNull Provider registries) {
+    public final void readClient(@Nonnull CompoundTag tag, HolderLookup.Provider registries) {
         read(tag, registries, true);
     }
 
     @Override
-    public final CompoundTag writeClient(@NotNull CompoundTag tag, HolderLookup.@NotNull Provider registries) {
+    public final CompoundTag writeClient(@Nonnull CompoundTag tag, HolderLookup.Provider registries) {
         write(tag, registries, true);
         return tag;
     }

@@ -1,17 +1,43 @@
 {
-  "defense": 7.0,
-  "durability": 2560.0,
-  "enchantability": 21.0,
   "id": "slag:obsidian",
-  "knockback_resistance": 0.1,
   "molten_fluid": "slag:molten_obsidian",
   "repair_ingredient": {
     "tag": "c:obsidians"
   },
-  "sharpness": 6.5,
   "sort_order": 90,
-  "speed": 5.0,
   "texture": "shiny",
-  "tier": 5.0,
-  "toughness": 5.0
+  "traits": [
+    {
+      "trait": "slag:attack_damage",
+      "value": 6.5
+    },
+    {
+      "trait": "slag:durability",
+      "value": 2560.0
+    },
+    {
+      "trait": "slag:mining_tier",
+      "value": 5.0
+    },
+    {
+      "trait": "slag:mining_speed",
+      "value": 5.0
+    },
+    {
+      "trait": "slag:enchantability",
+      "value": 21.0
+    },
+    {
+      "trait": "slag:armor",
+      "value": 7.0
+    },
+    {
+      "trait": "slag:armor_toughness",
+      "value": 5.0
+    },
+    {
+      "trait": "slag:knockback_resistance",
+      "value": 0.1
+    }
+  ]
 }

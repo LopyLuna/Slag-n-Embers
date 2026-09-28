@@ -1,16 +1,44 @@
 {
-  "defense": 7.0,
-  "durability": 1536.0,
-  "enchantability": 24.0,
   "id": "slag:echo",
-  "knockback_resistance": 0.1,
+  "molten_fluid": "slag:molten_echo",
   "repair_ingredient": {
     "item": "minecraft:echo_shard"
   },
-  "sharpness": 7.0,
   "sort_order": 80,
-  "speed": 10.0,
   "texture": "metal",
-  "tier": 6.0,
-  "toughness": 3.0
+  "traits": [
+    {
+      "trait": "slag:attack_damage",
+      "value": 7.0
+    },
+    {
+      "trait": "slag:durability",
+      "value": 1536.0
+    },
+    {
+      "trait": "slag:mining_tier",
+      "value": 6.0
+    },
+    {
+      "trait": "slag:mining_speed",
+      "value": 10.0
+    },
+    {
+      "trait": "slag:enchantability",
+      "value": 24.0
+    },
+    {
+      "trait": "slag:armor",
+      "value": 7.0
+    },
+    {
+      "trait": "slag:armor_toughness",
+      "value": 3.0
+    },
+    {
+      "trait": "slag:knockback_resistance",
+      "value": 0.1
+    },
+    "slag:silent"
+  ]
 }

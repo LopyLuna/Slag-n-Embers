@@ -1,0 +1,15 @@
+{
+  "type": "slag:double_smelting",
+  "cookingTime": 200,
+  "experience": 1.4,
+  "ingredientA": {
+    "tag": "c:ingots/iron"
+  },
+  "ingredientB": {
+    "item": "minecraft:charcoal"
+  },
+  "result": {
+    "count": 1,
+    "id": "slag:cast_iron_ingot"
+  }
+}

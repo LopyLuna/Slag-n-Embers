@@ -1,0 +1,37 @@
+{
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:not",
+      "value": {
+        "type": "neoforge:tag_empty",
+        "tag": "c:ingots/brass"
+      }
+    },
+    {
+      "type": "slag:cast_only",
+      "tier": 4.0
+    }
+  ],
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "M": {
+      "tag": "c:ingots/brass"
+    },
+    "R": {
+      "item": "minecraft:paper"
+    }
+  },
+  "pattern": [
+    "M",
+    "R"
+  ],
+  "result": {
+    "components": {
+      "slag:material_type": "slag:brass",
+      "slag:part_type": "slag:sword_blade"
+    },
+    "count": 1,
+    "id": "slag:dynamic_part"
+  }
+}

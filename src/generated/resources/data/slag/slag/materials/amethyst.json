@@ -1,15 +1,35 @@
 {
-  "defense": 5.0,
-  "durability": 224.0,
-  "enchantability": 18.0,
   "id": "slag:amethyst",
   "molten_fluid": "slag:molten_amethyst",
   "repair_ingredient": {
     "tag": "c:gems/amethyst"
   },
-  "sharpness": 5.5,
   "sort_order": 180,
-  "speed": 7.0,
   "texture": "metal",
-  "tier": 3.0
+  "traits": [
+    {
+      "trait": "slag:attack_damage",
+      "value": 5.5
+    },
+    {
+      "trait": "slag:durability",
+      "value": 224.0
+    },
+    {
+      "trait": "slag:mining_tier",
+      "value": 3.0
+    },
+    {
+      "trait": "slag:mining_speed",
+      "value": 7.0
+    },
+    {
+      "trait": "slag:enchantability",
+      "value": 18.0
+    },
+    {
+      "trait": "slag:armor",
+      "value": 5.0
+    }
+  ]
 }

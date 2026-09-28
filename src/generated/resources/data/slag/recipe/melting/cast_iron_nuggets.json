@@ -1,0 +1,22 @@
+{
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:not",
+      "value": {
+        "type": "neoforge:tag_empty",
+        "tag": "c:nuggets/cast_iron"
+      }
+    }
+  ],
+  "type": "slag:melting",
+  "ingredient": {
+    "tag": "c:nuggets/cast_iron"
+  },
+  "ingredients": [],
+  "result": [
+    {
+      "amount": 8,
+      "id": "slag:molten_cast_iron"
+    }
+  ]
+}

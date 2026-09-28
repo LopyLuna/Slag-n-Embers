@@ -3,11 +3,11 @@
   "ingredients": [
     {
       "amount": 8,
-      "id": "slag:molten_gold"
+      "tag": "c:molten/gold"
     },
     {
       "amount": 8,
-      "id": "slag:molten_copper"
+      "tag": "c:molten/copper"
     }
   ],
   "result": {

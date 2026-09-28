@@ -2,9 +2,9 @@ package dev.lopyluna.slag.register;
 
 import dev.lopyluna.slag.SlagEmbers;
 import dev.lopyluna.slag.content.items.modular.DataDynamicParts;
-import net.minecraft.core.component.DataComponents;
+import dev.lopyluna.slag.content.traits.Traits;
+import dev.lopyluna.slag.content.types.Incompatible;
 import net.minecraft.network.chat.Component;
-import net.minecraft.util.Unit;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.ItemStack;
@@ -19,7 +19,10 @@ import static dev.lopyluna.slag.SlagEmbers.REGISTER;
 @SuppressWarnings("unused")
 public class AllCreativeTabs {
     public static void addCreative(BuildCreativeModeTabContentsEvent event) {
-        if (event.getTabKey().equals(BASE_TAB.getKey())) event.remove(AllItems.DYNAMIC_PART.asStack(), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
+        if (event.getTabKey().equals(BASE_TAB.getKey())) {
+            event.remove(AllItems.DYNAMIC_PART.asStack(), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
+            for (var fluid : AllFluids.HIDDEN) event.remove(new ItemStack(fluid.getSource().getBucket()), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
+        }
         if (event.getTabKey().equals(TOOLS_PARTS_TAB.getKey())) {
             var variants = new ArrayList<ItemStack>();
 
@@ -28,6 +31,7 @@ public class AllCreativeTabs {
             var modulars = AllDynamicTypes.getAllModulars().stream().sorted(Comparator.comparingInt(type -> type.sortOrder)).toList();
 
             for (var material : materials) for (var part : parts) {
+                if (!Incompatible.compatible(material, part)) continue;
                 var item = AllItems.DYNAMIC_PART.get();
                 var stack = item.getDefaultInstance();
 
@@ -51,16 +55,16 @@ public class AllCreativeTabs {
                     toolParts.add(stack);
                 }
 
-                if (modular.finalSegmentStacks != null && !modular.finalSegmentStacks.isEmpty()) {
-                    var newStacks = new ArrayList<>(modular.finalSegmentStacks);
-                    for (var stack : newStacks) stack.set(AllDataComponents.BUILT, modular.id);
-                    toolParts.addAll(newStacks);
+                for (var stack : modular.finalSegmentStacks) {
+                    var copy = stack.copy();
+                    copy.set(AllDataComponents.BUILT, modular.id);
+                    toolParts.add(copy);
                 }
 
-                if (material.fireProof) baseTool.set(DataComponents.FIRE_RESISTANT, Unit.INSTANCE);
-
+                if (!Incompatible.compatible(toolParts, modular)) continue;
                 baseTool.set(AllDataComponents.DYNAMIC_PARTS, new DataDynamicParts(toolParts));
                 baseTool.set(AllDataComponents.MODULAR_TYPE, modular.id);
+                Traits.of(baseTool).applyComponents(baseTool);
 
                 variants.add(baseTool);
             }
@@ -93,11 +97,10 @@ public class AllCreativeTabs {
                     toolParts.add(stack);
                 }
 
-                if (modular.finalSegmentStacks != null && !modular.finalSegmentStacks.isEmpty()) toolParts.addAll(modular.finalSegmentStacks);
-                if (material.fireProof) baseTool.set(DataComponents.FIRE_RESISTANT, Unit.INSTANCE);
-
+                for (var stack : modular.finalSegmentStacks) toolParts.add(stack.copy());
                 baseTool.set(AllDataComponents.DYNAMIC_PARTS, new DataDynamicParts(toolParts));
                 baseTool.set(AllDataComponents.MODULAR_TYPE, modular.id);
+                Traits.of(baseTool).applyComponents(baseTool);
 
                 return baseTool;
             })

@@ -1,6 +1,9 @@
 package dev.lopyluna.slag.content.datagen;
 
 import dev.lopyluna.slag.content.blocks.basin.BasinCastingRecipe;
+import dev.lopyluna.slag.content.blocks.casting.CastItem;
+import dev.lopyluna.slag.content.utils.FluidInput;
+import dev.lopyluna.slag.content.utils.ItemResult;
 import net.minecraft.advancements.AdvancementRequirements;
 import net.minecraft.advancements.AdvancementRewards;
 import net.minecraft.advancements.Criterion;
@@ -9,44 +12,63 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.recipes.RecipeBuilder;
 import net.minecraft.data.recipes.RecipeOutput;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.material.Fluid;
 import net.neoforged.neoforge.fluids.FluidStack;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import net.neoforged.neoforge.fluids.crafting.SizedFluidIngredient;
+import javax.annotation.Nonnull;
 
+import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 
 @ParametersAreNonnullByDefault
 public class BasinCastingRecipeBuilder implements RecipeBuilder {
-    private final Item result;
-    private final ItemStack stackResult;
-    private final FluidStack input;
+    private final ItemResult result;
+    private final SizedFluidIngredient input;
     private final Map<String, Criterion<?>> criteria;
     @Nullable
     private String group;
     private final BasinCastingRecipe.Factory factory;
+    private CastItem castItem;
+    private int duration;
+    private float speed = 1f;
 
-    private BasinCastingRecipeBuilder(ItemStack result, FluidStack input) {
+    private BasinCastingRecipeBuilder(ItemResult result, FluidStack input) {
         this.criteria = new LinkedHashMap<>();
-        this.result = result.getItem();
-        this.stackResult = result;
-        this.input = input;
+        this.result = result;
+        this.input = FluidInput.of(input);
         this.factory = BasinCastingRecipe::new;
     }
 
     @Override
-    public @NotNull RecipeBuilder unlockedBy(String name, Criterion<?> criterion) {
+    public @Nonnull RecipeBuilder unlockedBy(String name, Criterion<?> criterion) {
         this.criteria.put(name, criterion);
         return this;
     }
 
+    public BasinCastingRecipeBuilder castItem(CastItem castItem) {
+        this.castItem = castItem;
+        return this;
+    }
+
+    public BasinCastingRecipeBuilder duration(int ticks) {
+        this.duration = ticks;
+        return this;
+    }
+
+    public BasinCastingRecipeBuilder speed(float speed) {
+        this.speed = speed;
+        return this;
+    }
+
     @Override
-    public @NotNull RecipeBuilder group(@Nullable String name) {
+    public @Nonnull RecipeBuilder group(@Nullable String name) {
         this.group = name;
         return this;
     }
@@ -59,14 +81,14 @@ public class BasinCastingRecipeBuilder implements RecipeBuilder {
         Objects.requireNonNull(builder);
         this.criteria.forEach(builder::addCriterion);
 
-        BasinCastingRecipe recipe = this.factory.create(Objects.requireNonNullElse(this.group, ""), this.input, this.stackResult);
+        BasinCastingRecipe recipe = this.factory.create(Objects.requireNonNullElse(this.group, ""), this.input, Optional.ofNullable(this.castItem), this.duration, this.speed, this.result);
         recipeOutput.accept(loc, recipe, builder.build(loc.withPrefix("recipes/misc/")));
 
     }
 
     @Override
-    public @NotNull Item getResult() {
-        return result;
+    public @Nonnull Item getResult() {
+        return result.stack().getItem();
     }
 
     @Override
@@ -86,16 +108,19 @@ public class BasinCastingRecipeBuilder implements RecipeBuilder {
     }
 
     public static BasinCastingRecipeBuilder create(Item result, int count, Fluid fluid, int mb) {
-        return new BasinCastingRecipeBuilder(item(result, count), fluid(fluid, mb));
+        return new BasinCastingRecipeBuilder(ItemResult.of(item(result, count)), fluid(fluid, mb));
     }
     public static BasinCastingRecipeBuilder create(Item result, int count, FluidStack fluid) {
-        return new BasinCastingRecipeBuilder(item(result, count), fluid);
+        return new BasinCastingRecipeBuilder(ItemResult.of(item(result, count)), fluid);
     }
     public static BasinCastingRecipeBuilder create(ItemStack result, Fluid fluid, int mb) {
-        return new BasinCastingRecipeBuilder(result, fluid(fluid, mb));
+        return new BasinCastingRecipeBuilder(ItemResult.of(result), fluid(fluid, mb));
     }
     public static BasinCastingRecipeBuilder create(ItemStack result, FluidStack fluid) {
-        return new BasinCastingRecipeBuilder(result, fluid);
+        return new BasinCastingRecipeBuilder(ItemResult.of(result), fluid);
+    }
+    public static BasinCastingRecipeBuilder create(TagKey<Item> result, int count, Fluid fluid, int mb) {
+        return new BasinCastingRecipeBuilder(ItemResult.of(result, count), fluid(fluid, mb));
     }
 
     public static FluidStack fluid(Fluid fluid, int mb) {

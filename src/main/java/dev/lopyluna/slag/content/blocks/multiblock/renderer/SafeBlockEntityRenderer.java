@@ -12,11 +12,12 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
 
+@SuppressWarnings("unused")
 public abstract class SafeBlockEntityRenderer<T extends BlockEntity> implements BlockEntityRenderer<T> {
     @Override
-    public final void render(@NotNull T be, float partialTicks, @NotNull PoseStack ms, @NotNull MultiBufferSource bufferSource, int light, int overlay) {
+    public final void render(@Nonnull T be, float partialTicks, @Nonnull PoseStack ms, @Nonnull MultiBufferSource bufferSource, int light, int overlay) {
         if (isInvalid(be)) return;
         renderSafe(be, partialTicks, ms, bufferSource, light, overlay);
     }
@@ -35,7 +36,7 @@ public abstract class SafeBlockEntityRenderer<T extends BlockEntity> implements 
     }
 
     @Override
-    public @NotNull AABB getRenderBoundingBox(@NotNull T blockEntity) {
+    public @Nonnull AABB getRenderBoundingBox(@Nonnull T blockEntity) {
         if (blockEntity instanceof CachedRenderBBBlockEntity cbe) return cbe.getRenderBoundingBox();
         return BlockEntityRenderer.super.getRenderBoundingBox(blockEntity);
     }

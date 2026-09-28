@@ -1,0 +1,11 @@
+{
+  "effects": [
+    {
+      "type": "slag:chain_break",
+      "blocks": "#minecraft:logs"
+    }
+  ],
+  "id": "slag:timber",
+  "sort_order": 320,
+  "value": 32.0
+}

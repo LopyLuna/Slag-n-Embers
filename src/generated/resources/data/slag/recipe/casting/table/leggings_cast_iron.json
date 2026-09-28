@@ -1,0 +1,25 @@
+{
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:not",
+      "value": {
+        "type": "neoforge:tag_empty",
+        "tag": "c:ingots/cast_iron"
+      }
+    }
+  ],
+  "type": "slag:table_casting",
+  "cast": "slag:cast/leggings",
+  "ingredient": {
+    "amount": 360,
+    "tag": "c:molten/cast_iron"
+  },
+  "result": {
+    "components": {
+      "slag:material_type": "slag:cast_iron",
+      "slag:part_type": "slag:leggings"
+    },
+    "count": 1,
+    "id": "slag:dynamic_part"
+  }
+}

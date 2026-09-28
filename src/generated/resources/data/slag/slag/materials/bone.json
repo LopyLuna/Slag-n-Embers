@@ -1,15 +1,47 @@
 {
-  "defense": 3.0,
-  "durability": 144.0,
-  "enchantability": 8.0,
   "id": "slag:bone",
+  "incompatible": {
+    "parts": [
+      "slag:plate",
+      "slag:helmet",
+      "slag:chestplate",
+      "slag:leggings",
+      "slag:boots"
+    ]
+  },
   "repair_ingredient": {
     "tag": "c:bones"
   },
-  "sharpness": 5.5,
   "sort_order": 210,
-  "speed": 4.0,
   "texture": "soft",
-  "tier": 3.0,
-  "toughness": 3.0
+  "traits": [
+    {
+      "trait": "slag:attack_damage",
+      "value": 5.5
+    },
+    {
+      "trait": "slag:durability",
+      "value": 144.0
+    },
+    {
+      "trait": "slag:mining_tier",
+      "value": 3.0
+    },
+    {
+      "trait": "slag:mining_speed",
+      "value": 4.0
+    },
+    {
+      "trait": "slag:enchantability",
+      "value": 8.0
+    },
+    {
+      "trait": "slag:armor",
+      "value": 3.0
+    },
+    {
+      "trait": "slag:armor_toughness",
+      "value": 3.0
+    }
+  ]
 }

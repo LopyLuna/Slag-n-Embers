@@ -1,0 +1,16 @@
+{
+  "type": "slag:basin_casting",
+  "cast_item": {
+    "ingredient": {
+      "item": "minecraft:cobbled_deepslate"
+    }
+  },
+  "ingredient": {
+    "amount": 50,
+    "fluid": "minecraft:lava"
+  },
+  "result": {
+    "count": 1,
+    "id": "minecraft:deepslate"
+  }
+}

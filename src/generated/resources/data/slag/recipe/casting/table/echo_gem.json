@@ -1,0 +1,12 @@
+{
+  "type": "slag:table_casting",
+  "cast": "slag:cast/gems",
+  "ingredient": {
+    "amount": 72,
+    "tag": "c:molten/echo"
+  },
+  "result": {
+    "count": 1,
+    "id": "minecraft:echo_shard"
+  }
+}

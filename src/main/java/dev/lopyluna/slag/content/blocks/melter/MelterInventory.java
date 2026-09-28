@@ -3,7 +3,7 @@ package dev.lopyluna.slag.content.blocks.melter;
 import dev.lopyluna.slag.content.blocks.DirtyInventory;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Player;
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
 
 public class MelterInventory extends DirtyInventory<MelterBE> {
     MelterBE be;
@@ -25,7 +25,7 @@ public class MelterInventory extends DirtyInventory<MelterBE> {
     }
 
     @Override
-    public boolean stillValid(@NotNull Player player) {
+    public boolean stillValid(@Nonnull Player player) {
         return Container.stillValidBlockEntity(be, player);
     }
 }

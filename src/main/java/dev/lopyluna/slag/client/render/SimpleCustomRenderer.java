@@ -2,7 +2,8 @@ package dev.lopyluna.slag.client.render;
 
 import net.minecraft.world.item.Item;
 import net.neoforged.neoforge.client.extensions.common.IClientItemExtensions;
-import org.jetbrains.annotations.NotNull;
+
+import javax.annotation.Nonnull;
 
 public class SimpleCustomRenderer implements IClientItemExtensions {
     protected CustomRenderedItemModelRenderer renderer;
@@ -13,7 +14,7 @@ public class SimpleCustomRenderer implements IClientItemExtensions {
         CustomRenderedItems.register(item);
         return new SimpleCustomRenderer(renderer);
     }
-    @Override public @NotNull CustomRenderedItemModelRenderer getCustomRenderer() {
+    @Override public @Nonnull CustomRenderedItemModelRenderer getCustomRenderer() {
         return renderer;
     }
 }

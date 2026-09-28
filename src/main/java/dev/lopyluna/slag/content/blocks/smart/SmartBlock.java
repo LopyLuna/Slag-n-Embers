@@ -11,13 +11,14 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
+@SuppressWarnings("unused")
 @ParametersAreNonnullByDefault
 public abstract class SmartBlock<T extends BlockEntity> extends BaseEntityBlock {
     protected SmartBlock(Properties properties) {
@@ -25,7 +26,7 @@ public abstract class SmartBlock<T extends BlockEntity> extends BaseEntityBlock 
     }
 
     @Override
-    protected @NotNull RenderShape getRenderShape(BlockState state) {
+    protected @Nonnull RenderShape getRenderShape(BlockState state) {
         return RenderShape.MODEL;
     }
 

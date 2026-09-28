@@ -3,7 +3,7 @@
   "cast": "slag:cast/boots",
   "ingredient": {
     "amount": 144,
-    "id": "slag:molten_lapis"
+    "tag": "c:molten/lapis"
   },
   "result": {
     "components": {

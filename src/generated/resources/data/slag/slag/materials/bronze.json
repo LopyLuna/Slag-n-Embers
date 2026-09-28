@@ -1,0 +1,48 @@
+{
+  "conditions": [
+    {
+      "type": "neoforge:not",
+      "value": {
+        "type": "neoforge:tag_empty",
+        "tag": "c:ingots/bronze"
+      }
+    }
+  ],
+  "id": "slag:bronze",
+  "molten_fluid": "slag:molten_bronze",
+  "repair_ingredient": {
+    "tag": "c:ingots/bronze"
+  },
+  "sort_order": 320,
+  "texture": "metal",
+  "traits": [
+    {
+      "trait": "slag:attack_damage",
+      "value": 5.5
+    },
+    {
+      "trait": "slag:durability",
+      "value": 384.0
+    },
+    {
+      "trait": "slag:mining_tier",
+      "value": 4.0
+    },
+    {
+      "trait": "slag:mining_speed",
+      "value": 6.0
+    },
+    {
+      "trait": "slag:enchantability",
+      "value": 12.0
+    },
+    {
+      "trait": "slag:armor",
+      "value": 6.0
+    },
+    {
+      "trait": "slag:armor_toughness",
+      "value": 1.0
+    }
+  ]
+}

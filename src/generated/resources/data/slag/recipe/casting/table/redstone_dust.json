@@ -3,7 +3,7 @@
   "cast": "slag:cast/dusts",
   "ingredient": {
     "amount": 72,
-    "id": "slag:molten_redstone"
+    "tag": "c:molten/redstone"
   },
   "result": {
     "count": 1,

@@ -4,6 +4,9 @@ import com.tterrag.registrate.providers.RegistrateRecipeProvider;
 import dev.lopyluna.slag.SlagEmbers;
 import dev.lopyluna.slag.content.blocks.melter.MelterBE;
 import dev.lopyluna.slag.content.blocks.melter.MeltingRecipe;
+import dev.lopyluna.slag.content.temperature.Temperatures.Tiers;
+import dev.lopyluna.slag.content.temperature.Temperatures.Type;
+import dev.lopyluna.slag.register.AllTags;
 import net.minecraft.advancements.AdvancementRequirements;
 import net.minecraft.advancements.AdvancementRewards;
 import net.minecraft.advancements.Criterion;
@@ -20,14 +23,15 @@ import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.material.Fluid;
 import net.neoforged.neoforge.fluids.FluidStack;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nonnull;
 
+import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.*;
 
 import static com.tterrag.registrate.providers.RegistrateRecipeProvider.has;
 
+@SuppressWarnings("unused")
 @ParametersAreNonnullByDefault
 public class MeltingRecipeBuilder implements RecipeBuilder {
     private final List<Fluid> result;
@@ -38,6 +42,11 @@ public class MeltingRecipeBuilder implements RecipeBuilder {
     @Nullable
     private String group;
     private final MeltingRecipe.Factory factory;
+    private int duration;
+    private float speed = 1f;
+    private Tiers temperature = Tiers.HEATED;
+    @Nullable
+    private Type heatType;
 
     private MeltingRecipeBuilder(Fluid result, int count, Ingredient input) {
         this(new FluidStack(result, count), input);
@@ -75,14 +84,35 @@ public class MeltingRecipeBuilder implements RecipeBuilder {
     }
 
     @Override
-    public @NotNull RecipeBuilder unlockedBy(String name, Criterion<?> criterion) {
+    public @Nonnull RecipeBuilder unlockedBy(String name, Criterion<?> criterion) {
         this.criteria.put(name, criterion);
         return this;
     }
 
+
+    public MeltingRecipeBuilder duration(int ticks) {
+        this.duration = ticks;
+        return this;
+    }
+
+    public MeltingRecipeBuilder speed(float speed) {
+        this.speed = speed;
+        return this;
+    }
+
     @Override
-    public @NotNull RecipeBuilder group(@Nullable String name) {
+    public @Nonnull RecipeBuilder group(@Nullable String name) {
         this.group = name;
+        return this;
+    }
+
+    public MeltingRecipeBuilder temperature(Tiers temperature) {
+        this.temperature = temperature;
+        return this;
+    }
+
+    public MeltingRecipeBuilder heatType(@Nullable Type heatType) {
+        this.heatType = heatType;
         return this;
     }
 
@@ -94,12 +124,12 @@ public class MeltingRecipeBuilder implements RecipeBuilder {
         Objects.requireNonNull(builder);
         this.criteria.forEach(builder::addCriterion);
 
-        MeltingRecipe recipe = this.factory.create(Objects.requireNonNullElse(this.group, ""), this.inputStacks, this.input, this.stackResult);
+        MeltingRecipe recipe = this.factory.create(Objects.requireNonNullElse(this.group, ""), this.inputStacks, this.input, this.stackResult, this.temperature, Optional.ofNullable(this.heatType), this.duration, this.speed);
         recipeOutput.accept(loc, recipe, builder.build(loc.withPrefix("recipes/misc/")));
     }
 
     @Override
-    public @NotNull Item getResult() {
+    public @Nonnull Item getResult() {
         return Items.AIR;
     }
     public List<Fluid> getResultFluid() {
@@ -297,6 +327,35 @@ public class MeltingRecipeBuilder implements RecipeBuilder {
         if (dusts != null) MeltingRecipeBuilder.create(fluid, MelterBE.INGOT_SIZE, dusts)
                 .unlockedBy("has_meltable_" + name, has(dusts))
                 .save(p, SlagEmbers.loc("melting/" + name + "_dusts"));
+    }
+
+    public static void compatMeltable(RegistrateRecipeProvider p, String name, Fluid fluid, boolean raw) {
+        compatMeltable(p, name + "_blocks", fluid, MelterBE.BLOCK_SIZE, AllTags.itemC("storage_blocks/" + name));
+        compatMeltable(p, name + "_ingots", fluid, MelterBE.INGOT_SIZE, AllTags.itemC("ingots/" + name));
+        compatMeltable(p, name + "_nuggets", fluid, MelterBE.NUGGET_SIZE, AllTags.itemC("nuggets/" + name));
+        metalMeltable(p, name, fluid, raw);
+        if (!raw) return;
+        compatMeltable(p, "raw_" + name + "_blocks", fluid, MelterBE.BLOCK_SIZE + MelterBE.INGOT_SIZE * 3, AllTags.itemC("storage_blocks/raw_" + name));
+        compatMeltable(p, "raw_" + name + "_materials", fluid, MelterBE.INGOT_SIZE + MelterBE.NUGGET_SIZE * 3, AllTags.itemC("raw_materials/" + name));
+        compatMeltable(p, name + "_ores", fluid, MelterBE.INGOT_SIZE + MelterBE.NUGGET_SIZE * 3, AllTags.itemC("ores/" + name));
+    }
+
+    public static void formMeltable(RegistrateRecipeProvider p, String name, Fluid fluid) {
+        compatMeltable(p, name + "_plates", fluid, MelterBE.INGOT_SIZE, AllTags.itemC("plates/" + name));
+        compatMeltable(p, name + "_rods", fluid, MelterBE.INGOT_SIZE / 2, AllTags.itemC("rods/" + name));
+        compatMeltable(p, name + "_dusts", fluid, MelterBE.INGOT_SIZE, AllTags.itemC("dusts/" + name));
+    }
+
+    public static void metalMeltable(RegistrateRecipeProvider p, String name, Fluid fluid, boolean ores) {
+        formMeltable(p, name, fluid);
+        compatMeltable(p, name + "_wires", fluid, MelterBE.INGOT_SIZE / 4, AllTags.itemC("wires/" + name));
+        if (ores) compatMeltable(p, name + "_clumps", fluid, MelterBE.INGOT_SIZE + MelterBE.NUGGET_SIZE * 3, AllTags.itemC("clumps/" + name));
+    }
+
+    public static void compatMeltable(RegistrateRecipeProvider p, String name, Fluid fluid, int mb, TagKey<Item> tag) {
+        MeltingRecipeBuilder.create(fluid, mb, tag)
+                .unlockedBy("has_meltable_" + name, has(tag))
+                .save(p.withConditions(AllTags.present(tag)), SlagEmbers.loc("melting/" + name));
     }
 
     public static FluidStack fluid(Fluid fluid, int mb) {

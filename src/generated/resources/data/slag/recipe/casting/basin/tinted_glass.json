@@ -1,0 +1,16 @@
+{
+  "type": "slag:basin_casting",
+  "cast_item": {
+    "ingredient": {
+      "tag": "c:glass_blocks/colorless"
+    }
+  },
+  "ingredient": {
+    "amount": 144,
+    "tag": "c:molten/amethyst"
+  },
+  "result": {
+    "count": 1,
+    "id": "minecraft:tinted_glass"
+  }
+}

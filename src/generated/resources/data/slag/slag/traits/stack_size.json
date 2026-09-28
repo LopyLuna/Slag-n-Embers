@@ -1,0 +1,11 @@
+{
+  "effects": [
+    {
+      "type": "slag:stat",
+      "stat": "max_stack_size"
+    }
+  ],
+  "hidden": true,
+  "id": "slag:stack_size",
+  "sort_order": 100
+}

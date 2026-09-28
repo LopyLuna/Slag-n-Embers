@@ -1,0 +1,22 @@
+{
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:not",
+      "value": {
+        "type": "neoforge:tag_empty",
+        "tag": "c:rods/osmium"
+      }
+    }
+  ],
+  "type": "slag:melting",
+  "ingredient": {
+    "tag": "c:rods/osmium"
+  },
+  "ingredients": [],
+  "result": [
+    {
+      "amount": 36,
+      "id": "slag:molten_osmium"
+    }
+  ]
+}

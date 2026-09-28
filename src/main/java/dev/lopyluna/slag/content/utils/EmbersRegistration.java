@@ -1,5 +1,6 @@
 package dev.lopyluna.slag.content.utils;
 
+import com.mojang.serialization.MapCodec;
 import dev.lopyluna.slag.SlagEmbers;
 import net.minecraft.core.particles.ParticleType;
 import net.minecraft.sounds.SoundEvent;
@@ -11,8 +12,11 @@ import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
 import net.neoforged.bus.api.IEventBus;
+import net.neoforged.neoforge.common.conditions.ICondition;
 import net.neoforged.neoforge.registries.DeferredRegister;
+import net.neoforged.neoforge.registries.NeoForgeRegistries;
 
+import static dev.lopyluna.slag.SlagEmbers.LOGGER;
 import static dev.lopyluna.slag.SlagEmbers.MOD_ID;
 import static net.minecraft.core.registries.Registries.*;
 
@@ -29,6 +33,7 @@ public record EmbersRegistration(String modID) {
     public static final DeferredRegister<SoundEvent> SOUNDS = DeferredRegister.create(SOUND_EVENT, MOD_ID);
     public static final DeferredRegister<CreativeModeTab> CREATIVE_MODE_TABS = DeferredRegister.create(CREATIVE_MODE_TAB, MOD_ID);
     public static final DeferredRegister<Level> DIMENSIONS = DeferredRegister.create(DIMENSION, MOD_ID);
+    public static final DeferredRegister<MapCodec<? extends ICondition>> CONDITIONS = DeferredRegister.create(NeoForgeRegistries.Keys.CONDITION_CODECS, MOD_ID);
 
     public DeferredRegister.DataComponents components() {return DATA_COMPONENTS;}
     public DeferredRegister<CreativeModeTab> creativeTab() {return CREATIVE_MODE_TABS;}
@@ -40,28 +45,31 @@ public record EmbersRegistration(String modID) {
     public DeferredRegister<MenuType<?>> menus() {return MENUS;}
     public DeferredRegister<SoundEvent> sounds() {return SOUNDS;}
     public DeferredRegister<Level> dimensions() {return DIMENSIONS;}
+    public DeferredRegister<MapCodec<? extends ICondition>> conditions() {return CONDITIONS;}
 
     public void register(IEventBus bus) {
-        System.out.println("Registering " + SlagEmbers.NAME + " Data Components...");
+        LOGGER.info("Registering " + SlagEmbers.NAME + " Data Components...");
         DATA_COMPONENTS.register(bus);
-        System.out.println("Registering " + SlagEmbers.NAME + " Creative Tabs...");
+        LOGGER.info("Registering " + SlagEmbers.NAME + " Creative Tabs...");
         CREATIVE_MODE_TABS.register(bus);
-        System.out.println("Registering " + SlagEmbers.NAME + " Damage Types...");
+        LOGGER.info("Registering " + SlagEmbers.NAME + " Damage Types...");
         DAMAGES.register(bus);
-        System.out.println("Registering " + SlagEmbers.NAME + " Mob Effects...");
+        LOGGER.info("Registering " + SlagEmbers.NAME + " Mob Effects...");
         MOB_EFFECTS.register(bus);
-        System.out.println("Registering " + SlagEmbers.NAME + " Particles...");
+        LOGGER.info("Registering " + SlagEmbers.NAME + " Particles...");
         PARTICLES.register(bus);
-        System.out.println("Registering " + SlagEmbers.NAME + " Recipes Serializers...");
+        LOGGER.info("Registering " + SlagEmbers.NAME + " Recipes Serializers...");
         RECIPE_SERIALIZERS.register(bus);
-        System.out.println("Registering " + SlagEmbers.NAME + " Recipes...");
+        LOGGER.info("Registering " + SlagEmbers.NAME + " Recipes...");
         RECIPES.register(bus);
-        System.out.println("Registering " + SlagEmbers.NAME + " Menus...");
+        LOGGER.info("Registering " + SlagEmbers.NAME + " Menus...");
         MENUS.register(bus);
-        System.out.println("Registering " + SlagEmbers.NAME + " Sounds...");
+        LOGGER.info("Registering " + SlagEmbers.NAME + " Sounds...");
         SOUNDS.register(bus);
-        System.out.println("Registering " + SlagEmbers.NAME + " Dimensions...");
+        LOGGER.info("Registering " + SlagEmbers.NAME + " Dimensions...");
         DIMENSIONS.register(bus);
-        System.out.println("Registering " + SlagEmbers.NAME + " Done");
+        LOGGER.info("Registering " + SlagEmbers.NAME + " Conditions...");
+        CONDITIONS.register(bus);
+        LOGGER.info("Registering " + SlagEmbers.NAME + " Done");
     }
 }

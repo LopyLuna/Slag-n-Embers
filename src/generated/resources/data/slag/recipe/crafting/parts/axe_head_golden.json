@@ -1,4 +1,10 @@
 {
+  "neoforge:conditions": [
+    {
+      "type": "slag:cast_only",
+      "tier": 2.0
+    }
+  ],
   "type": "minecraft:crafting_shaped",
   "category": "equipment",
   "key": {

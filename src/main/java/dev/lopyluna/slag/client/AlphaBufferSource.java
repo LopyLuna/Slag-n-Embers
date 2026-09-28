@@ -6,7 +6,8 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.Sheets;
 import net.minecraft.util.Mth;
-import org.jetbrains.annotations.NotNull;
+
+import javax.annotation.Nonnull;
 
 public class AlphaBufferSource implements MultiBufferSource {
     private final MultiBufferSource parent;
@@ -18,7 +19,7 @@ public class AlphaBufferSource implements MultiBufferSource {
     }
 
     @Override
-    public @NotNull VertexConsumer getBuffer(@NotNull RenderType type) {
+    public @Nonnull VertexConsumer getBuffer(@Nonnull RenderType type) {
         RenderType rt = (type == Sheets.cutoutBlockSheet()) ? Sheets.translucentItemSheet() : type;
         return new AlphaVertexConsumer(parent.getBuffer(rt), alphaMul);
     }

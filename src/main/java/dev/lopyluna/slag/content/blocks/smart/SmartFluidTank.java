@@ -2,7 +2,7 @@ package dev.lopyluna.slag.content.blocks.smart;
 
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.capability.templates.FluidTank;
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
 
 import java.util.function.Consumer;
 
@@ -22,7 +22,7 @@ public class SmartFluidTank extends FluidTank {
     }
 
     @Override
-    public void setFluid(@NotNull FluidStack stack) {
+    public void setFluid(@Nonnull FluidStack stack) {
         super.setFluid(stack);
         updateCallback.accept(stack);
     }

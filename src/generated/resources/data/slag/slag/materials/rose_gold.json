@@ -1,15 +1,35 @@
 {
-  "defense": 6.0,
-  "durability": 480.0,
-  "enchantability": 15.0,
   "id": "slag:rose_gold",
   "molten_fluid": "slag:molten_rose_gold",
   "repair_ingredient": {
     "tag": "c:ingots/rose_gold"
   },
-  "sharpness": 6.0,
   "sort_order": 110,
-  "speed": 10.0,
   "texture": "shiny",
-  "tier": 4.0
+  "traits": [
+    {
+      "trait": "slag:attack_damage",
+      "value": 6.0
+    },
+    {
+      "trait": "slag:durability",
+      "value": 480.0
+    },
+    {
+      "trait": "slag:mining_tier",
+      "value": 4.0
+    },
+    {
+      "trait": "slag:mining_speed",
+      "value": 10.0
+    },
+    {
+      "trait": "slag:enchantability",
+      "value": 15.0
+    },
+    {
+      "trait": "slag:armor",
+      "value": 6.0
+    }
+  ]
 }

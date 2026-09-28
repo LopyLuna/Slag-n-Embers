@@ -1,0 +1,11 @@
+{
+  "effects": [
+    {
+      "type": "slag:chain_break",
+      "blocks": "#c:ores"
+    }
+  ],
+  "id": "slag:vein_mining",
+  "sort_order": 310,
+  "value": 8.0
+}

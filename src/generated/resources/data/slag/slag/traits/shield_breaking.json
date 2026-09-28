@@ -1,0 +1,11 @@
+{
+  "effects": [
+    {
+      "type": "slag:flag",
+      "flag": "disable_shield"
+    }
+  ],
+  "hidden": true,
+  "id": "slag:shield_breaking",
+  "sort_order": 230
+}

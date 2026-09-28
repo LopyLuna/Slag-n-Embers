@@ -1,0 +1,19 @@
+{
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:not",
+      "value": {
+        "type": "neoforge:tag_empty",
+        "tag": "c:storage_blocks/bronze"
+      }
+    }
+  ],
+  "type": "slag:basin_casting",
+  "ingredient": {
+    "amount": 648,
+    "tag": "c:molten/bronze"
+  },
+  "result": {
+    "tag": "c:storage_blocks/bronze"
+  }
+}

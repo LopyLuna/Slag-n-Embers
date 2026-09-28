@@ -1,0 +1,25 @@
+{
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:not",
+      "value": {
+        "type": "neoforge:tag_empty",
+        "tag": "c:ingots/aluminium"
+      }
+    }
+  ],
+  "type": "slag:table_casting",
+  "cast": "slag:cast/leggings",
+  "ingredient": {
+    "amount": 360,
+    "tag": "c:molten/aluminium"
+  },
+  "result": {
+    "components": {
+      "slag:material_type": "slag:aluminium",
+      "slag:part_type": "slag:leggings"
+    },
+    "count": 1,
+    "id": "slag:dynamic_part"
+  }
+}

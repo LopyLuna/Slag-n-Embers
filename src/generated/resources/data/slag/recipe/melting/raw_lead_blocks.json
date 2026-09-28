@@ -1,0 +1,22 @@
+{
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:not",
+      "value": {
+        "type": "neoforge:tag_empty",
+        "tag": "c:storage_blocks/raw_lead"
+      }
+    }
+  ],
+  "type": "slag:melting",
+  "ingredient": {
+    "tag": "c:storage_blocks/raw_lead"
+  },
+  "ingredients": [],
+  "result": [
+    {
+      "amount": 864,
+      "id": "slag:molten_lead"
+    }
+  ]
+}

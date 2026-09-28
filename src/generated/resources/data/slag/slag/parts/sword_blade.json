@@ -1,9 +1,25 @@
 {
   "id": "slag:sword_blade",
   "item_tags": [
-    "slag:cast/sword_blades"
+    "slag:cast/sword_blades",
+    "slag:imprintable"
   ],
   "segment_part": "slag:parts/sword_blades",
   "sort_order": 4,
-  "speed_modifier": 2.4
+  "traits": [
+    {
+      "operation": "multiply",
+      "trait": "slag:attack_damage",
+      "value": 1.0
+    },
+    {
+      "operation": "multiply",
+      "trait": "slag:durability",
+      "value": 1.0
+    },
+    {
+      "trait": "slag:attack_speed",
+      "value": 2.4
+    }
+  ]
 }

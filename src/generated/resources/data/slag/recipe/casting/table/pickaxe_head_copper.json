@@ -3,7 +3,7 @@
   "cast": "slag:cast/pickaxe_heads",
   "ingredient": {
     "amount": 216,
-    "id": "slag:molten_copper"
+    "tag": "c:molten/copper"
   },
   "result": {
     "components": {

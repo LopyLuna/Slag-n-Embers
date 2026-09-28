@@ -1,0 +1,14 @@
+{
+  "effects": [
+    {
+      "type": "slag:attribute",
+      "attribute": "minecraft:generic.attack_speed",
+      "id": "minecraft:base_attack_speed",
+      "scale": -1.0,
+      "slot": "mainhand"
+    }
+  ],
+  "hidden": true,
+  "id": "slag:attack_speed",
+  "sort_order": 20
+}

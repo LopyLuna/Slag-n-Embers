@@ -1,0 +1,22 @@
+{
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:not",
+      "value": {
+        "type": "neoforge:tag_empty",
+        "tag": "c:rods/emerald"
+      }
+    }
+  ],
+  "type": "slag:melting",
+  "ingredient": {
+    "tag": "c:rods/emerald"
+  },
+  "ingredients": [],
+  "result": [
+    {
+      "amount": 36,
+      "id": "slag:molten_emerald"
+    }
+  ]
+}

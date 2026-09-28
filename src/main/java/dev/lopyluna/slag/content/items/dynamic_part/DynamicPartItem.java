@@ -1,24 +1,26 @@
 package dev.lopyluna.slag.content.items.dynamic_part;
 
-import com.tterrag.registrate.providers.RegistrateLangProvider;
 import dev.lopyluna.slag.SlagEmbers;
 import dev.lopyluna.slag.client.render.SimpleCustomRenderer;
 import dev.lopyluna.slag.content.types.MaterialType;
 import dev.lopyluna.slag.content.types.PartType;
 import dev.lopyluna.slag.register.AllDataComponents;
 import dev.lopyluna.slag.register.AllDynamicTypes;
+import dev.lopyluna.slag.register.AllLangs;
 import net.minecraft.Util;
 import net.minecraft.network.chat.Component;
-import net.minecraft.world.entity.Entity;
+import net.minecraft.util.Mth;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Level;
+import net.minecraft.world.item.TooltipFlag;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.neoforge.client.extensions.common.IClientItemExtensions;
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
 
 import javax.annotation.ParametersAreNonnullByDefault;
+import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
 
@@ -29,18 +31,13 @@ public class DynamicPartItem extends Item implements IDynamicPart {
     }
 
     @Override
-    public void inventoryTick(ItemStack stack, Level level, Entity entity, int slotId, boolean isSelected) {
-        super.inventoryTick(stack, level, entity, slotId, isSelected);
-        if (getMaterialType(stack).isEmpty() || getPartType(stack).isEmpty()) stack.setCount(0);
-    }
-
-    @Override
     public Optional<MaterialType> getMaterialType(ItemStack stack) {
         return AllDynamicTypes.getMaterial(stack.get(AllDataComponents.MATERIAL_TYPE));
     }
 
     public void setMaterialType(ItemStack stack, MaterialType materialType) {
         stack.set(AllDataComponents.MATERIAL_TYPE, materialType.id);
+        getTraits(stack).applyComponents(stack);
     }
 
     @Override
@@ -50,10 +47,11 @@ public class DynamicPartItem extends Item implements IDynamicPart {
 
     public void setPartType(ItemStack stack, PartType partType) {
         stack.set(AllDataComponents.PART_TYPE, partType.id);
+        getTraits(stack).applyComponents(stack);
     }
 
     @Override
-    public @NotNull String getDescriptionId(ItemStack stack) {
+    public @Nonnull String getDescriptionId(ItemStack stack) {
         var material = getMaterialType(stack).orElse(null);
         if (material == null) return super.getDescriptionId(stack);
         var part = getPartType(stack).orElse(null);
@@ -69,10 +67,28 @@ public class DynamicPartItem extends Item implements IDynamicPart {
     }
 
     @Override
-    public @NotNull Component getName(ItemStack stack) {
-        var id = getDescriptionId(stack);
-        var name = id.split("\\.")[2];
-        return Component.translatableWithFallback(id, RegistrateLangProvider.toEnglishName(name));
+    public @Nonnull Component getName(ItemStack stack) {
+        var material = getMaterialType(stack).orElse(null);
+        var part = getPartType(stack).orElse(null);
+        if (material == null || part == null) return super.getName(stack);
+        return Component.translatable("item.slag.part_name", material.getName(), part.getName());
+    }
+
+    @Override
+    public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltip, TooltipFlag flag) {
+        super.appendHoverText(stack, context, tooltip, flag);
+        AllLangs.traits(tooltip, getTraits(stack));
+    }
+
+    @Override
+    public boolean canBeHurtBy(ItemStack stack, DamageSource source) {
+        return !getTraits(stack).immuneTo(source);
+    }
+
+    @Override
+    public int getMaxStackSize(ItemStack stack) {
+        var size = Math.round(getTraits(stack).maxStackSize);
+        return size > 0 ? Mth.clamp(size, 1, 99) : super.getMaxStackSize(stack);
     }
 
     @SuppressWarnings("removal")

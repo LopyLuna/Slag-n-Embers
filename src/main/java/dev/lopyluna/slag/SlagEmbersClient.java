@@ -3,8 +3,7 @@ package dev.lopyluna.slag;
 import dev.lopyluna.slag.client.render.CustomRenderedItemModel;
 import dev.lopyluna.slag.client.render.CustomRenderedItems;
 import dev.lopyluna.slag.content.ponder.SlagPonderPlugin;
-import dev.lopyluna.slag.register.AllDataComponents;
-import dev.lopyluna.slag.register.AllDynamicTypes;
+import dev.lopyluna.slag.content.traits.Traits;
 import net.createmod.catnip.registry.RegisteredObjectsHelper;
 import net.createmod.ponder.foundation.PonderIndex;
 import net.minecraft.client.renderer.item.ItemProperties;
@@ -34,18 +33,15 @@ public class SlagEmbersClient {
 
         event.enqueueWork(() -> {
             ItemProperties.registerGeneric(SlagEmbers.loc("armor_type"), (stack, world, entity, seed) -> {
-                if (!stack.has(AllDataComponents.MODULAR_TYPE)) return 0;
-                var type = stack.get(AllDataComponents.MODULAR_TYPE);
-                if (type == null) return 0;
-                var opt = AllDynamicTypes.getModular(type);
-                if (opt.isEmpty()) return 0;
-                var modular = opt.get();
-                if (modular.actions.isEmpty()) return 0;
-                if (modular.actions.contains("helmet") || modular.actions.contains("helmet_trimmable")) return 3;
-                if (modular.actions.contains("chestplate") || modular.actions.contains("chestplate_trimmable")) return 2;
-                if (modular.actions.contains("leggings") || modular.actions.contains("leggings_trimmable")) return 4;
-                if (modular.actions.contains("boots") || modular.actions.contains("boots_trimmable")) return 1;
-                return 0;
+                var slot = Traits.of(stack).equipmentSlot;
+                if (slot == null) return 0;
+                return switch (slot) {
+                    case HEAD -> 3;
+                    case CHEST -> 2;
+                    case LEGS -> 4;
+                    case FEET -> 1;
+                    default -> 0;
+                };
             });
         });
     }

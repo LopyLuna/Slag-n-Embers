@@ -1,0 +1,13 @@
+{
+  "effects": [
+    {
+      "type": "slag:attribute",
+      "attribute": "minecraft:generic.attack_damage",
+      "id": "minecraft:base_attack_damage",
+      "slot": "mainhand"
+    }
+  ],
+  "hidden": true,
+  "id": "slag:attack_damage",
+  "sort_order": 10
+}

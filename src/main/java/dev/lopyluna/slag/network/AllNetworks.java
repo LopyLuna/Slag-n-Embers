@@ -1,7 +1,7 @@
 package dev.lopyluna.slag.network;
 
 import dev.lopyluna.slag.network.packets.SelectFluidIndexC2S;
-import dev.lopyluna.slag.network.packets.SyncTypesS2C;
+import dev.lopyluna.slag.network.packets.SyncTemperaturesS2C;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 import net.neoforged.neoforge.network.registration.HandlerThread;
 import net.neoforged.neoforge.network.registration.PayloadRegistrar;
@@ -14,6 +14,6 @@ public class AllNetworks {
         registrar = registrar.executesOn(HandlerThread.NETWORK);
 
         registrar.playToServer(SelectFluidIndexC2S.TYPE, SelectFluidIndexC2S.CODEC, SelectFluidIndexC2S::handle);
-        registrar.playToClient(SyncTypesS2C.TYPE, SyncTypesS2C.CODEC, SyncTypesS2C::handle);
+        registrar.playToClient(SyncTemperaturesS2C.TYPE, SyncTemperaturesS2C.CODEC, SyncTemperaturesS2C::handle);
     }
 }

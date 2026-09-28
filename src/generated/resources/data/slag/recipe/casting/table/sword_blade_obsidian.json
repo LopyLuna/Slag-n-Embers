@@ -2,8 +2,8 @@
   "type": "slag:table_casting",
   "cast": "slag:cast/sword_blades",
   "ingredient": {
-    "amount": 1296,
-    "id": "slag:molten_obsidian"
+    "amount": 648,
+    "tag": "c:molten/obsidian"
   },
   "result": {
     "components": {

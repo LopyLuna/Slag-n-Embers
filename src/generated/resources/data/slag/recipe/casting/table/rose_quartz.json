@@ -1,0 +1,24 @@
+{
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:not",
+      "value": {
+        "type": "neoforge:tag_empty",
+        "tag": "c:gems/rose_quartz"
+      }
+    }
+  ],
+  "type": "slag:table_casting",
+  "cast_item": {
+    "ingredient": {
+      "tag": "c:gems/quartz"
+    }
+  },
+  "ingredient": {
+    "amount": 288,
+    "tag": "c:molten/redstone"
+  },
+  "result": {
+    "tag": "c:gems/rose_quartz"
+  }
+}

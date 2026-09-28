@@ -3,7 +3,7 @@
   "cast": "slag:cast/axe_heads",
   "ingredient": {
     "amount": 216,
-    "id": "slag:molten_lapis"
+    "tag": "c:molten/lapis"
   },
   "result": {
     "components": {

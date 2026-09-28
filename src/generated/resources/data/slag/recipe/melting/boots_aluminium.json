@@ -1,0 +1,28 @@
+{
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:not",
+      "value": {
+        "type": "neoforge:tag_empty",
+        "tag": "c:ingots/aluminium"
+      }
+    }
+  ],
+  "type": "slag:melting",
+  "ingredients": [
+    {
+      "components": {
+        "slag:material_type": "slag:aluminium",
+        "slag:part_type": "slag:boots"
+      },
+      "count": 1,
+      "id": "slag:dynamic_part"
+    }
+  ],
+  "result": [
+    {
+      "amount": 144,
+      "id": "slag:molten_aluminium"
+    }
+  ]
+}

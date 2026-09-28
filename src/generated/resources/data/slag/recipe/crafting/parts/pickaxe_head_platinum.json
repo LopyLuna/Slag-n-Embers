@@ -1,0 +1,38 @@
+{
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:not",
+      "value": {
+        "type": "neoforge:tag_empty",
+        "tag": "c:ingots/platinum"
+      }
+    },
+    {
+      "type": "slag:cast_only",
+      "tier": 5.0
+    }
+  ],
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "M": {
+      "tag": "c:ingots/platinum"
+    },
+    "R": {
+      "item": "minecraft:paper"
+    }
+  },
+  "pattern": [
+    "MMM",
+    " R ",
+    " R "
+  ],
+  "result": {
+    "components": {
+      "slag:material_type": "slag:platinum",
+      "slag:part_type": "slag:pickaxe_head"
+    },
+    "count": 1,
+    "id": "slag:dynamic_part"
+  }
+}

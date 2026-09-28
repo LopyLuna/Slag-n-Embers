@@ -1,0 +1,54 @@
+{
+	"format_version": "1.9.0",
+	"credit": "Made by LopyLuna",
+	"parent": "block/block",
+	"textures": {
+		"3": "slag:block/crucible_inside",
+		"6": "slag:block/basin_inside",
+		"7": "slag:block/drain",
+		"8": "slag:block/melter",
+		"9": "slag:block/melter_side",
+		"10": "slag:block/melter_top",
+		"11": "slag:block/melter_back",
+		"particle": "block/anvil"
+	},
+	"elements": [
+		{
+			"from": [0, 0, 0],
+			"to": [16, 16, 16],
+			"rotation": {"angle": 0, "axis": "y", "origin": [8, 2, 8]},
+			"faces": {
+				"north": {"uv": [0, 0, 16, 16], "texture": "#8"},
+				"east": {"uv": [0, 0, 16, 16], "texture": "#9"},
+				"south": {"uv": [0, 0, 16, 16], "texture": "#11"},
+				"west": {"uv": [0, 0, 16, 16], "texture": "#9"},
+				"up": {"uv": [0, 0, 16, 16], "texture": "#10"},
+				"down": {"uv": [0, 12, 4, 16], "texture": "#3"}
+			}
+		},
+		{
+			"from": [3, 16, 3],
+			"to": [13, 4, 13],
+			"rotation": {"angle": 0, "axis": "y", "origin": [8, 16, 8]},
+			"faces": {
+				"north": {"uv": [3, 12, 13, 0], "texture": "#6"},
+				"east": {"uv": [3, 12, 13, 0], "texture": "#6"},
+				"south": {"uv": [3, 12, 13, 0], "texture": "#6"},
+				"west": {"uv": [3, 12, 13, 0], "texture": "#6"},
+				"up": {"uv": [0.5, 12.5, 3.5, 15.5], "texture": "#3"}
+			}
+		},
+		{
+			"from": [4, 3, 15],
+			"to": [12, 11, 23],
+			"rotation": {"angle": 0, "axis": "x", "origin": [8, 11, 15]},
+			"faces": {
+				"east": {"uv": [8, 0, 0, 8], "texture": "#7"},
+				"south": {"uv": [8, 0, 16, 8], "texture": "#7"},
+				"west": {"uv": [0, 0, 8, 8], "texture": "#7"},
+				"up": {"uv": [8, 0, 16, 8], "rotation": 180, "texture": "#7"},
+				"down": {"uv": [0, 16, 8, 8], "rotation": 180, "texture": "#7"}
+			}
+		}
+	]
+}

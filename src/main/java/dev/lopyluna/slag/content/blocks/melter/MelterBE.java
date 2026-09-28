@@ -1,44 +1,48 @@
 package dev.lopyluna.slag.content.blocks.melter;
 
+import dev.lopyluna.slag.content.blocks.crucible.CrucibleTank;
 import dev.lopyluna.slag.content.blocks.melter.client.MelterMenu;
 import dev.lopyluna.slag.content.blocks.multiblock.LerpedFloat;
 import dev.lopyluna.slag.content.blocks.smart.BlockEntityBehaviour;
 import dev.lopyluna.slag.content.blocks.smart.SmartBlockEntity;
-import dev.lopyluna.slag.content.blocks.smart.SmartFluidTank;
+import dev.lopyluna.slag.content.temperature.Temperatures;
+import dev.lopyluna.slag.content.temperature.Temperatures.Heat;
 import dev.lopyluna.slag.register.AllBETypes;
 import dev.lopyluna.slag.register.AllRecipes;
-import dev.lopyluna.slag.register.AllTags;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
 import net.minecraft.world.Containers;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraft.world.item.crafting.SingleRecipeInput;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.neoforged.neoforge.capabilities.BlockCapabilityCache;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
+import net.neoforged.neoforge.client.model.data.ModelData;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 import net.neoforged.neoforge.items.IItemHandler;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
-@SuppressWarnings("unused")
+@SuppressWarnings({"unused", "deprecation", "NullableProblems"})
 public class MelterBE extends SmartBlockEntity implements MenuProvider {
     public static final int BLOCK_SIZE = 648; //BLOCKS | 1:1
     public static final int SMALL_BLOCK_SIZE = 288; //SMALL/CRYSTAL BLOCKS | 1:2.25
@@ -46,6 +50,7 @@ public class MelterBE extends SmartBlockEntity implements MenuProvider {
     public static final int INGOT_SIZE = 72; //INGOT/GEM | 1:9
     public static final int SHARD_SIZE = 18; //GEM NUGGET | 1:36
     public static final int NUGGET_SIZE = 8; //INGOT NUGGET | 1:81
+    public static final int CAPACITY = 4000;
 
     private final RecipeManager.CachedCheck<SingleRecipeInput, MeltingRecipe> quickCheck;
 
@@ -53,9 +58,21 @@ public class MelterBE extends SmartBlockEntity implements MenuProvider {
     protected IFluidHandler fluidCapability;
     protected boolean forceFluidLevelUpdate;
     protected MelterInventory itemInventory;
-    protected SmartFluidTank tankInventory;
+    protected CrucibleTank tankInventory;
     protected boolean updateCapability;
     protected int luminosity;
+
+    protected BlockCapabilityCache<IFluidHandler, Direction> behind;
+    protected BlockCapabilityCache<IFluidHandler, Direction> below;
+    protected boolean updateBehind;
+    protected boolean behindMelter;
+    public Heat heat = Heat.NONE;
+    private int heatVersion = -1;
+
+    private MeltingRecipe lastRecipe;
+    private MeltingRecipe meltingRecipe;
+    private int meltingTotal;
+    private float speed;
 
     private static final int SYNC_RATE = 8;
     protected int syncCooldown;
@@ -65,8 +82,26 @@ public class MelterBE extends SmartBlockEntity implements MenuProvider {
     private LerpedFloat fluidLevel;
 
     public int meltingTarget;
-    public int meltingProgress;
+    public float meltingProgress;
     public boolean melting;
+    public final ContainerData data = new ContainerData() {
+        @Override
+        public int get(int index) {
+            return switch (index) {
+                case 0 -> (int) meltingProgress;
+                case 1 -> meltingTarget;
+                default -> melting ? 1 : 0;
+            };
+        }
+
+        @Override
+        public void set(int index, int value) {}
+
+        @Override
+        public int getCount() {
+            return 3;
+        }
+    };
 
     public MelterBE(BlockEntityType<?> type, BlockPos pos, BlockState state) {
         super(type, pos, state);
@@ -109,36 +144,55 @@ public class MelterBE extends SmartBlockEntity implements MenuProvider {
 
         if (fluidLevel != null) fluidLevel.tickChaser();
 
-        if (level == null) return;
+        if (level == null || (level.isClientSide && !isVirtual())) return;
 
         melting = tickRecipe(level);
 
-        if (level.isClientSide) return;
+        if (!(level instanceof ServerLevel server)) return;
 
-        var facing = getBlockState().getValue(MelterBlock.FACING);
-        var outputInv = getFluidHandlerDir(worldPosition.relative(facing.getOpposite()).below());
-        if (outputInv == null) return;
-        var outputFluid = outputInv.getFluidInTank(0);
-        var inputInv = getTankInventory();
-        if (inputInv == null) return;
-        var inputFluid = inputInv.getFluidInTank(0);
-        if (inputFluid.isEmpty()) return;
-        var outputAmount = outputFluid.getAmount();
-        var outputCapacity = outputInv.getTankCapacity(0);
-        if (outputAmount >= outputCapacity) return;
-        var targetDrain = Mth.clamp(outputFluid.isEmpty() ? 1 : 10, 0, outputCapacity - outputAmount);
-        if (targetDrain == 0) return;
+        if (behind == null) {
+            var facing = getBlockState().getValue(MelterBlock.FACING);
+            var pos = worldPosition.relative(facing.getOpposite());
+            behind = BlockCapabilityCache.create(Capabilities.FluidHandler.BLOCK, server, pos, facing, () -> !isRemoved(), () -> updateBehind = true);
+            below = BlockCapabilityCache.create(Capabilities.FluidHandler.BLOCK, server, pos.below(), Direction.UP, () -> !isRemoved(), () -> {});
+            updateBehind = true;
+        }
+        if (updateBehind) {
+            updateBehind = false;
+            var pos = behind.pos();
+            behindMelter = server.isLoaded(pos) && server.getBlockEntity(pos) instanceof MelterBE;
+        }
 
-        var drained = inputInv.drain(targetDrain, IFluidHandler.FluidAction.SIMULATE);
-        if (drained.getAmount() != outputInv.fill(drained, IFluidHandler.FluidAction.SIMULATE)) return;
-        inputInv.drain(targetDrain, IFluidHandler.FluidAction.EXECUTE);
-        outputInv.fill(drained, IFluidHandler.FluidAction.EXECUTE);
+        if (!behindMelter && pour(behind.getCapability())) return;
+        pour(below.getCapability());
     }
 
-    public static boolean isStateHeater(BlockState state) {
-        if (!state.is(AllTags.MELTER_HEATER)) return false;
-        if (state.hasProperty(BlockStateProperties.LIT) && !state.getValue(BlockStateProperties.LIT)) return false;
-        return !state.hasProperty(BlockStateProperties.POWERED) || state.getValue(BlockStateProperties.POWERED);
+    @Override
+    public void setBlockState(BlockState state) {
+        super.setBlockState(state);
+        behind = null;
+        below = null;
+    }
+
+    private boolean pour(@Nullable IFluidHandler output) {
+        if (output == null || output.getTanks() <= 0) return false;
+        var stored = output.getFluidInTank(0);
+        var space = output.getTankCapacity(0) - stored.getAmount();
+        if (space <= 0) return false;
+        var amount = Math.min(stored.isEmpty() ? 1 : 10, space);
+        for (var fluid : tankInventory.getFluids()) {
+            if (fluid.isEmpty()) continue;
+            var poured = fluid.copyWithAmount(Math.min(amount, fluid.getAmount()));
+            if (output.fill(poured, IFluidHandler.FluidAction.SIMULATE) != poured.getAmount()) continue;
+            output.fill(tankInventory.drain(poured, IFluidHandler.FluidAction.EXECUTE), IFluidHandler.FluidAction.EXECUTE);
+            return true;
+        }
+        return false;
+    }
+
+    public static int meltingTicks(int total, int duration, float speed) {
+        var ticks = duration > 0 ? duration : Mth.clamp((int) ((float) total * 0.5f), 4, 256);
+        return Math.max(1, Math.round(ticks / Math.max(0.01f, speed)));
     }
 
     public boolean tickRecipe(Level level) {
@@ -148,8 +202,7 @@ public class MelterBE extends SmartBlockEntity implements MenuProvider {
             meltingProgress = 0;
             return false;
         }
-        var belowState = getBelowState(level);
-        if (!isStateHeater(belowState)) {
+        if (heat.tier == null) {
             notMelting();
             return false;
         }
@@ -158,22 +211,35 @@ public class MelterBE extends SmartBlockEntity implements MenuProvider {
         var recipeholder = quickCheck.getRecipeFor(input, level).orElse(null);
         var tank = getTankInventory();
         if (tank != null && recipeholder != null && recipeholder.value() instanceof MeltingRecipe recipe) {
-            var multiplier = 1f;
-            if (stack.isDamaged()) multiplier = 1f - ((float) stack.getDamageValue() / (float) stack.getMaxDamage());
-
-            var access = level.registryAccess();
-            var fluids = recipe.getResultFluids(access);
-            var total = getTotalAmount(fluids);
-            meltingTarget = Mth.clamp((int) ((float) total * 0.5f), 4, 256);
-            var toFill = new ArrayList<FluidStack>();
-            for (var fluid : fluids) toFill.add(new FluidStack(fluid.getFluidHolder(), Math.round((float) fluid.getAmount() * multiplier)));
-            if (meltingTarget > meltingProgress) ++meltingProgress;
-            else {
-                if (total + tank.getFluidAmount() > tank.getCapacity()) return true;
-                meltingProgress = 0;
-                stack.shrink(1);
-                for (var fluid : toFill) tank.fill(fluid, IFluidHandler.FluidAction.EXECUTE);
+            if (meltingRecipe != null && recipe != meltingRecipe) meltingProgress = 0;
+            meltingRecipe = recipe;
+            if (recipe != lastRecipe) {
+                lastRecipe = recipe;
+                meltingTotal = getTotalAmount(recipe.getResultFluids(level.registryAccess()));
+                speed = heat.speed(recipe.temperature, recipe.heatType);
             }
+            if (speed <= 0) {
+                notMelting();
+                return false;
+            }
+            meltingTarget = meltingTicks(meltingTotal, recipe.duration, recipe.speed);
+            if (meltingTarget > meltingProgress) {
+                meltingProgress += speed;
+                return true;
+            }
+
+            var multiplier = stack.isDamaged() ? 1f - ((float) stack.getDamageValue() / (float) stack.getMaxDamage()) : 1f;
+            var toFill = new ArrayList<FluidStack>();
+            var filling = 0;
+            for (var fluid : recipe.getResultFluids(level.registryAccess())) {
+                var fill = new FluidStack(fluid.getFluidHolder(), Math.round((float) fluid.getAmount() * multiplier));
+                filling += fill.getAmount();
+                toFill.add(fill);
+            }
+            if (filling > tank.getSpace()) return true;
+            meltingProgress = 0;
+            stack.shrink(1);
+            for (var fluid : toFill) tank.fill(fluid, IFluidHandler.FluidAction.EXECUTE);
             return true;
         }
         notMelting();
@@ -185,23 +251,30 @@ public class MelterBE extends SmartBlockEntity implements MenuProvider {
     }
 
     public void notMelting() {
-        if (meltingProgress > 0) --meltingProgress;
+        if (meltingProgress > 0) meltingProgress = Math.max(0, meltingProgress - 1);
     }
 
-    public BlockState getBelowState(Level level) {
-        return level.getBlockState(worldPosition.below());
+    public void updateHeat() {
+        if (level == null || (level.isClientSide && !isVirtual())) return;
+        heatVersion = Temperatures.version;
+        var heat = Temperatures.get(level.getBlockState(worldPosition.below()));
+        if (heat == this.heat) return;
+        this.heat = heat;
+        lastRecipe = null;
+        setChanged();
+        sendData();
     }
 
-    private IFluidHandler getFluidHandlerDir(BlockPos pos) {
-        assert level != null;
-        if (!level.isLoaded(pos)) return null;
-        var be = level.getBlockEntity(pos);
-        if (be == null) return null;
-        return level.getCapability(Capabilities.FluidHandler.BLOCK, pos, Direction.DOWN);
+    @Override
+    public void lazyTick() {
+        super.lazyTick();
+        if (heatVersion != Temperatures.version) updateHeat();
     }
 
-    protected SmartFluidTank createInventory() {
-        return new SmartFluidTank(4000, this::onFluidStackChanged);
+    protected CrucibleTank createInventory() {
+        var tank = new CrucibleTank(CAPACITY, this::onFluidStackChanged);
+        tank.sortByAmount = true;
+        return tank;
     }
 
     public void refreshCapability() {
@@ -218,12 +291,13 @@ public class MelterBE extends SmartBlockEntity implements MenuProvider {
         return tankInventory;
     }
 
-    protected void onFluidStackChanged(FluidStack newFluids) {
+    protected void onFluidStackChanged(List<FluidStack> newFluids) {
         if (level == null) return;
 
         level.updateNeighbourForOutputSignal(worldPosition, getBlockState().getBlock());
 
         if (!level.isClientSide) {
+            updateLuminosity();
             setChanged();
             sendData();
         } else {
@@ -232,16 +306,23 @@ public class MelterBE extends SmartBlockEntity implements MenuProvider {
         }
     }
 
-    protected void setLuminosity(int luminosity) { //TODO: ADD LUMINOSITY
+    protected void setLuminosity(int luminosity) {
         assert level != null;
         if (level.isClientSide) return;
         if (this.luminosity == luminosity) return;
         this.luminosity = luminosity;
+        level.getChunkSource().getLightEngine().checkBlock(worldPosition);
         sendData();
     }
 
+    protected void updateLuminosity() {
+        var light = 0;
+        for (var fluid : tankInventory.getFluids()) if (!fluid.isEmpty()) light = Math.max(light, fluid.getFluidType().getLightLevel(fluid));
+        setLuminosity(light);
+    }
+
     public float getFillState() {
-        return (float) tankInventory.getFluidAmount() / tankInventory.getCapacity();
+        return (float) tankInventory.total / tankInventory.getCapacity();
     }
 
     @Override
@@ -257,17 +338,19 @@ public class MelterBE extends SmartBlockEntity implements MenuProvider {
     @Override
     protected void read(CompoundTag tag, HolderLookup.Provider registries, boolean clientPacket) {
         super.read(tag, registries, clientPacket);
-        meltingProgress = tag.getInt("MeltingProgress");
+        var visual = heat.visual;
+        heat = Heat.read(tag);
+        meltingProgress = tag.getFloat("MeltingProgress");
         melting = tag.getBoolean("Melting");
         itemInventory.load(tag, registries);
-        assert level != null;
         int prevLum = luminosity;
         luminosity = tag.getInt("Luminosity");
 
         tankInventory.setCapacity(4000);
 
-        tankInventory.readFromNBT(registries, tag.getCompound("TankContent"));
-        if (tankInventory.getSpace() < 0) tankInventory.drain(-tankInventory.getSpace(), IFluidHandler.FluidAction.EXECUTE);
+        var content = tag.getCompound("TankContent");
+        tankInventory.readFromNBT(registries, content);
+        if (content.contains("Fluid")) tankInventory.fill(FluidStack.parseOptional(registries, content.getCompound("Fluid")), IFluidHandler.FluidAction.EXECUTE);
 
         if (tag.contains("ForceFluidLevel") || fluidLevel == null) fluidLevel = LerpedFloat.linear().startWithValue(getFillState());
 
@@ -275,11 +358,16 @@ public class MelterBE extends SmartBlockEntity implements MenuProvider {
 
         if (!clientPacket) return;
 
+        if (visual != heat.visual && level != null) {
+            requestModelDataUpdate();
+            level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 0);
+        }
+
         float fillState = getFillState();
         if (tag.contains("ForceFluidLevel") || fluidLevel == null) fluidLevel = LerpedFloat.linear().startWithValue(fillState);
         fluidLevel.chase(fillState, 0.5f, LerpedFloat.Chaser.EXP);
 
-        if (luminosity != prevLum && hasLevel()) level.getChunkSource().getLightEngine().checkBlock(worldPosition);
+        if (luminosity != prevLum && level != null) level.getChunkSource().getLightEngine().checkBlock(worldPosition);
 
         if (tag.contains("LazySync")) fluidLevel.chase(fluidLevel.getChaseTarget(), 0.125f, LerpedFloat.Chaser.EXP);
     }
@@ -289,7 +377,8 @@ public class MelterBE extends SmartBlockEntity implements MenuProvider {
         tag.put("TankContent", tankInventory.writeToNBT(registries, new CompoundTag()));
         tag.putInt("Luminosity", luminosity);
         super.write(tag, registries, clientPacket);
-        tag.putInt("MeltingProgress", meltingProgress);
+        heat.write(tag);
+        tag.putFloat("MeltingProgress", meltingProgress);
         tag.putBoolean("Melting", melting);
         itemInventory.save(tag, registries);
         if (!clientPacket) return;
@@ -302,6 +391,7 @@ public class MelterBE extends SmartBlockEntity implements MenuProvider {
     public void initialize() {
         super.initialize();
         sendData();
+        if (level != null) level.getChunkSource().getLightEngine().checkBlock(worldPosition);
     }
 
     @Override
@@ -345,7 +435,7 @@ public class MelterBE extends SmartBlockEntity implements MenuProvider {
         return itemInventory;
     }
 
-    public SmartFluidTank getTankInventory() {
+    public CrucibleTank getTankInventory() {
         return tankInventory;
     }
 
@@ -359,18 +449,23 @@ public class MelterBE extends SmartBlockEntity implements MenuProvider {
     }
 
     @Override
-    public @NotNull Component getDisplayName() {
+    public @Nonnull ModelData getModelData() {
+        return heat.modelData;
+    }
+
+    @Override
+    public @Nonnull Component getDisplayName() {
         return getBlockState().getBlock().getName();
     }
 
     @Override
-    public @Nullable AbstractContainerMenu createMenu(int i, @NotNull Inventory inventory, @NotNull Player player) {
+    public @Nullable AbstractContainerMenu createMenu(int i, @Nonnull Inventory inventory, @Nonnull Player player) {
         if (itemInventory == null) itemInventory = new MelterInventory(1, this);
-        return new MelterMenu(i, inventory, itemInventory, worldPosition);
+        return new MelterMenu(i, inventory, itemInventory, worldPosition, data);
     }
 
     @Override
-    public void writeClientSideData(@NotNull AbstractContainerMenu menu, RegistryFriendlyByteBuf buffer) {
+    public void writeClientSideData(@Nonnull AbstractContainerMenu menu, RegistryFriendlyByteBuf buffer) {
         buffer.writeBlockPos(worldPosition);
     }
 }

@@ -14,12 +14,12 @@ import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
 
+@SuppressWarnings("unused")
 @ParametersAreNonnullByDefault
 public abstract class SimpleBEBlock extends BEBlock {
     protected SimpleBEBlock(Properties properties) {
@@ -27,7 +27,7 @@ public abstract class SimpleBEBlock extends BEBlock {
     }
 
     @Override
-    protected @NotNull RenderShape getRenderShape(BlockState state) {
+    protected @Nonnull RenderShape getRenderShape(BlockState state) {
         return RenderShape.MODEL;
     }
 
@@ -48,7 +48,7 @@ public abstract class SimpleBEBlock extends BEBlock {
     }
 
     @Override
-    protected @NotNull ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
+    protected @Nonnull ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
         if (level.getBlockEntity(pos) instanceof SimpleBE be) {
             var result = be.useItem(stack, state, level, pos, player, hand, hitResult);
             if (result != null) return result;
@@ -57,7 +57,7 @@ public abstract class SimpleBEBlock extends BEBlock {
     }
 
     @Override
-    protected @NotNull InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hitResult) {
+    protected @Nonnull InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hitResult) {
         if (level.getBlockEntity(pos) instanceof SimpleBE be) {
             var result = be.useItem(ItemStack.EMPTY, state, level, pos, player, InteractionHand.MAIN_HAND, hitResult);
             if (result != null) return result.result();

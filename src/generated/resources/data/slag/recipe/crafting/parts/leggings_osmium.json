@@ -1,0 +1,38 @@
+{
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:not",
+      "value": {
+        "type": "neoforge:tag_empty",
+        "tag": "c:ingots/osmium"
+      }
+    },
+    {
+      "type": "slag:cast_only",
+      "tier": 5.0
+    }
+  ],
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "M": {
+      "tag": "c:ingots/osmium"
+    },
+    "R": {
+      "item": "minecraft:paper"
+    }
+  },
+  "pattern": [
+    "MMM",
+    "M M",
+    "R R"
+  ],
+  "result": {
+    "components": {
+      "slag:material_type": "slag:osmium",
+      "slag:part_type": "slag:leggings"
+    },
+    "count": 1,
+    "id": "slag:dynamic_part"
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "effects": [
+    {
+      "type": "slag:mining",
+      "blocks": "#minecraft:mineable/axe"
+    },
+    {
+      "type": "slag:abilities",
+      "abilities": [
+        "axe_dig"
+      ]
+    }
+  ],
+  "hidden": true,
+  "id": "slag:axe_mining",
+  "sort_order": 130
+}

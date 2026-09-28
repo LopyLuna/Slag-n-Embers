@@ -1,0 +1,17 @@
+{
+  "color": "#613E37",
+  "effects": [
+    {
+      "type": "slag:components",
+      "components": {
+        "minecraft:fire_resistant": {}
+      }
+    },
+    {
+      "type": "slag:damage_immunity",
+      "damage_types": "minecraft:is_fire"
+    }
+  ],
+  "id": "slag:fire_resistant",
+  "sort_order": 280
+}

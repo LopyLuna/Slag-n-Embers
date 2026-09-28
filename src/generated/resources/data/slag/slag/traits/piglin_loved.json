@@ -1,0 +1,17 @@
+{
+  "color": "#F2C93D",
+  "effects": [
+    {
+      "type": "slag:item_tags",
+      "tags": [
+        "minecraft:piglin_loved"
+      ]
+    },
+    {
+      "type": "slag:flag",
+      "flag": "piglin_neutral"
+    }
+  ],
+  "id": "slag:piglin_loved",
+  "sort_order": 290
+}

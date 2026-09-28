@@ -1,0 +1,24 @@
+{
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:not",
+      "value": {
+        "type": "neoforge:tag_empty",
+        "tag": "c:alloys/andesite"
+      }
+    }
+  ],
+  "type": "slag:table_casting",
+  "cast_item": {
+    "ingredient": {
+      "item": "minecraft:andesite"
+    }
+  },
+  "ingredient": {
+    "amount": 8,
+    "tag": "c:molten/iron"
+  },
+  "result": {
+    "tag": "c:alloys/andesite"
+  }
+}

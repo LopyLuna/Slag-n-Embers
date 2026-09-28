@@ -1,0 +1,19 @@
+{
+  "type": "slag:melting",
+  "ingredients": [
+    {
+      "components": {
+        "slag:material_type": "slag:echo",
+        "slag:part_type": "slag:chestplate"
+      },
+      "count": 1,
+      "id": "slag:dynamic_part"
+    }
+  ],
+  "result": [
+    {
+      "amount": 432,
+      "id": "slag:molten_echo"
+    }
+  ]
+}

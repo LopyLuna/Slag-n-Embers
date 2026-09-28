@@ -7,7 +7,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Inventory;
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
 
 public class ForgeScreen extends AbstractContainerScreen<ForgeMenu> {
     private static final ResourceLocation TEXTURE = SlagEmbers.loc("textures/gui/brick_forge.png");
@@ -35,7 +35,7 @@ public class ForgeScreen extends AbstractContainerScreen<ForgeMenu> {
 
 
     @Override
-    public void render(@NotNull GuiGraphics gui, int mouseX, int mouseY, float partialTick) {
+    public void render(@Nonnull GuiGraphics gui, int mouseX, int mouseY, float partialTick) {
         //renderBackground(gui, mouseX, mouseY, partialTick);
         super.render(gui, mouseX, mouseY, partialTick);
         renderTooltip(gui, mouseX, mouseY);

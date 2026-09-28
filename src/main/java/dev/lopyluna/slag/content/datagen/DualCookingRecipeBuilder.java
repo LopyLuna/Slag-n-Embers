@@ -14,9 +14,9 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.ItemLike;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nonnull;
 
+import javax.annotation.Nullable;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -50,24 +50,24 @@ public class DualCookingRecipeBuilder implements RecipeBuilder {
     }
 
     @Override
-    public @NotNull RecipeBuilder unlockedBy(@NotNull String name, @NotNull Criterion<?> criterion) {
+    public @Nonnull RecipeBuilder unlockedBy(@Nonnull String name, @Nonnull Criterion<?> criterion) {
         this.criteria.put(name, criterion);
         return this;
     }
 
     @Override
-    public @NotNull RecipeBuilder group(@Nullable String name) {
+    public @Nonnull RecipeBuilder group(@Nullable String name) {
         this.group = name;
         return this;
     }
 
     @Override
-    public @NotNull Item getResult() {
+    public @Nonnull Item getResult() {
         return this.result;
     }
 
     @Override
-    public void save(@NotNull RecipeOutput recipeOutput, @NotNull ResourceLocation loc) {
+    public void save(@Nonnull RecipeOutput recipeOutput, @Nonnull ResourceLocation loc) {
         if (this.criteria.isEmpty()) throw new IllegalStateException("No way of obtaining recipe " + loc);
         var builder = recipeOutput.advancement().addCriterion("has_the_recipe", RecipeUnlockedTrigger.unlocked(loc))
                 .rewards(AdvancementRewards.Builder.recipe(loc)).requirements(AdvancementRequirements.Strategy.OR);

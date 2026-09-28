@@ -2,7 +2,7 @@
   "type": "slag:basin_casting",
   "ingredient": {
     "amount": 288,
-    "id": "slag:molten_amethyst"
+    "tag": "c:molten/amethyst"
   },
   "result": {
     "count": 1,

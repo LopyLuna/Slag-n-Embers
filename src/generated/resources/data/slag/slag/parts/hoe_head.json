@@ -1,10 +1,25 @@
 {
   "id": "slag:hoe_head",
   "item_tags": [
-    "slag:cast/hoe_heads"
+    "slag:cast/hoe_heads",
+    "slag:imprintable"
   ],
   "segment_part": "slag:parts/hoe_heads",
-  "sharpness_modifier": 0.0,
   "sort_order": 3,
-  "speed_modifier": 0.0
+  "traits": [
+    {
+      "operation": "multiply",
+      "trait": "slag:durability",
+      "value": 1.0
+    },
+    {
+      "operation": "multiply",
+      "trait": "slag:attack_damage",
+      "value": 0.0
+    },
+    {
+      "trait": "slag:attack_speed",
+      "value": 0.0
+    }
+  ]
 }

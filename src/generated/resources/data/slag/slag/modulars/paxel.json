@@ -1,12 +1,4 @@
 {
-  "actions": [
-    "pickaxe",
-    "axe",
-    "shovel",
-    "hoe",
-    "sword",
-    "isTool"
-  ],
   "final_segment_stacks": [
     {
       "count": 3,
@@ -30,5 +22,18 @@
     "slag:parts/hoe_heads",
     "slag:parts/sword_blades"
   ],
-  "sort_order": 12
+  "sort_order": 12,
+  "traits": [
+    "slag:tool",
+    "slag:pickaxe_mining",
+    "slag:axe_mining",
+    "slag:stripping",
+    "slag:shield_breaking",
+    "slag:shovel_mining",
+    "slag:flattening",
+    "slag:hoe_mining",
+    "slag:tilling",
+    "slag:sword_mining",
+    "slag:sweeping"
+  ]
 }

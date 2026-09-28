@@ -1,0 +1,25 @@
+{
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:not",
+      "value": {
+        "type": "neoforge:tag_empty",
+        "tag": "c:ingots/tungsten"
+      }
+    }
+  ],
+  "type": "slag:table_casting",
+  "cast": "slag:cast/plates",
+  "ingredient": {
+    "amount": 144,
+    "tag": "c:molten/tungsten"
+  },
+  "result": {
+    "components": {
+      "slag:material_type": "slag:tungsten",
+      "slag:part_type": "slag:plate"
+    },
+    "count": 1,
+    "id": "slag:dynamic_part"
+  }
+}

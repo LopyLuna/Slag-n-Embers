@@ -1,11 +1,17 @@
 {
+  "neoforge:conditions": [
+    {
+      "type": "slag:cast_only",
+      "tier": 4.0
+    }
+  ],
   "parent": "minecraft:recipes/root",
   "criteria": {
-    "has_hoe_head": {
+    "has_paper": {
       "conditions": {
         "items": [
           {
-            "items": "#c:hoe_heads"
+            "items": "minecraft:paper"
           }
         ]
       },
@@ -21,7 +27,7 @@
   "requirements": [
     [
       "has_the_recipe",
-      "has_hoe_head"
+      "has_paper"
     ]
   ],
   "rewards": {

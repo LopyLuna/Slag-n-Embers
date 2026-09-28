@@ -1,0 +1,11 @@
+{
+  "type": "slag:table_casting",
+  "ingredient": {
+    "amount": 27,
+    "tag": "c:molten/iron"
+  },
+  "result": {
+    "count": 1,
+    "id": "minecraft:iron_bars"
+  }
+}

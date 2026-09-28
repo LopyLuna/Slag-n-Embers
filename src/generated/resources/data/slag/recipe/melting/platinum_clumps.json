@@ -1,0 +1,22 @@
+{
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:not",
+      "value": {
+        "type": "neoforge:tag_empty",
+        "tag": "c:clumps/platinum"
+      }
+    }
+  ],
+  "type": "slag:melting",
+  "ingredient": {
+    "tag": "c:clumps/platinum"
+  },
+  "ingredients": [],
+  "result": [
+    {
+      "amount": 96,
+      "id": "slag:molten_platinum"
+    }
+  ]
+}

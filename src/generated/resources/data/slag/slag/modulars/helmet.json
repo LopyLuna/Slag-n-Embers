@@ -1,16 +1,16 @@
 {
-  "actions": [
-    "helmet",
-    "isArmor"
-  ],
   "id": "slag:helmet",
   "item_tags": [
-    "minecraft:head_armor"
+    "minecraft:head_armor",
+    "minecraft:trimmable_armor"
   ],
   "model_type": "equipable",
   "segments": [
     "slag:parts/plates",
     "slag:parts/helmets"
   ],
-  "sort_order": 13
+  "sort_order": 13,
+  "traits": [
+    "slag:head_slot"
+  ]
 }

@@ -1,18 +1,44 @@
 {
-  "defense": 8.0,
-  "durability": 2048.0,
-  "enchantability": 15.0,
-  "fireproof": true,
   "id": "slag:netherite",
-  "knockback_resistance": 0.1,
   "molten_fluid": "slag:molten_netherite",
   "repair_ingredient": {
     "tag": "c:ingots/netherite"
   },
-  "sharpness": 7.0,
   "sort_order": 70,
-  "speed": 9.0,
   "texture": "metal",
-  "tier": 6.0,
-  "toughness": 3.0
+  "traits": [
+    {
+      "trait": "slag:attack_damage",
+      "value": 7.0
+    },
+    {
+      "trait": "slag:durability",
+      "value": 2048.0
+    },
+    {
+      "trait": "slag:mining_tier",
+      "value": 6.0
+    },
+    {
+      "trait": "slag:mining_speed",
+      "value": 9.0
+    },
+    {
+      "trait": "slag:enchantability",
+      "value": 15.0
+    },
+    {
+      "trait": "slag:armor",
+      "value": 8.0
+    },
+    {
+      "trait": "slag:armor_toughness",
+      "value": 3.0
+    },
+    {
+      "trait": "slag:knockback_resistance",
+      "value": 0.1
+    },
+    "slag:fire_resistant"
+  ]
 }

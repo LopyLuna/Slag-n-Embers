@@ -1,0 +1,18 @@
+{
+  "effects": [
+    {
+      "type": "slag:block_action",
+      "action": "flatten"
+    },
+    {
+      "type": "slag:abilities",
+      "abilities": [
+        "shovel_flatten",
+        "shovel_douse"
+      ]
+    }
+  ],
+  "hidden": true,
+  "id": "slag:flattening",
+  "sort_order": 200
+}

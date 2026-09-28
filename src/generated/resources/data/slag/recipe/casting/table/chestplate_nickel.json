@@ -1,0 +1,25 @@
+{
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:not",
+      "value": {
+        "type": "neoforge:tag_empty",
+        "tag": "c:ingots/nickel"
+      }
+    }
+  ],
+  "type": "slag:table_casting",
+  "cast": "slag:cast/chestplates",
+  "ingredient": {
+    "amount": 432,
+    "tag": "c:molten/nickel"
+  },
+  "result": {
+    "components": {
+      "slag:material_type": "slag:nickel",
+      "slag:part_type": "slag:chestplate"
+    },
+    "count": 1,
+    "id": "slag:dynamic_part"
+  }
+}

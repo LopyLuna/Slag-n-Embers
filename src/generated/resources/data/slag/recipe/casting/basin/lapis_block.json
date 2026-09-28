@@ -2,7 +2,7 @@
   "type": "slag:basin_casting",
   "ingredient": {
     "amount": 648,
-    "id": "slag:molten_lapis"
+    "tag": "c:molten/lapis"
   },
   "result": {
     "count": 1,

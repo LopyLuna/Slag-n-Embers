@@ -2,25 +2,27 @@ package dev.lopyluna.slag.content.types;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import com.tterrag.registrate.providers.RegistrateLangProvider;
 import dev.lopyluna.slag.SlagEmbers;
-import dev.lopyluna.slag.content.AllUtils;
 import dev.lopyluna.slag.content.items.dynamic_part.IDynamicPart;
-import dev.lopyluna.slag.content.items.modular.actions.*;
+import dev.lopyluna.slag.content.traits.TraitEntry;
+import dev.lopyluna.slag.content.traits.TraitType;
 import dev.lopyluna.slag.register.AllDataComponents;
+import dev.lopyluna.slag.register.AllTags;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
-import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.neoforged.neoforge.common.conditions.ICondition;
+import net.neoforged.neoforge.common.conditions.ModLoadedCondition;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Consumer;
 import java.util.stream.Stream;
 
 @SuppressWarnings("unused")
@@ -32,7 +34,9 @@ public class ModularType {
     public final List<TagKey<Item>> segments;
     public final List<ItemStack> finalSegmentStacks;
     private final ItemStack resultStack;
-    public final List<String> actions; //like "pickaxe" gives effects of an actual pickaxe or "shield" gives effects of an actual shield for example
+    public final List<TraitEntry> traits;
+    public final Incompatible incompatible;
+    public final List<ICondition> conditions;
 
     public final List<TagKey<Item>> itemTags;
 
@@ -46,20 +50,19 @@ public class ModularType {
                     TagKey.codec(Registries.ITEM).listOf().optionalFieldOf("segments", new ArrayList<>()).forGetter(m -> m.segments),
                     ItemStack.CODEC.listOf().optionalFieldOf("final_segment_stacks", new ArrayList<>()).forGetter(m -> m.finalSegmentStacks),
                     ItemStack.CODEC.optionalFieldOf("result_stack", ItemStack.EMPTY).forGetter(m -> m.resultStack),
-                    Codec.STRING.listOf().optionalFieldOf("actions", new ArrayList<>()).forGetter(m -> m.actions),
+                    TraitEntry.CODEC.listOf().optionalFieldOf("traits", List.of()).forGetter(m -> m.traits),
+                    Incompatible.CODEC.optionalFieldOf("incompatible", Incompatible.EMPTY).forGetter(m -> m.incompatible),
+                    ICondition.LIST_CODEC.optionalFieldOf("conditions", List.of()).forGetter(m -> m.conditions),
                     TagKey.codec(Registries.ITEM).listOf().optionalFieldOf("item_tags", new ArrayList<>()).forGetter(m -> m.itemTags)
             ).apply(instance, ModularType::new)
     );
 
-    public static final StreamCodec<RegistryFriendlyByteBuf, ModularType> STREAM_CODEC = StreamCodec.of(ModularType::toNetwork, ModularType::fromNetwork);
-
     @Override
     public int hashCode() {
-        var actionHash = 0;
-        if (actions != null && !actions.isEmpty()) actionHash = actions.hashCode();
+        var traitHash = traits.hashCode() + incompatible.hashCode() + conditions.hashCode();
         var resultStackHash = 0;
         if (resultStack != null) resultStackHash = resultStack.copy().hashCode();
-        return 31 * id.hashCode() + 31 * actionHash + 31 * segmentHash() + 31 * finalSegmentStacksHash() + 31 * itemTagsHash() + 31 * resultStackHash + Objects.hash(modelType, sortOrder);
+        return 31 * id.hashCode() + 31 * traitHash + 31 * segmentHash() + 31 * finalSegmentStacksHash() + 31 * itemTagsHash() + 31 * resultStackHash + Objects.hash(modelType, sortOrder);
     }
 
     @Override
@@ -67,86 +70,22 @@ public class ModularType {
         if (obj == this) return true;
         if (obj == null || obj.getClass() != this.getClass()) return false;
         var that = (ModularType) obj;
-        return this.id.equals(that.id) && this.modelType.equals(that.modelType) && this.sortOrder == that.sortOrder && equalSegment(that.segments) && equalFinalSegmentStacks(that.finalSegmentStacks) && equalItemTags(that.itemTags) && ItemStack.isSameItemSameComponents(this.resultStack, that.resultStack) && this.actions.equals(that.actions);
+        return this.id.equals(that.id) && this.modelType.equals(that.modelType) && this.sortOrder == that.sortOrder && equalSegment(that.segments) && equalFinalSegmentStacks(that.finalSegmentStacks) && equalItemTags(that.itemTags) && ItemStack.isSameItemSameComponents(this.resultStack, that.resultStack) && this.traits.equals(that.traits) && this.incompatible.equals(that.incompatible) && this.conditions.equals(that.conditions);
+    }
+
+    public Component getName() {
+        return name(id);
+    }
+
+    public static Component name(ResourceLocation id) {
+        return Component.translatableWithFallback("modular." + id.getNamespace() + "." + id.getPath(), RegistrateLangProvider.toEnglishName(id.getPath()));
     }
 
     public ItemStack getResultStack() {
         return resultStack.copy();
     }
 
-    public static ModularType fromNetwork(RegistryFriendlyByteBuf buf) {
-        var id = ResourceLocation.STREAM_CODEC.decode(buf);
-        var modelType = buf.readUtf();
-        int sorting = buf.readInt();
-
-        boolean hasSegments = buf.readBoolean();
-        var segments = new ArrayList<TagKey<Item>>();
-        if (hasSegments) {
-            int segmentsSize = buf.readVarInt();
-            if (segmentsSize > 0) for (int i = 0; i < segmentsSize; i++) segments.add(AllUtils.tagKeyStreamCodec(Registries.ITEM).decode(buf));
-        }
-
-        boolean hasActions = buf.readBoolean();
-        var actions = new ArrayList<String>();
-        if (hasActions) {
-            int actionsSize = buf.readVarInt();
-            if (actionsSize > 0) for (int i = 0; i < actionsSize; i++) actions.add(buf.readUtf());
-        }
-
-        boolean hasFinalSegmentStacks = buf.readBoolean();
-        var finalSegmentStacks = new ArrayList<ItemStack>();
-        if (hasFinalSegmentStacks) {
-            int finalSegmentStacksSize = buf.readVarInt();
-            if (finalSegmentStacksSize > 0) for (int i = 0; i < finalSegmentStacksSize; i++) finalSegmentStacks.add(ItemStack.STREAM_CODEC.decode(buf));
-        }
-
-        boolean hasResultStack = buf.readBoolean();
-        ItemStack resultStack = hasResultStack ? ItemStack.STREAM_CODEC.decode(buf) : ItemStack.EMPTY;
-
-        boolean hasItemTags = buf.readBoolean();
-        var itemTags = new ArrayList<TagKey<Item>>();
-        if (hasItemTags) {
-            int itemTagsSize = buf.readVarInt();
-            if (itemTagsSize > 0) for (int i = 0; i < itemTagsSize; i++) itemTags.add(AllUtils.tagKeyStreamCodec(Registries.ITEM).decode(buf));
-        }
-
-        return new ModularType(id, modelType, sorting, segments, finalSegmentStacks, resultStack, actions, itemTags);
-    }
-
-    public static void toNetwork(RegistryFriendlyByteBuf buf, ModularType type) {
-        ResourceLocation.STREAM_CODEC.encode(buf, type.id);
-        buf.writeUtf(type.modelType);
-        buf.writeInt(type.sortOrder);
-
-        buf.writeBoolean(type.segments != null && !type.segments.isEmpty());
-        if (type.segments != null && !type.segments.isEmpty()) {
-            buf.writeVarInt(type.segments.size());
-            for (var segment : type.segments) AllUtils.tagKeyStreamCodec(Registries.ITEM).encode(buf, segment);
-        }
-
-        buf.writeBoolean(type.actions != null && !type.actions.isEmpty());
-        if (type.actions != null && !type.actions.isEmpty()) {
-            buf.writeVarInt(type.actions.size());
-            for (var action : type.actions) buf.writeUtf(action);
-        }
-
-        buf.writeBoolean(type.finalSegmentStacks != null && !type.finalSegmentStacks.isEmpty());
-        if (type.finalSegmentStacks != null && !type.finalSegmentStacks.isEmpty()) {
-            buf.writeVarInt(type.finalSegmentStacks.size());
-            for (var stack : type.finalSegmentStacks) ItemStack.STREAM_CODEC.encode(buf, stack);
-        }
-
-        buf.writeBoolean(type.resultStack != null && !type.resultStack.isEmpty());
-        if (type.resultStack != null && !type.resultStack.isEmpty()) ItemStack.STREAM_CODEC.encode(buf, type.resultStack);
-
-        buf.writeBoolean(type.itemTags != null && !type.itemTags.isEmpty());
-        if (type.itemTags != null && !type.itemTags.isEmpty()) {
-            buf.writeVarInt(type.itemTags.size());
-            for (var tag : type.itemTags) AllUtils.tagKeyStreamCodec(Registries.ITEM).encode(buf, tag);
-        }
-    }
-
-    private ModularType(ResourceLocation id, String modelType, int sortOrder, List<TagKey<Item>> segments, List<ItemStack> finalSegmentStacks, ItemStack resultStack, List<String> actions, List<TagKey<Item>> itemTags) {
+    private ModularType(ResourceLocation id, String modelType, int sortOrder, List<TagKey<Item>> segments, List<ItemStack> finalSegmentStacks, ItemStack resultStack, List<TraitEntry> traits, Incompatible incompatible, List<ICondition> conditions, List<TagKey<Item>> itemTags) {
         dontRegister = id == null || id.getNamespace().isEmpty() || id.getPath().isEmpty() || id.getPath().equals("null") || id.getPath().equals("empty");
         this.id = id;
         this.modelType = modelType;
@@ -154,8 +93,15 @@ public class ModularType {
         this.segments = segments;
         this.finalSegmentStacks = finalSegmentStacks;
         this.resultStack = resultStack;
-        this.actions = actions;
+        this.traits = traits;
+        this.incompatible = incompatible;
+        this.conditions = conditions;
         this.itemTags = itemTags;
+    }
+
+    public boolean hasTrait(TraitType trait) {
+        for (var entry : traits) if (entry.trait().equals(trait.id)) return true;
+        return false;
     }
 
     @SuppressWarnings("unused")
@@ -166,7 +112,9 @@ public class ModularType {
         private List<TagKey<Item>> segments = new ArrayList<>();
         private List<ItemStack> finalSegmentStacks = new ArrayList<>();
         private ItemStack resultStack;
-        private List<String> actions = new ArrayList<>();
+        private final List<TraitEntry> traits = new ArrayList<>();
+        private final List<ICondition> conditions = new ArrayList<>();
+        private final Incompatible.Builder incompatible = new Incompatible.Builder();
         private List<TagKey<Item>> itemTags = new ArrayList<>();
 
         public Builder(ResourceLocation id) { this.id = id; }
@@ -211,11 +159,16 @@ public class ModularType {
         public Builder resultStack(Item resultStack) { this.resultStack = new ItemStack(resultStack); return this; }
         public Builder resultStack(Item resultStack, int count) { this.resultStack = new ItemStack(resultStack, count); return this; }
 
-        public Builder actions(List<String> actions) { this.actions = actions; return this; }
-        public Builder actions(String... actions) { this.actions = List.of(actions); return this; }
-        public Builder addAction(String action) { this.actions.add(action); return this; }
-        public Builder addActions(List<String> actions) { this.actions.addAll(actions); return this; }
-        public Builder addActions(String... actions) { this.actions.addAll(List.of(actions)); return this; }
+        public Builder trait(TraitEntry entry) { traits.add(entry); return this; }
+        public Builder trait(TraitType trait) { return trait(TraitEntry.of(trait)); }
+        public Builder trait(TraitType trait, float value) { return trait(TraitEntry.of(trait, value)); }
+        public Builder multiply(TraitType trait, float value) { return trait(TraitEntry.multiply(trait, value)); }
+        public Builder traits(TraitType... traits) { for (var trait : traits) trait(trait); return this; }
+
+        public Builder condition(ICondition... conditions) { this.conditions.addAll(List.of(conditions)); return this; }
+        public Builder modLoaded(String modId) { return condition(new ModLoadedCondition(modId)); }
+        public Builder requiresTag(TagKey<Item> tag) { return condition(AllTags.present(tag)); }
+        public Builder incompatible(Consumer<Incompatible.Builder> builder) { builder.accept(incompatible); return this; }
 
         public Builder itemTags(List<TagKey<Item>> itemTags) { this.itemTags = itemTags; return this; }
         @SafeVarargs public final Builder itemTags(TagKey<Item>... itemTags) { this.itemTags = List.of(itemTags); return this; }
@@ -223,80 +176,9 @@ public class ModularType {
         public Builder addItemTags(List<TagKey<Item>> itemTags) { this.itemTags.addAll(itemTags); return this; }
         @SafeVarargs public final Builder addItemTags(TagKey<Item>... itemTags) { this.itemTags.addAll(List.of(itemTags)); return this; }
 
-        public ModularType register() { return new ModularType(id, modelType, sortOrder, segments, finalSegmentStacks, resultStack == null ? ItemStack.EMPTY : resultStack, actions, itemTags); }
-    }
-
-    @SuppressWarnings("unused")
-    public static Object doAction(String action, String type, Object... args) {
-        List<Object> argList = Arrays.stream(args).toList();
-
-        return switch (action) {
-            //Tools
-            case "pickaxe" -> PickaxeActions.INSTANCE.doAction(type, argList);
-            case "axe" -> AxeActions.INSTANCE.doAction(type, argList);
-            case "shovel" -> ShovelActions.INSTANCE.doAction(type, argList);
-            case "hoe" -> HoeActions.INSTANCE.doAction(type, argList);
-
-            case "disableShield" -> DisableShieldAction.INSTANCE.doAction(type, argList);
-            case "strip" -> StripBlockAction.INSTANCE.doAction(type, argList);
-            case "plow" -> PlowBlockAction.INSTANCE.doAction(type, argList);
-            case "till" -> TillBlockAction.INSTANCE.doAction(type, argList);
-
-            //Tools Extra
-            case "harvest" -> HarvestActions.INSTANCE.doAction(type, argList);
-            case "scythe" -> "scythe"; //Args: onUse
-            case "hammer" -> "hammer"; //Args: onBreak
-            case "cutting" -> "cutting"; //Args: onUse
-            case "vein" -> "vein"; //Args: onUse
-
-            //Melee
-            case "sword" -> SwordActions.INSTANCE.doAction(type, argList);
-            case "mace" -> "mace"; //Args: onKnockback, onPostHurt
-
-            //Defense
-            case "shield" -> "shield"; //Args: onUse
-
-            //Ranged
-            case "bow" -> "bow"; //Args: onUse
-            case "crossbow" -> "crossbow"; //Args: onUse
-            case "throwing" -> "throwing"; //Args: onUse
-            case "arrow" -> "arrow"; //Args: ammo
-
-            //Ranged/Melee
-            case "trident" -> "trident"; //Args: onUse
-            case "spear" -> "spear"; //Args: onUse
-
-            //Misc
-            case "fishing_rod" -> "fishing_rod"; //Args: onUse
-            case "shears" -> "shears"; //Args: onUse
-            case "flint_and_steel" -> "flint_and_steel"; //Args: onUse
-            case "bucket" -> "bucket"; //Args: onUse
-
-            //Misc Extra
-            case "wrench" -> "wrench"; //Args: onUse
-
-            //Body
-            case "glide" -> "glide"; //Args: onUse, onTick
-
-            case "helmet" -> ArmorActions.INSTANCE.doAction(type, EquipmentSlot.HEAD, argList); //Args: onUse, equipable
-            case "chestplate" -> ArmorActions.INSTANCE.doAction(type, EquipmentSlot.CHEST, argList); //Args: onUse, equipable
-            case "leggings" -> ArmorActions.INSTANCE.doAction(type, EquipmentSlot.LEGS, argList); //Args: onUse, equipable
-            case "boots" -> ArmorActions.INSTANCE.doAction(type, EquipmentSlot.FEET, argList); //Args: onUse, equipable
-
-            //Curios
-            case "head" -> "head"; //Args: onUse, onTick, equipable
-            case "body" -> "body"; //Args: onUse, onTick, equipable
-            case "gloves" -> "gloves"; //Args: onUse, onTick, equipable
-            case "belt" -> "belt"; //Args: onUse, onTick, equipable
-            case "foot" -> "foot"; //Args: onUse, onTick, equipable
-
-            case "ring" -> "ring"; //Args: onUse, onTick, equipable
-            case "bracelet" -> "bracelet"; //Args: onUse, onTick, equipable
-            case "necklace" -> "necklace"; //Args: onUse, onTick, equipable
-
-            case "charm" -> "charm"; //Args: onUse, onTick, equipable
-            default -> null;
-        };
+        public ModularType register() {
+            return new ModularType(id, modelType, sortOrder, segments, finalSegmentStacks, resultStack == null ? ItemStack.EMPTY : resultStack, List.copyOf(traits), incompatible.build(), List.copyOf(conditions), itemTags);
+        }
     }
 
     public int segmentHash() {

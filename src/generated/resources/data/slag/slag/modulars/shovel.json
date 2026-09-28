@@ -1,8 +1,4 @@
 {
-  "actions": [
-    "shovel",
-    "isTool"
-  ],
   "final_segment_stacks": [
     {
       "count": 2,
@@ -17,5 +13,10 @@
   "segments": [
     "slag:parts/shovel_heads"
   ],
-  "sort_order": 0
+  "sort_order": 0,
+  "traits": [
+    "slag:tool",
+    "slag:shovel_mining",
+    "slag:flattening"
+  ]
 }

@@ -16,7 +16,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -58,7 +58,7 @@ public class InterfaceMenu extends AbstractContainerMenu {
     }
 
     public IFluidHandler getFluidHandler() {
-        if (level.getBlockEntity(pos) instanceof InterfaceBE be) return be.targetCap;
+        if (level.getBlockEntity(pos) instanceof InterfaceBE be) return be.getTarget();
         return null;
     }
 
@@ -92,7 +92,7 @@ public class InterfaceMenu extends AbstractContainerMenu {
     }
 
     @Override
-    public @NotNull ItemStack quickMoveStack(@NotNull Player player, int index) {
+    public @Nonnull ItemStack quickMoveStack(@Nonnull Player player, int index) {
         var copy = ItemStack.EMPTY;
         var slot = this.slots.get(index);
         if (slot.hasItem()) {
@@ -115,9 +115,7 @@ public class InterfaceMenu extends AbstractContainerMenu {
 
     @Override
     public boolean stillValid(Player player) {
-        var dist = player.getEyePosition().subtract(pos.getCenter());
-        double dx = dist.x, dy = dist.y, dz = dist.z;
-        if (dx*dx + dy*dy + dz*dz > 64) return false;
+        if (!player.canInteractWithBlock(pos, 4.0)) return false;
         return level.getBlockEntity(pos) instanceof InterfaceBE be && !be.isRemoved();
     }
 }

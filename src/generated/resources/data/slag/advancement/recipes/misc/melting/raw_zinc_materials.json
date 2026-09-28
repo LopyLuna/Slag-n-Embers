@@ -1,0 +1,41 @@
+{
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:not",
+      "value": {
+        "type": "neoforge:tag_empty",
+        "tag": "c:raw_materials/zinc"
+      }
+    }
+  ],
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_meltable_raw_zinc_materials": {
+      "conditions": {
+        "items": [
+          {
+            "items": "#c:raw_materials/zinc"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "slag:melting/raw_zinc_materials"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    }
+  },
+  "requirements": [
+    [
+      "has_the_recipe",
+      "has_meltable_raw_zinc_materials"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "slag:melting/raw_zinc_materials"
+    ]
+  }
+}

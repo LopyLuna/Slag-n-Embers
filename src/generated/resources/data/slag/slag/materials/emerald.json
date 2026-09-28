@@ -1,16 +1,39 @@
 {
-  "defense": 7.0,
-  "durability": 512.0,
-  "enchantability": 9.0,
   "id": "slag:emerald",
   "molten_fluid": "slag:molten_emerald",
   "repair_ingredient": {
     "tag": "c:gems/emerald"
   },
-  "sharpness": 5.5,
   "sort_order": 100,
-  "speed": 8.0,
   "texture": "shiny",
-  "tier": 5.0,
-  "toughness": 1.0
+  "traits": [
+    {
+      "trait": "slag:attack_damage",
+      "value": 5.5
+    },
+    {
+      "trait": "slag:durability",
+      "value": 512.0
+    },
+    {
+      "trait": "slag:mining_tier",
+      "value": 5.0
+    },
+    {
+      "trait": "slag:mining_speed",
+      "value": 8.0
+    },
+    {
+      "trait": "slag:enchantability",
+      "value": 9.0
+    },
+    {
+      "trait": "slag:armor",
+      "value": 7.0
+    },
+    {
+      "trait": "slag:armor_toughness",
+      "value": 1.0
+    }
+  ]
 }

@@ -1,0 +1,37 @@
+{
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:not",
+      "value": {
+        "type": "neoforge:tag_empty",
+        "tag": "c:ingots/electrum"
+      }
+    },
+    {
+      "type": "slag:cast_only",
+      "tier": 4.0
+    }
+  ],
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "M": {
+      "tag": "c:ingots/electrum"
+    },
+    "R": {
+      "item": "minecraft:paper"
+    }
+  },
+  "pattern": [
+    "R",
+    "M"
+  ],
+  "result": {
+    "components": {
+      "slag:material_type": "slag:electrum",
+      "slag:part_type": "slag:guard"
+    },
+    "count": 1,
+    "id": "slag:dynamic_part"
+  }
+}

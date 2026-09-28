@@ -1,0 +1,16 @@
+{
+  "type": "slag:table_casting",
+  "cast": "slag:cast/sword_blades",
+  "ingredient": {
+    "amount": 72,
+    "tag": "c:molten/echo"
+  },
+  "result": {
+    "components": {
+      "slag:material_type": "slag:echo",
+      "slag:part_type": "slag:sword_blade"
+    },
+    "count": 1,
+    "id": "slag:dynamic_part"
+  }
+}

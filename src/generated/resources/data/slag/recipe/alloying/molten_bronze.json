@@ -1,0 +1,33 @@
+{
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:not",
+      "value": {
+        "type": "neoforge:tag_empty",
+        "tag": "c:ingots/bronze"
+      }
+    },
+    {
+      "type": "neoforge:not",
+      "value": {
+        "type": "neoforge:tag_empty",
+        "tag": "c:ingots/tin"
+      }
+    }
+  ],
+  "type": "slag:alloying",
+  "ingredients": [
+    {
+      "amount": 24,
+      "tag": "c:molten/copper"
+    },
+    {
+      "amount": 8,
+      "tag": "c:molten/tin"
+    }
+  ],
+  "result": {
+    "amount": 32,
+    "id": "slag:molten_bronze"
+  }
+}

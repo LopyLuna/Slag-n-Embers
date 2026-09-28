@@ -8,11 +8,9 @@ import net.neoforged.neoforge.common.Tags;
 @SuppressWarnings("unused")
 public class AllModulars {
 
-    //TODO: add Knife, Spears, Javelins "Trident", Shields, Bows, Crossbows, Armors, etc
-
     public static final ModularType AXE = register(new ModularType.Builder("axe")
             .modelType("handheld")
-            .actions("axe", "isTool").sortOrder(2)
+            .traits(AllTraits.TOOL, AllTraits.AXE_MINING, AllTraits.STRIPPING, AllTraits.SHIELD_BREAKING).sortOrder(2)
             .rodCount(2)
             .segments(AllTags.PARTS_AXE_HEADS)
             .itemTags(ItemTags.AXES, Tags.Items.MELEE_WEAPON_TOOLS)
@@ -20,7 +18,7 @@ public class AllModulars {
 
     public static final ModularType PICKAXE = register(new ModularType.Builder("pickaxe")
             .modelType("handheld").sortOrder(1)
-            .actions("pickaxe", "isTool")
+            .traits(AllTraits.TOOL, AllTraits.PICKAXE_MINING)
             .rodCount(2)
             .segments(AllTags.PARTS_PICKAXE_HEADS)
             .itemTags(ItemTags.PICKAXES)
@@ -28,7 +26,7 @@ public class AllModulars {
 
     public static final ModularType SHOVEL = register(new ModularType.Builder("shovel")
             .modelType("handheld").sortOrder(0)
-            .actions("shovel", "isTool")
+            .traits(AllTraits.TOOL, AllTraits.SHOVEL_MINING, AllTraits.FLATTENING)
             .rodCount(2)
             .segments(AllTags.PARTS_SHOVEL_HEADS)
             .itemTags(ItemTags.SHOVELS)
@@ -36,7 +34,7 @@ public class AllModulars {
 
     public static final ModularType HOE = register(new ModularType.Builder("hoe")
             .modelType("handheld").sortOrder(3)
-            .actions("hoe", "isTool")
+            .traits(AllTraits.TOOL, AllTraits.HOE_MINING, AllTraits.TILLING)
             .rodCount(2)
             .segments(AllTags.PARTS_HOE_HEADS)
             .itemTags(ItemTags.HOES)
@@ -44,7 +42,7 @@ public class AllModulars {
 
     public static final ModularType SWORD = register(new ModularType.Builder("sword")
             .modelType("handheld").sortOrder(4)
-            .actions("sword", "isTool")
+            .traits(AllTraits.TOOL, AllTraits.SWORD_MINING, AllTraits.SWEEPING)
             .rodCount(1)
             .segments(AllTags.PARTS_SWORD_BLADES, AllTags.PARTS_GUARDS)
             .itemTags(ItemTags.SWORDS, Tags.Items.MELEE_WEAPON_TOOLS)
@@ -52,7 +50,7 @@ public class AllModulars {
 
     public static final ModularType MATTOCK = register(new ModularType.Builder("mattock")
             .modelType("handheld").sortOrder(5)
-            .actions("axe", "hoe", "isTool")
+            .traits(AllTraits.TOOL, AllTraits.AXE_MINING, AllTraits.STRIPPING, AllTraits.SHIELD_BREAKING, AllTraits.HOE_MINING, AllTraits.TILLING)
             .rodCount(2)
             .segments(AllTags.PARTS_AXE_HEADS, AllTags.PARTS_HOE_HEADS)
             .itemTags(ItemTags.AXES, ItemTags.HOES, Tags.Items.MELEE_WEAPON_TOOLS)
@@ -60,7 +58,7 @@ public class AllModulars {
 
     public static final ModularType PRYBAR = register(new ModularType.Builder("prybar")
             .modelType("handheld").sortOrder(7)
-            .actions("pickaxe", "shovel", "isTool")
+            .traits(AllTraits.TOOL, AllTraits.PICKAXE_MINING, AllTraits.SHOVEL_MINING, AllTraits.FLATTENING)
             .rodCount(2)
             .segments(AllTags.PARTS_PICKAXE_HEADS, AllTags.PARTS_SHOVEL_HEADS)
             .itemTags(ItemTags.PICKAXES, ItemTags.SHOVELS)
@@ -68,7 +66,7 @@ public class AllModulars {
 
     public static final ModularType GRAIP = register(new ModularType.Builder("graip")
             .modelType("handheld").sortOrder(8)
-            .actions("shovel", "hoe", "isTool")
+            .traits(AllTraits.TOOL, AllTraits.SHOVEL_MINING, AllTraits.FLATTENING, AllTraits.HOE_MINING, AllTraits.TILLING)
             .rodCount(2)
             .segments(AllTags.PARTS_SHOVEL_HEADS, AllTags.PARTS_HOE_HEADS)
             .itemTags(ItemTags.SHOVELS, ItemTags.HOES)
@@ -76,7 +74,7 @@ public class AllModulars {
 
     public static final ModularType MALLET = register(new ModularType.Builder("mallet")
             .modelType("handheld").sortOrder(6)
-            .actions("pickaxe", "axe", "isTool")
+            .traits(AllTraits.TOOL, AllTraits.PICKAXE_MINING, AllTraits.AXE_MINING, AllTraits.STRIPPING, AllTraits.SHIELD_BREAKING)
             .rodCount(2)
             .segments(AllTags.PARTS_PICKAXE_HEADS, AllTags.PARTS_AXE_HEADS)
             .itemTags(ItemTags.PICKAXES, ItemTags.AXES, Tags.Items.MELEE_WEAPON_TOOLS)
@@ -84,7 +82,7 @@ public class AllModulars {
 
     public static final ModularType HAMMER = register(new ModularType.Builder("hammer")
             .modelType("handheld").sortOrder(9)
-            .actions("pickaxe", "axe", "shovel", "isTool")
+            .traits(AllTraits.TOOL, AllTraits.PICKAXE_MINING, AllTraits.AXE_MINING, AllTraits.STRIPPING, AllTraits.SHIELD_BREAKING, AllTraits.SHOVEL_MINING, AllTraits.FLATTENING)
             .rodCount(3)
             .segments(AllTags.PARTS_PICKAXE_HEADS, AllTags.PARTS_AXE_HEADS, AllTags.PARTS_SHOVEL_HEADS)
             .itemTags(ItemTags.PICKAXES, ItemTags.AXES, ItemTags.SHOVELS, Tags.Items.MELEE_WEAPON_TOOLS)
@@ -92,7 +90,7 @@ public class AllModulars {
 
     public static final ModularType SCYTHE = register(new ModularType.Builder("scythe")
             .modelType("handheld").sortOrder(10)
-            .actions("hoe", "sword", "isTool")
+            .traits(AllTraits.TOOL, AllTraits.HOE_MINING, AllTraits.TILLING, AllTraits.SWORD_MINING, AllTraits.SWEEPING)
             .rodCount(3)
             .segments(AllTags.PARTS_HOE_HEADS, AllTags.PARTS_SWORD_BLADES, AllTags.PARTS_GUARDS)
             .itemTags(ItemTags.HOES, ItemTags.SWORDS, Tags.Items.MELEE_WEAPON_TOOLS)
@@ -100,7 +98,7 @@ public class AllModulars {
 
     public static final ModularType MAUL = register(new ModularType.Builder("maul")
             .modelType("handheld").sortOrder(11)
-            .actions("pickaxe", "axe", "sword", "isTool")
+            .traits(AllTraits.TOOL, AllTraits.PICKAXE_MINING, AllTraits.AXE_MINING, AllTraits.STRIPPING, AllTraits.SHIELD_BREAKING, AllTraits.SWORD_MINING, AllTraits.SWEEPING)
             .rodCount(3)
             .segments(AllTags.PARTS_PICKAXE_HEADS, AllTags.PARTS_AXE_HEADS, AllTags.PARTS_SWORD_BLADES)
             .itemTags(ItemTags.PICKAXES, ItemTags.AXES, ItemTags.SWORDS, Tags.Items.MELEE_WEAPON_TOOLS)
@@ -108,38 +106,49 @@ public class AllModulars {
 
     public static final ModularType PAXEL = register(new ModularType.Builder("paxel")
             .modelType("handheld").sortOrder(12)
-            .actions("pickaxe", "axe", "shovel", "hoe", "sword", "isTool")
+            .traits(AllTraits.TOOL, AllTraits.PICKAXE_MINING, AllTraits.AXE_MINING, AllTraits.STRIPPING, AllTraits.SHIELD_BREAKING, AllTraits.SHOVEL_MINING, AllTraits.FLATTENING, AllTraits.HOE_MINING, AllTraits.TILLING, AllTraits.SWORD_MINING, AllTraits.SWEEPING)
             .rodCount(3)
             .segments(AllTags.PARTS_PICKAXE_HEADS, AllTags.PARTS_AXE_HEADS, AllTags.PARTS_SHOVEL_HEADS, AllTags.PARTS_HOE_HEADS, AllTags.PARTS_SWORD_BLADES)
             .itemTags(ItemTags.PICKAXES, ItemTags.AXES, ItemTags.SHOVELS, ItemTags.HOES, ItemTags.SWORDS, Tags.Items.MELEE_WEAPON_TOOLS)
             .register());
 
+    public static final ModularType KNIFE = register(new ModularType.Builder("knife")
+            .modelType("handheld").sortOrder(17)
+            .traits(AllTraits.TOOL, AllTraits.KNIFE_MINING)
+            .trait(AllTraits.ATTACK_DAMAGE, -2.5f)
+            .trait(AllTraits.ATTACK_SPEED, -0.4f)
+            .rodCount(1)
+            .segments(AllTags.PARTS_SWORD_BLADES)
+            .itemTags(AllTags.KNIVES, AllTags.FD_KNIVES, Tags.Items.MELEE_WEAPON_TOOLS, ItemTags.SHARP_WEAPON_ENCHANTABLE)
+            .modLoaded("farmersdelight")
+            .register());
+
     public static final ModularType HELMET = register(new ModularType.Builder("helmet")
             .modelType("equipable").sortOrder(13)
-            .actions("helmet", "isArmor")
+            .traits(AllTraits.HEAD_SLOT)
             .segments(AllTags.PARTS_PLATES, AllTags.PARTS_HELMETS)
-            .itemTags(ItemTags.HEAD_ARMOR)
+            .itemTags(ItemTags.HEAD_ARMOR, ItemTags.TRIMMABLE_ARMOR)
             .register());
 
     public static final ModularType CHESTPLATE = register(new ModularType.Builder("chestplate")
             .modelType("equipable").sortOrder(14)
-            .actions("chestplate", "isArmor")
+            .traits(AllTraits.CHEST_SLOT)
             .segments(AllTags.PARTS_PLATES, AllTags.PARTS_CHESTPLATES)
-            .itemTags(ItemTags.CHEST_ARMOR)
+            .itemTags(ItemTags.CHEST_ARMOR, ItemTags.TRIMMABLE_ARMOR)
             .register());
 
     public static final ModularType LEGGINGS = register(new ModularType.Builder("leggings")
             .modelType("equipable").sortOrder(15)
-            .actions("leggings", "isArmor")
+            .traits(AllTraits.LEGS_SLOT)
             .segments(AllTags.PARTS_PLATES, AllTags.PARTS_LEGGINGS)
-            .itemTags(ItemTags.LEG_ARMOR)
+            .itemTags(ItemTags.LEG_ARMOR, ItemTags.TRIMMABLE_ARMOR)
             .register());
 
     public static final ModularType BOOTS = register(new ModularType.Builder("boots")
             .modelType("equipable").sortOrder(16)
-            .actions("boots", "isArmor")
+            .traits(AllTraits.FEET_SLOT)
             .segments(AllTags.PARTS_PLATES, AllTags.PARTS_BOOTS)
-            .itemTags(ItemTags.FOOT_ARMOR)
+            .itemTags(ItemTags.FOOT_ARMOR, ItemTags.TRIMMABLE_ARMOR)
             .register());
 
     public static final ModularType MACE = register(new ModularType.Builder("mace")
@@ -221,8 +230,7 @@ public class AllModulars {
             .addSegmentStack(Items.PAPER, 4)
             .addSegmentStack(Items.FEATHER, 8)
             .addSegmentStack(Items.WIND_CHARGE, 4)
-            .addSegmentStack(Items.SLIME_BALL, 2)
-            .addSegmentStack(Items.GHAST_TEAR, 1)
+            .addSegmentStack(Items.DRAGON_BREATH, 2)
             .resultStack(Items.ELYTRA)
             .register());
 

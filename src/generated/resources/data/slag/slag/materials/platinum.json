@@ -1,0 +1,48 @@
+{
+  "conditions": [
+    {
+      "type": "neoforge:not",
+      "value": {
+        "type": "neoforge:tag_empty",
+        "tag": "c:ingots/platinum"
+      }
+    }
+  ],
+  "id": "slag:platinum",
+  "molten_fluid": "slag:molten_platinum",
+  "repair_ingredient": {
+    "tag": "c:ingots/platinum"
+  },
+  "sort_order": 350,
+  "texture": "shiny",
+  "traits": [
+    {
+      "trait": "slag:attack_damage",
+      "value": 5.0
+    },
+    {
+      "trait": "slag:durability",
+      "value": 640.0
+    },
+    {
+      "trait": "slag:mining_tier",
+      "value": 5.0
+    },
+    {
+      "trait": "slag:mining_speed",
+      "value": 11.0
+    },
+    {
+      "trait": "slag:enchantability",
+      "value": 22.0
+    },
+    {
+      "trait": "slag:armor",
+      "value": 6.0
+    },
+    {
+      "trait": "slag:armor_toughness",
+      "value": 1.0
+    }
+  ]
+}

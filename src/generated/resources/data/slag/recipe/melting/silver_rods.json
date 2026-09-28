@@ -1,0 +1,22 @@
+{
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:not",
+      "value": {
+        "type": "neoforge:tag_empty",
+        "tag": "c:rods/silver"
+      }
+    }
+  ],
+  "type": "slag:melting",
+  "ingredient": {
+    "tag": "c:rods/silver"
+  },
+  "ingredients": [],
+  "result": [
+    {
+      "amount": 36,
+      "id": "slag:molten_silver"
+    }
+  ]
+}

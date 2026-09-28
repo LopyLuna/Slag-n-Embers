@@ -25,11 +25,11 @@ import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.client.extensions.common.IClientFluidTypeExtensions;
 import net.neoforged.neoforge.fluids.FluidStack;
-import org.jetbrains.annotations.Nullable;
 
+import javax.annotation.Nullable;
 import java.util.function.Function;
 
-@SuppressWarnings("unused")
+@SuppressWarnings({"unused", "MultipleVariablesInDeclaration", "UnusedAssignment"})
 public class FluidRenderHelper {
     private FluidRenderHelper() {}
 
@@ -134,6 +134,19 @@ public class FluidRenderHelper {
         renderFluidBox(fluid, xMin, yMin, zMin, xMax, yMax, zMax, getFluidBuilder(buffer), ms, light, renderBottom, invertGasses);
     }
 
+    public static void renderFluidBlock(FluidStack fluid, float height, MultiBufferSource buffer, PoseStack ms, int light) {
+        var builder = getFluidBuilder(buffer);
+        var still = getStillTextureOrMissing(fluid);
+        var flowing = getFlowingTextureOrMissing(fluid);
+        var color = getColor(fluid, null, null);
+        light = (light & 0xF00000) | Math.max((light >> 4) & 0xF, getLuminosity(fluid)) << 4;
+        for (var side : Direction.values()) {
+            var positive = side.getAxisDirection() == Direction.AxisDirection.POSITIVE;
+            if (side.getAxis() == Direction.Axis.Y) renderStillTiledFace(side, 0, 0, 1, 1, positive ? height : 0, builder, ms, light, color, still);
+            else net.createmod.catnip.render.FluidRenderHelper.renderTiledFace(side, 0, 0, 1, height, positive ? 1 : 0, builder, ms, light, color, flowing, 0.5f);
+        }
+    }
+
     public static VertexConsumer getFluidBuilder(MultiBufferSource buffer) {
         return buffer.getBuffer(RenderType.translucent());
     }
@@ -167,6 +180,20 @@ public class FluidRenderHelper {
         ms.popPose();
     }
 
+    public static void renderFluidFaces(FluidStack fluid, float xMin, float yMin, float zMin, float xMax, float yMax, float zMax, VertexConsumer builder, PoseStack ms, int light, boolean bottom, boolean top, boolean sides, Vec3 eye) {
+        var texture = getStillTextureOrMissing(fluid);
+        var color = getColor(fluid, null, null);
+        light = (light & 0xF00000) | Math.max((light >> 4) & 0xF, getLuminosity(fluid)) << 4;
+        var all = eye == null;
+        if (top && (all || eye.y > yMax)) renderStillTiledFace(Direction.UP, xMin, zMin, xMax, zMax, yMax, builder, ms, light, color, texture);
+        if (bottom && (all || eye.y < yMin)) renderStillTiledFace(Direction.DOWN, xMin, zMin, xMax, zMax, yMin, builder, ms, light, color, texture);
+        if (!sides) return;
+        if (all || eye.z < zMin) renderStillTiledFace(Direction.NORTH, xMin, yMin, xMax, yMax, zMin, builder, ms, light, color, texture);
+        if (all || eye.z > zMax) renderStillTiledFace(Direction.SOUTH, xMin, yMin, xMax, yMax, zMax, builder, ms, light, color, texture);
+        if (all || eye.x < xMin) renderStillTiledFace(Direction.WEST, zMin, yMin, zMax, yMax, xMin, builder, ms, light, color, texture);
+        if (all || eye.x > xMax) renderStillTiledFace(Direction.EAST, zMin, yMin, zMax, yMax, xMax, builder, ms, light, color, texture);
+    }
+
     public static void renderStillTiledFace(Direction dir, float left, float down, float right, float up,
                                             float depth, VertexConsumer builder, PoseStack ms, int light, int color, TextureAtlasSprite texture) {
         renderTiledFace(dir, left, down, right, up, depth, builder, ms, light, color, texture, 1);
@@ -184,8 +211,7 @@ public class FluidRenderHelper {
         float centerV = texture.getV0() + (texture.getV1() - texture.getV0()) * 0.5f * textureScale;
 
         float f;
-        float x2 = 0;
-        float y2 = 0;
+        float x2 = 0, y2 = 0;
         float u1, u2;
         float v1, v2;
         for (float x1 = left; x1 < right; x1 = x2) {
@@ -249,7 +275,7 @@ public class FluidRenderHelper {
                 .setColor(r, g, b, a)
                 .setUv(u, v)
                 .setLight(light)
-                .setNormal(peek.copy(), normal.getX(), normal.getY(), normal.getZ())
+                .setNormal(peek, normal.getX(), normal.getY(), normal.getZ())
         ;
     }
 

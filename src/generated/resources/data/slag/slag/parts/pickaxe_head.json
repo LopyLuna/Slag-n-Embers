@@ -1,10 +1,25 @@
 {
   "id": "slag:pickaxe_head",
   "item_tags": [
-    "slag:cast/pickaxe_heads"
+    "slag:cast/pickaxe_heads",
+    "slag:imprintable"
   ],
   "segment_part": "slag:parts/pickaxe_heads",
-  "sharpness_modifier": 0.6,
   "sort_order": 1,
-  "speed_modifier": 2.8
+  "traits": [
+    {
+      "operation": "multiply",
+      "trait": "slag:durability",
+      "value": 1.0
+    },
+    {
+      "operation": "multiply",
+      "trait": "slag:attack_damage",
+      "value": 0.6
+    },
+    {
+      "trait": "slag:attack_speed",
+      "value": 2.8
+    }
+  ]
 }

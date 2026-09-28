@@ -1,14 +1,34 @@
 {
-  "defense": 4.0,
-  "durability": 192.0,
-  "enchantability": 8.0,
   "id": "slag:copper",
   "molten_fluid": "slag:molten_copper",
   "repair_ingredient": {
     "tag": "c:ingots/copper"
   },
-  "sharpness": 4.5,
   "sort_order": 30,
-  "speed": 5.0,
-  "tier": 3.0
+  "traits": [
+    {
+      "trait": "slag:attack_damage",
+      "value": 4.5
+    },
+    {
+      "trait": "slag:durability",
+      "value": 192.0
+    },
+    {
+      "trait": "slag:mining_tier",
+      "value": 3.0
+    },
+    {
+      "trait": "slag:mining_speed",
+      "value": 5.0
+    },
+    {
+      "trait": "slag:enchantability",
+      "value": 8.0
+    },
+    {
+      "trait": "slag:armor",
+      "value": 4.0
+    }
+  ]
 }

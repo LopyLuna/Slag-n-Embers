@@ -1,16 +1,51 @@
 {
-  "defense": 2.0,
-  "durability": 128.0,
-  "enchantability": 5.0,
   "id": "slag:stone",
-  "knockback_resistance": 0.1,
+  "incompatible": {
+    "parts": [
+      "slag:plate",
+      "slag:helmet",
+      "slag:chestplate",
+      "slag:leggings",
+      "slag:boots"
+    ]
+  },
   "repair_ingredient": {
     "tag": "minecraft:stone_tool_materials"
   },
-  "sharpness": 4.0,
   "sort_order": 20,
-  "speed": 4.0,
   "texture": "soft",
-  "tier": 3.0,
-  "toughness": 1.0
+  "traits": [
+    {
+      "trait": "slag:attack_damage",
+      "value": 4.0
+    },
+    {
+      "trait": "slag:durability",
+      "value": 128.0
+    },
+    {
+      "trait": "slag:mining_tier",
+      "value": 3.0
+    },
+    {
+      "trait": "slag:mining_speed",
+      "value": 4.0
+    },
+    {
+      "trait": "slag:enchantability",
+      "value": 5.0
+    },
+    {
+      "trait": "slag:armor",
+      "value": 2.0
+    },
+    {
+      "trait": "slag:armor_toughness",
+      "value": 1.0
+    },
+    {
+      "trait": "slag:knockback_resistance",
+      "value": 0.1
+    }
+  ]
 }

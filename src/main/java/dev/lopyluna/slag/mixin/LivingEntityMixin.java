@@ -1,6 +1,8 @@
 package dev.lopyluna.slag.mixin;
 
+import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import dev.lopyluna.slag.content.items.modular.ModularEquipablesItem;
+import dev.lopyluna.slag.content.traits.Traits;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
@@ -43,5 +45,10 @@ public abstract class LivingEntityMixin extends Entity {
                 if (stack.getItem() instanceof ModularEquipablesItem item && item.isArmor(stack) && stack.canBeHurtBy(damageSource)) stack.hurtAndBreak(i, self, slot);
             }
         }
+    }
+
+    @ModifyExpressionValue(method = "updateFallFlying()V", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/LivingEntity;getItemBySlot(Lnet/minecraft/world/entity/EquipmentSlot;)Lnet/minecraft/world/item/ItemStack;"))
+    private ItemStack glider(ItemStack chest) {
+        return Traits.glider((LivingEntity)(Object)this, chest, false);
     }
 }

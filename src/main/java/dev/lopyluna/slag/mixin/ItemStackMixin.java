@@ -3,6 +3,7 @@ package dev.lopyluna.slag.mixin;
 import dev.lopyluna.slag.content.AllUtils;
 import dev.lopyluna.slag.content.items.dynamic_part.IDynamicPart;
 import dev.lopyluna.slag.content.items.modular.ModularItem;
+import dev.lopyluna.slag.content.traits.Traits;
 import net.minecraft.core.HolderSet;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
@@ -33,6 +34,7 @@ public abstract class ItemStackMixin {
             var value = AllUtils.matchesAnyTag(part, self, tag);
             if (value) cir.setReturnValue(value);
         }
+        if (Traits.of(self).itemTags.contains(tag)) cir.setReturnValue(true);
     }
 
     // ItemStack#is(HolderSet<Item>)
@@ -48,6 +50,7 @@ public abstract class ItemStackMixin {
             var value = AllUtils.matchesAnyTag(part, self, named.key());
             if (value) cir.setReturnValue(value);
         }
+        if (set instanceof HolderSet.Named<Item> named && Traits.of(self).itemTags.contains(named.key())) cir.setReturnValue(true);
     }
 
     // ItemStack#getTags()
@@ -58,6 +61,7 @@ public abstract class ItemStackMixin {
         var item = self.getItem();
         if (item instanceof ModularItem tool) tags.addAll(AllUtils.getTags(tool, self));
         if (item instanceof IDynamicPart part) tags.addAll(AllUtils.getTags(part, self));
+        tags.addAll(Traits.of(self).itemTags);
         cir.setReturnValue(tags.stream());
     }
 }

@@ -1,0 +1,38 @@
+{
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:not",
+      "value": {
+        "type": "neoforge:tag_empty",
+        "tag": "c:ingots/zinc"
+      }
+    },
+    {
+      "type": "slag:cast_only",
+      "tier": 4.0
+    }
+  ],
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "M": {
+      "tag": "c:ingots/zinc"
+    },
+    "R": {
+      "item": "minecraft:paper"
+    }
+  },
+  "pattern": [
+    "MM",
+    "MR",
+    " R"
+  ],
+  "result": {
+    "components": {
+      "slag:material_type": "slag:zinc",
+      "slag:part_type": "slag:axe_head"
+    },
+    "count": 1,
+    "id": "slag:dynamic_part"
+  }
+}

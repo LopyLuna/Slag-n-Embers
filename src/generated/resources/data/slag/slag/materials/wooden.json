@@ -1,14 +1,43 @@
 {
-  "defense": 1.0,
-  "durability": 64.0,
-  "enchantability": 15.0,
   "id": "slag:wooden",
+  "incompatible": {
+    "parts": [
+      "slag:plate",
+      "slag:helmet",
+      "slag:chestplate",
+      "slag:leggings",
+      "slag:boots"
+    ]
+  },
   "repair_ingredient": {
     "tag": "minecraft:planks"
   },
-  "sharpness": 3.0,
   "sort_order": 10,
-  "speed": 2.0,
   "texture": "soft",
-  "tier": 1.0
+  "traits": [
+    {
+      "trait": "slag:attack_damage",
+      "value": 3.0
+    },
+    {
+      "trait": "slag:durability",
+      "value": 64.0
+    },
+    {
+      "trait": "slag:mining_tier",
+      "value": 1.0
+    },
+    {
+      "trait": "slag:mining_speed",
+      "value": 2.0
+    },
+    {
+      "trait": "slag:enchantability",
+      "value": 15.0
+    },
+    {
+      "trait": "slag:armor",
+      "value": 1.0
+    }
+  ]
 }

@@ -7,11 +7,16 @@ import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiFunction;
 
 import static net.minecraft.core.Direction.UP;
 
 public class ShapeUtils {
+    private static final Map<Cuboid, VoxelShape> CUBOIDS = new ConcurrentHashMap<>();
+    private static final Map<Joined, VoxelShape> JOINED = new ConcurrentHashMap<>();
+    private static final Map<Shaped, VoxelShaper> SHAPERS = new ConcurrentHashMap<>();
 
     public static Builder shape(VoxelShape shape) {
         return new Builder(shape);
@@ -22,9 +27,14 @@ public class ShapeUtils {
     }
 
     public static VoxelShape cuboid(double x1, double y1, double z1, double x2, double y2, double z2) {
-        return Block.box(x1, y1, z1, x2, y2, z2);
+        return CUBOIDS.computeIfAbsent(new Cuboid(x1, y1, z1, x2, y2, z2), key -> Block.box(x1, y1, z1, x2, y2, z2));
     }
 
+    public static VoxelShape join(VoxelShape first, VoxelShape second, BooleanOp op) {
+        return JOINED.computeIfAbsent(new Joined(first, second, op), key -> Shapes.join(first, second, op));
+    }
+
+    @SuppressWarnings("unused")
     public static class Builder {
 
         private VoxelShape shape;
@@ -34,7 +44,7 @@ public class ShapeUtils {
         }
 
         public Builder add(VoxelShape shape) {
-            this.shape = Shapes.or(this.shape, shape);
+            this.shape = join(this.shape, shape, BooleanOp.OR);
             return this;
         }
 
@@ -43,7 +53,7 @@ public class ShapeUtils {
         }
 
         public Builder erase(double x1, double y1, double z1, double x2, double y2, double z2) {
-            this.shape = Shapes.join(shape, cuboid(x1, y1, z1, x2, y2, z2), BooleanOp.ONLY_FIRST);
+            shape = join(shape, cuboid(x1, y1, z1, x2, y2, z2), BooleanOp.ONLY_FIRST);
             return this;
         }
 
@@ -52,11 +62,13 @@ public class ShapeUtils {
         }
 
         public VoxelShaper build(BiFunction<VoxelShape, Direction, VoxelShaper> factory, Direction direction) {
-            return factory.apply(shape, direction);
+            var base = shape;
+            return SHAPERS.computeIfAbsent(new Shaped(base, factory, direction), key -> factory.apply(base, direction));
         }
 
         public VoxelShaper build(BiFunction<VoxelShape, Direction.Axis, VoxelShaper> factory, Direction.Axis axis) {
-            return factory.apply(shape, axis);
+            var base = shape;
+            return SHAPERS.computeIfAbsent(new Shaped(base, factory, axis), key -> factory.apply(base, axis));
         }
 
         public VoxelShaper forDirectional(Direction direction) {
@@ -80,4 +92,10 @@ public class ShapeUtils {
         }
 
     }
+
+    private record Cuboid(double x1, double y1, double z1, double x2, double y2, double z2) {}
+
+    private record Joined(VoxelShape first, VoxelShape second, BooleanOp op) {}
+
+    private record Shaped(VoxelShape shape, Object factory, Object side) {}
 }

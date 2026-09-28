@@ -1,0 +1,38 @@
+{
+  "conditions": [
+    {
+      "type": "neoforge:mod_loaded",
+      "modid": "farmersdelight"
+    }
+  ],
+  "final_segment_stacks": [
+    {
+      "count": 1,
+      "id": "minecraft:stick"
+    }
+  ],
+  "id": "slag:knife",
+  "item_tags": [
+    "c:tools/knife",
+    "farmersdelight:tools/knives",
+    "c:tools/melee_weapon",
+    "minecraft:enchantable/sharp_weapon"
+  ],
+  "model_type": "handheld",
+  "segments": [
+    "slag:parts/sword_blades"
+  ],
+  "sort_order": 17,
+  "traits": [
+    "slag:tool",
+    "slag:knife_mining",
+    {
+      "trait": "slag:attack_damage",
+      "value": -2.5
+    },
+    {
+      "trait": "slag:attack_speed",
+      "value": -0.4
+    }
+  ]
+}

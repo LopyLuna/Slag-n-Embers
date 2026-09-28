@@ -1,16 +1,16 @@
 {
-  "actions": [
-    "leggings",
-    "isArmor"
-  ],
   "id": "slag:leggings",
   "item_tags": [
-    "minecraft:leg_armor"
+    "minecraft:leg_armor",
+    "minecraft:trimmable_armor"
   ],
   "model_type": "equipable",
   "segments": [
     "slag:parts/plates",
     "slag:parts/leggings"
   ],
-  "sort_order": 15
+  "sort_order": 15,
+  "traits": [
+    "slag:legs_slot"
+  ]
 }

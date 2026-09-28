@@ -1,11 +1,11 @@
 {
   "parent": "minecraft:recipes/root",
   "criteria": {
-    "has_sword_blade": {
+    "has_melter": {
       "conditions": {
         "items": [
           {
-            "items": "#c:sword_blades"
+            "items": "slag:melter"
           }
         ]
       },
@@ -21,7 +21,7 @@
   "requirements": [
     [
       "has_the_recipe",
-      "has_sword_blade"
+      "has_melter"
     ]
   ],
   "rewards": {

@@ -1,9 +1,4 @@
 {
-  "actions": [
-    "hoe",
-    "sword",
-    "isTool"
-  ],
   "final_segment_stacks": [
     {
       "count": 3,
@@ -22,5 +17,12 @@
     "slag:parts/sword_blades",
     "slag:parts/guards"
   ],
-  "sort_order": 10
+  "sort_order": 10,
+  "traits": [
+    "slag:tool",
+    "slag:hoe_mining",
+    "slag:tilling",
+    "slag:sword_mining",
+    "slag:sweeping"
+  ]
 }

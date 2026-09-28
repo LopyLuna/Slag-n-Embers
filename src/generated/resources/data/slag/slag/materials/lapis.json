@@ -1,15 +1,38 @@
 {
-  "defense": 4.0,
-  "durability": 384.0,
-  "enchantability": 32.0,
   "id": "slag:lapis",
   "molten_fluid": "slag:molten_lapis",
   "repair_ingredient": {
     "tag": "c:gems/lapis"
   },
-  "sharpness": 4.5,
   "sort_order": 170,
-  "speed": 3.0,
-  "tier": 3.0,
-  "toughness": 1.0
+  "traits": [
+    {
+      "trait": "slag:attack_damage",
+      "value": 4.5
+    },
+    {
+      "trait": "slag:durability",
+      "value": 384.0
+    },
+    {
+      "trait": "slag:mining_tier",
+      "value": 3.0
+    },
+    {
+      "trait": "slag:mining_speed",
+      "value": 3.0
+    },
+    {
+      "trait": "slag:enchantability",
+      "value": 32.0
+    },
+    {
+      "trait": "slag:armor",
+      "value": 4.0
+    },
+    {
+      "trait": "slag:armor_toughness",
+      "value": 1.0
+    }
+  ]
 }

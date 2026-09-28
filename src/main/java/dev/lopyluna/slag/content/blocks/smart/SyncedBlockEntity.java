@@ -13,10 +13,11 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 
+@SuppressWarnings({"unused", "NullableProblems"})
 @ParametersAreNonnullByDefault
 public class SyncedBlockEntity extends BlockEntity {
 
@@ -25,7 +26,7 @@ public class SyncedBlockEntity extends BlockEntity {
     }
 
     @Override
-    public @NotNull CompoundTag getUpdateTag(HolderLookup.Provider registries) {
+    public @Nonnull CompoundTag getUpdateTag(HolderLookup.Provider registries) {
         return writeClient(new CompoundTag(), registries);
     }
 

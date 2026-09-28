@@ -4,6 +4,7 @@ import com.mojang.serialization.MapCodec;
 import dev.lopyluna.slag.content.blocks.BEBlock;
 import dev.lopyluna.slag.content.utils.ShapeUtils;
 import dev.lopyluna.slag.register.AllBETypes;
+import net.createmod.catnip.math.VoxelShaper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.InteractionResult;
@@ -24,14 +25,15 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.neoforged.neoforge.capabilities.Capabilities;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nonnull;
 
+import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
 
 @ParametersAreNonnullByDefault
 public class InterfaceBlock extends BEBlock {
     public static final MapCodec<InterfaceBlock> CODEC = simpleCodec(InterfaceBlock::new);
+    public static final VoxelShaper SHAPE = ShapeUtils.shape(0, 0, 0, 16, 16, 8).forHorizontal(Direction.SOUTH);
     public static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
 
     public InterfaceBlock(Properties properties) {
@@ -41,7 +43,7 @@ public class InterfaceBlock extends BEBlock {
 
     @Nullable
     @Override
-    public BlockState getStateForPlacement(@NotNull BlockPlaceContext context) {
+    public BlockState getStateForPlacement(BlockPlaceContext context) {
         return defaultBlockState().setValue(FACING, context.getHorizontalDirection().getOpposite());
     }
 
@@ -51,13 +53,13 @@ public class InterfaceBlock extends BEBlock {
     }
 
     @Override
-    protected @NotNull BlockState updateShape(BlockState state, Direction direction, BlockState neighborState, LevelAccessor level, BlockPos pos, BlockPos neighborPos) {
+    protected @Nonnull BlockState updateShape(BlockState state, Direction direction, BlockState neighborState, LevelAccessor level, BlockPos pos, BlockPos neighborPos) {
         if (level.getBlockEntity(pos) instanceof InterfaceBE be) be.update = 4;
         return super.updateShape(state, direction, neighborState, level, pos, neighborPos);
     }
 
     @Override
-    protected @NotNull InteractionResult useWithoutItem(BlockState pState, Level pLevel, BlockPos pPos, Player pPlayer, BlockHitResult pHit) {
+    protected @Nonnull InteractionResult useWithoutItem(BlockState pState, Level pLevel, BlockPos pPos, Player pPlayer, BlockHitResult pHit) {
         if (!(pLevel.getBlockEntity(pPos) instanceof InterfaceBE be)) return InteractionResult.PASS;
         var facing = pState.getValue(FACING);
         var relPos = pPos.relative(facing.getOpposite());
@@ -73,14 +75,14 @@ public class InterfaceBlock extends BEBlock {
     }
 
     @Override
-    protected @NotNull VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
-        return ShapeUtils.shape(0, 0, 0, 16, 16, 8).forHorizontal(Direction.SOUTH).get(state.getValue(FACING));
+    protected @Nonnull VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
+        return SHAPE.get(state.getValue(FACING));
     }
 
-    public @NotNull BlockState rotate(BlockState pState, Rotation pRotation) {
+    public @Nonnull BlockState rotate(BlockState pState, Rotation pRotation) {
         return pState.setValue(FACING, pRotation.rotate(pState.getValue(FACING)));
     }
-    public @NotNull BlockState mirror(BlockState pState, Mirror pMirror) {
+    public @Nonnull BlockState mirror(BlockState pState, Mirror pMirror) {
         return super.rotate(pState, pMirror.getRotation(pState.getValue(FACING)));
     }
 
@@ -92,17 +94,17 @@ public class InterfaceBlock extends BEBlock {
     }
 
     @Override
-    public @NotNull RenderShape getRenderShape(BlockState pState) {
+    public @Nonnull RenderShape getRenderShape(BlockState pState) {
         return RenderShape.MODEL;
     }
 
     @Override
-    public @NotNull BlockEntityType<? extends BlockEntity> getBlockEntityType() {
+    public @Nonnull BlockEntityType<? extends BlockEntity> getBlockEntityType() {
         return AllBETypes.INTERFACE.get();
     }
 
     @Override
-    protected @NotNull MapCodec<? extends BaseEntityBlock> codec() {
+    protected @Nonnull MapCodec<? extends BaseEntityBlock> codec() {
         return CODEC;
     }
 }

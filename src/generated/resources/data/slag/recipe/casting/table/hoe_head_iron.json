@@ -3,7 +3,7 @@
   "cast": "slag:cast/hoe_heads",
   "ingredient": {
     "amount": 144,
-    "id": "slag:molten_iron"
+    "tag": "c:molten/iron"
   },
   "result": {
     "components": {

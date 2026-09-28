@@ -5,7 +5,7 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.*;
 import net.minecraft.world.level.Level;
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 
@@ -38,7 +38,7 @@ public class DoubleSmeltingRecipe implements Recipe<DoubleSmeltingRecipe.DoubleR
     }
 
     @Override
-    public @NotNull String getGroup() {
+    public @Nonnull String getGroup() {
         return group;
     }
 
@@ -68,7 +68,7 @@ public class DoubleSmeltingRecipe implements Recipe<DoubleSmeltingRecipe.DoubleR
     }
 
     @Override
-    public @NotNull ItemStack assemble(DoubleRecipeInput doubleRecipeInput, HolderLookup.Provider provider) {
+    public @Nonnull ItemStack assemble(DoubleRecipeInput doubleRecipeInput, HolderLookup.Provider provider) {
         return output.copy();
     }
 
@@ -78,17 +78,17 @@ public class DoubleSmeltingRecipe implements Recipe<DoubleSmeltingRecipe.DoubleR
     }
 
     @Override
-    public @NotNull ItemStack getResultItem(HolderLookup.Provider provider) {
+    public @Nonnull ItemStack getResultItem(HolderLookup.Provider provider) {
         return output.copy();
     }
 
     @Override
-    public @NotNull RecipeSerializer<?> getSerializer() {
+    public @Nonnull RecipeSerializer<?> getSerializer() {
         return AllRecipes.DOUBLE_SMELTING_SER.get();
     }
 
     @Override
-    public @NotNull RecipeType<?> getType() {
+    public @Nonnull RecipeType<?> getType() {
         return type;
     }
 
@@ -108,7 +108,7 @@ public class DoubleSmeltingRecipe implements Recipe<DoubleSmeltingRecipe.DoubleR
 
     public record DoubleRecipeInput(ItemStack itemA, ItemStack itemB) implements RecipeInput {
         @Override
-        public @NotNull ItemStack getItem(int i) {
+        public @Nonnull ItemStack getItem(int i) {
             ItemStack stack;
             switch (i) {
                 case 0 -> stack = this.itemA;

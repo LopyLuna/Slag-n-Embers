@@ -1,0 +1,49 @@
+{
+  "conditions": [
+    {
+      "type": "neoforge:not",
+      "value": {
+        "type": "neoforge:tag_empty",
+        "tag": "c:ingots/electrum"
+      }
+    }
+  ],
+  "id": "slag:electrum",
+  "molten_fluid": "slag:molten_electrum",
+  "repair_ingredient": {
+    "tag": "c:ingots/electrum"
+  },
+  "sort_order": 310,
+  "texture": "shiny",
+  "traits": [
+    "slag:piglin_loved",
+    {
+      "trait": "slag:attack_damage",
+      "value": 6.0
+    },
+    {
+      "trait": "slag:durability",
+      "value": 352.0
+    },
+    {
+      "trait": "slag:mining_tier",
+      "value": 4.0
+    },
+    {
+      "trait": "slag:mining_speed",
+      "value": 13.0
+    },
+    {
+      "trait": "slag:enchantability",
+      "value": 26.0
+    },
+    {
+      "trait": "slag:armor",
+      "value": 6.0
+    },
+    {
+      "trait": "slag:armor_toughness",
+      "value": 1.0
+    }
+  ]
+}

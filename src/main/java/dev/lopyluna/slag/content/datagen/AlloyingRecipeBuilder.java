@@ -1,6 +1,9 @@
 package dev.lopyluna.slag.content.datagen;
 
 import dev.lopyluna.slag.content.blocks.crucible.AlloyingRecipe;
+import dev.lopyluna.slag.content.temperature.Temperatures.Tiers;
+import dev.lopyluna.slag.content.temperature.Temperatures.Type;
+import dev.lopyluna.slag.content.utils.FluidInput;
 import net.minecraft.advancements.AdvancementRequirements;
 import net.minecraft.advancements.AdvancementRewards;
 import net.minecraft.advancements.Criterion;
@@ -13,21 +16,29 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.material.Fluid;
 import net.neoforged.neoforge.fluids.FluidStack;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import net.neoforged.neoforge.fluids.crafting.SizedFluidIngredient;
+import javax.annotation.Nonnull;
 
+import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.*;
 
+@SuppressWarnings({"UnusedReturnValue", "unused"})
 @ParametersAreNonnullByDefault
 public class AlloyingRecipeBuilder implements RecipeBuilder {
     private final Fluid result;
     private final FluidStack stackResult;
-    private final List<FluidStack> inputs;
+    private final List<SizedFluidIngredient> inputs;
     private final Map<String, Criterion<?>> criteria;
     @Nullable
     private String group;
     private final AlloyingRecipe.Factory factory;
+    private int duration;
+    private float speed = 1f;
+    private Tiers temperature = Tiers.HEATED;
+    @Nullable
+    private Type heatType;
+    private boolean strict;
 
     private AlloyingRecipeBuilder(Fluid result, int count, List<FluidStack> inputs) {
         this(new FluidStack(result, count), inputs);
@@ -36,19 +47,45 @@ public class AlloyingRecipeBuilder implements RecipeBuilder {
         this.criteria = new LinkedHashMap<>();
         this.result = result.getFluid();
         this.stackResult = result;
-        this.inputs = inputs;
+        this.inputs = inputs.stream().map(FluidInput::of).toList();
         this.factory = AlloyingRecipe::new;
     }
 
     @Override
-    public @NotNull RecipeBuilder unlockedBy(String name, Criterion<?> criterion) {
+    public @Nonnull RecipeBuilder unlockedBy(String name, Criterion<?> criterion) {
         this.criteria.put(name, criterion);
         return this;
     }
 
+
+    public AlloyingRecipeBuilder duration(int ticks) {
+        this.duration = ticks;
+        return this;
+    }
+
+    public AlloyingRecipeBuilder speed(float speed) {
+        this.speed = speed;
+        return this;
+    }
+
     @Override
-    public @NotNull RecipeBuilder group(@Nullable String name) {
+    public @Nonnull RecipeBuilder group(@Nullable String name) {
         this.group = name;
+        return this;
+    }
+
+    public AlloyingRecipeBuilder temperature(Tiers temperature) {
+        this.temperature = temperature;
+        return this;
+    }
+
+    public AlloyingRecipeBuilder strict() {
+        this.strict = true;
+        return this;
+    }
+
+    public AlloyingRecipeBuilder heatType(@Nullable Type heatType) {
+        this.heatType = heatType;
         return this;
     }
 
@@ -60,13 +97,13 @@ public class AlloyingRecipeBuilder implements RecipeBuilder {
         Objects.requireNonNull(builder);
         this.criteria.forEach(builder::addCriterion);
 
-        AlloyingRecipe recipe = this.factory.create(Objects.requireNonNullElse(this.group, ""), this.inputs, this.stackResult);
+        AlloyingRecipe recipe = this.factory.create(Objects.requireNonNullElse(this.group, ""), this.inputs, this.stackResult, this.temperature, Optional.ofNullable(this.heatType), this.strict, this.duration, this.speed);
         recipeOutput.accept(loc, recipe, builder.build(loc.withPrefix("recipes/misc/")));
 
     }
 
     @Override
-    public @NotNull Item getResult() {
+    public @Nonnull Item getResult() {
         return Items.AIR;
     }
     public Fluid getResultFluid() {

@@ -1,0 +1,32 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_mold": {
+      "conditions": {
+        "items": [
+          {
+            "items": "slag:cast_iron_mold"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "slag:melting/cast_iron_mold"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    }
+  },
+  "requirements": [
+    [
+      "has_the_recipe",
+      "has_mold"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "slag:melting/cast_iron_mold"
+    ]
+  }
+}

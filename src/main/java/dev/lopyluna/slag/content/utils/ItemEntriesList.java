@@ -2,7 +2,7 @@ package dev.lopyluna.slag.content.utils;
 
 import com.tterrag.registrate.util.entry.ItemEntry;
 import net.minecraft.world.item.Item;
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
 
 import java.util.Arrays;
 import java.util.Iterator;
@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.function.Function;
 
+@SuppressWarnings("unused")
 public class ItemEntriesList<T extends Item, L extends ListProvider> implements Iterable<ItemEntry<T>> {
     private final ItemEntry<?>[] values;
 
@@ -34,7 +35,7 @@ public class ItemEntriesList<T extends Item, L extends ListProvider> implements 
     }
 
     @Override
-    public @NotNull Iterator<ItemEntry<T>> iterator() {
+    public @Nonnull Iterator<ItemEntry<T>> iterator() {
         return new Iterator<>() {
             private int index = 0;
 

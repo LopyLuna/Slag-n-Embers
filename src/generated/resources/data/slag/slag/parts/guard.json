@@ -1,10 +1,25 @@
 {
-  "durability_modifier": 0.28,
   "id": "slag:guard",
   "item_tags": [
-    "slag:cast/guards"
+    "slag:cast/guards",
+    "slag:imprintable"
   ],
   "segment_part": "slag:parts/guards",
   "sort_order": 5,
-  "speed_modifier": 2.4
+  "traits": [
+    {
+      "operation": "multiply",
+      "trait": "slag:attack_damage",
+      "value": 1.0
+    },
+    {
+      "trait": "slag:attack_speed",
+      "value": 2.4
+    },
+    {
+      "operation": "multiply",
+      "trait": "slag:durability",
+      "value": 0.28
+    }
+  ]
 }

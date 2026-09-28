@@ -1,14 +1,18 @@
 package dev.lopyluna.slag.content.jei.category;
 
 import dev.lopyluna.slag.SlagEmbers;
+import dev.lopyluna.slag.content.AllUtils;
 import dev.lopyluna.slag.content.blocks.crucible.AlloyingRecipe;
 import dev.lopyluna.slag.content.jei.EmbersRecipesJEI;
+import dev.lopyluna.slag.content.utils.FluidInput;
 import dev.lopyluna.slag.register.AllBlocks;
+import dev.lopyluna.slag.register.AllLangs;
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
 import mezz.jei.api.gui.drawable.IDrawable;
 import mezz.jei.api.gui.widgets.IRecipeExtrasBuilder;
 import mezz.jei.api.helpers.IGuiHelper;
 import mezz.jei.api.helpers.IModIdHelper;
+import mezz.jei.api.neoforge.NeoForgeTypes;
 import mezz.jei.api.recipe.IFocusGroup;
 import mezz.jei.api.recipe.RecipeIngredientRole;
 import mezz.jei.api.recipe.category.AbstractRecipeCategory;
@@ -20,10 +24,10 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.crafting.RecipeHolder;
-import net.neoforged.neoforge.fluids.FluidStack;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.ArrayList;
+import java.util.List;
 
 import static dev.lopyluna.slag.content.blocks.crucible_interface.client.InterfaceScreen.createLang;
 
@@ -32,6 +36,7 @@ import static dev.lopyluna.slag.content.blocks.crucible_interface.client.Interfa
 public class AlloyingCategory extends AbstractRecipeCategory<RecipeHolder<AlloyingRecipe>> {
     private final IDrawable tankBackground;
     private final IDrawable tankOverlay;
+    private final IDrawable validHeaterSlot;
 
     public AlloyingCategory(IGuiHelper guiHelper) {
         super(
@@ -43,6 +48,7 @@ public class AlloyingCategory extends AbstractRecipeCategory<RecipeHolder<Alloyi
         ResourceLocation backgroundTexture = SlagEmbers.loc("textures/gui/jei.png");
         this.tankBackground = guiHelper.createDrawable(backgroundTexture, 0, 0, 32, 56);
         this.tankOverlay = guiHelper.createDrawable(backgroundTexture, 32, 0, 32, 56);
+        this.validHeaterSlot = guiHelper.createDrawable(backgroundTexture, 64, 0, 20, 20);
     }
 
 
@@ -55,9 +61,14 @@ public class AlloyingCategory extends AbstractRecipeCategory<RecipeHolder<Alloyi
         var fluidsIn = recipe.getInputs();
 
         var totalInAmount = 0;
-        for (FluidStack fluidIn : fluidsIn) totalInAmount += fluidIn.getAmount();
+        for (var fluidIn : fluidsIn) totalInAmount += fluidIn.amount();
 
         var totalCapacity = Math.max(totalInAmount, fluidOut.getAmount());
+
+        builder.addSlot(RecipeIngredientRole.CATALYST, 52, 36)
+                .setBackground(validHeaterSlot, -2, -2)
+                .addItemStacks(AllUtils.getHeaterStacks(recipe.temperature, recipe.heatType, recipe.strict))
+                .addRichTooltipCallback((view, tooltip) -> tooltip.add(AllLangs.requires(recipe.temperature, recipe.heatType).withStyle(ChatFormatting.GRAY)));
 
         builder.addOutputSlot(83, 3)
                 .setFluidRenderer(totalCapacity, false, 24, 48)
@@ -94,21 +105,26 @@ public class AlloyingCategory extends AbstractRecipeCategory<RecipeHolder<Alloyi
                 .setOverlay(tankOverlay, -4, -4)
                 .setBackground(tankBackground, -4, -4);
 
-        for (int i = 0; i < fluidsIn.size(); i++) {
-            var fluidIn = fluidsIn.get(i);
-            var fluidAreaSize = (int) (((double) fluidIn.getAmount() / totalInAmount) * 48.0);
+        var filled = 0;
+        var used = 0;
+        for (var fluidIn : fluidsIn) {
+            filled += fluidIn.amount();
+            var top = (int) Math.round(filled * 48.0 / totalInAmount);
+            var fluidAreaSize = top - used;
+            used = top;
             //SlagEmbers.LOGGER.info("Fluid area size: " + ((double) fluidIn.getAmount() / totalInAmount) * 48.0);
-            builder.addInputSlot(12, 51 - ((i+1)*fluidAreaSize))
-                    .setFluidRenderer(fluidIn.getAmount(), false, 24, fluidAreaSize)
-                    .addFluidStack(fluidIn.getFluid(), fluidIn.getAmount())
+            builder.addInputSlot(12, 51 - top)
+                    .setFluidRenderer(fluidIn.amount(), false, 24, fluidAreaSize)
+                    .addIngredients(NeoForgeTypes.FLUID_STACK, List.of(fluidIn.getFluids()))
                     .addRichTooltipCallback((s, t) -> {
+                        var fluid = s.getDisplayedIngredient(NeoForgeTypes.FLUID_STACK).orElseGet(() -> FluidInput.first(fluidIn));
                         var tooltipFlag = Minecraft.getInstance().options.advancedItemTooltips ? TooltipFlag.Default.ADVANCED : TooltipFlag.Default.NORMAL;
                         t.clear();
                         var tooltips = new ArrayList<Component>();
-                        tooltips.add(fluidIn.getDisplayName());
-                        createLang(fluidIn, tooltips).run();
+                        tooltips.add(fluid.getDisplayName());
+                        createLang(fluid, tooltips).run();
                         if (tooltipFlag.advanced()) {
-                            var loc = BuiltInRegistries.FLUID.getKey(fluidIn.getFluid());
+                            var loc = BuiltInRegistries.FLUID.getKey(fluid.getFluid());
                             tooltips.add(Component.literal(loc.toString()).withStyle(ChatFormatting.DARK_GRAY));
                             var helper = Internal.getJeiRuntime().getJeiHelpers().getModIdHelper();
                             tooltips.add(Component.literal(getFormattedModNameForModIdWithoutDisplay(helper, loc.getNamespace())).withStyle(ChatFormatting.BLUE).withStyle(ChatFormatting.ITALIC));
@@ -119,7 +135,8 @@ public class AlloyingCategory extends AbstractRecipeCategory<RecipeHolder<Alloyi
                                 var modID = name.getNamespace();
                                 if (!modID.equals(getRecipeType().getUid().getNamespace())) {
                                     var mod = getFormattedModNameForModId(helper, name.getNamespace());
-                                    if (!mod.isEmpty()) tooltips.add(Component.translatable("jei.tooltip.recipe.by", mod).withStyle(ChatFormatting.GRAY));
+                                    if (!mod.isEmpty())
+                                        tooltips.add(Component.translatable("jei.tooltip.recipe.by", mod).withStyle(ChatFormatting.GRAY));
                                 }
                             }
                         }

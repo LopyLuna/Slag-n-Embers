@@ -3,7 +3,7 @@
   "cast": "slag:cast/ingots",
   "ingredient": {
     "amount": 72,
-    "id": "slag:molten_iron"
+    "tag": "c:molten/iron"
   },
   "result": {
     "count": 1,

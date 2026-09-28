@@ -1,0 +1,41 @@
+{
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:not",
+      "value": {
+        "type": "neoforge:tag_empty",
+        "tag": "c:storage_blocks/tungsten"
+      }
+    }
+  ],
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_meltable_tungsten_blocks": {
+      "conditions": {
+        "items": [
+          {
+            "items": "#c:storage_blocks/tungsten"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "slag:melting/tungsten_blocks"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    }
+  },
+  "requirements": [
+    [
+      "has_the_recipe",
+      "has_meltable_tungsten_blocks"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "slag:melting/tungsten_blocks"
+    ]
+  }
+}

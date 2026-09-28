@@ -2,7 +2,7 @@
   "type": "slag:basin_casting",
   "ingredient": {
     "amount": 288,
-    "id": "slag:molten_quartz"
+    "tag": "c:molten/quartz"
   },
   "result": {
     "count": 1,

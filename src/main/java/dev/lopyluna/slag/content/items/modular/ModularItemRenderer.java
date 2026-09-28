@@ -11,15 +11,20 @@ import dev.lopyluna.slag.content.items.dynamic_part.IModularItem;
 import dev.lopyluna.slag.register.AllDataComponents;
 import dev.lopyluna.slag.register.AllDynamicTypes;
 import net.createmod.catnip.animation.AnimationTickHolder;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.ItemRenderer;
+import net.minecraft.client.renderer.texture.MissingTextureAtlasSprite;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.client.resources.model.ModelManager;
 import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.core.component.DataComponents;
+import net.minecraft.resources.FileToIdConverter;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -31,14 +36,21 @@ import net.neoforged.neoforge.client.event.ModelEvent;
 
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
-import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.Random;
+import java.util.concurrent.ConcurrentHashMap;
 
 import static dev.lopyluna.slag.SlagEmbers.MOD_ID;
 
+@SuppressWarnings("unused")
 @EventBusSubscriber(modid = MOD_ID, value = Dist.CLIENT)
 @ParametersAreNonnullByDefault
 public class ModularItemRenderer extends CustomRenderedItemModelRenderer {
+    private static final FileToIdConverter MODELS = FileToIdConverter.json("models");
+    private static final String FIRE_PROOF = "_fire_proof_";
+    private static final Map<Handle, Optional<BakedModel>> HANDLES = new ConcurrentHashMap<>();
+
     @Override protected void render(ItemStack stack, ItemRenderer itemRenderer, CustomRenderedItemModel model, PartialItemModelRenderer renderer,
                                     ItemDisplayContext ctx, PoseStack ms, MultiBufferSource buf, int light, int overlay) {
         var level = mc.level;
@@ -103,7 +115,7 @@ public class ModularItemRenderer extends CustomRenderedItemModelRenderer {
 
     public static void renderBakedPart(ClientLevel level, Player player, ItemStack stack, int light, String suffix,
                                        ItemRenderer itemRenderer, PartialItemModelRenderer renderer, ModelManager manager) {
-        if (stack.getItem() instanceof IDynamicPart) renderer.render(DynamicPartRenderer.renderFallBack(stack, manager), light);
+        if (stack.getItem() instanceof IDynamicPart) DynamicPartRenderer.renderPart(stack, renderer, light);
         else renderer.render(remapItemToCustomModel(stack, "", "", suffix, itemRenderer, manager, level, player), light);
     }
 
@@ -123,7 +135,7 @@ public class ModularItemRenderer extends CustomRenderedItemModelRenderer {
 
         ms.translate(offsetX, offsetY, 0);
 
-        if (stack.getItem() instanceof IDynamicPart) renderer.render(DynamicPartRenderer.renderFallBack(stack, manager), light);
+        if (stack.getItem() instanceof IDynamicPart) DynamicPartRenderer.renderPart(stack, renderer, light);
         else renderer.render(itemRenderer.getModel(stack, level, player, 0), light);
 
     }
@@ -131,12 +143,30 @@ public class ModularItemRenderer extends CustomRenderedItemModelRenderer {
     public static BakedModel remapItemToCustomModel(ItemStack stack, String prefix, @Nullable String name, String suffix, ItemRenderer itemRenderer, ModelManager manager, ClientLevel level, Player player) {
         if (stack.is(Items.STICK)) {
             var targetName = name == null || name.isEmpty() ? "handle" : name;
-            var path = "item/" + prefix + targetName + suffix;
-
-            return getModel(stack, level, player, SlagEmbers.loc(path), manager);
+            var fireProof = suffix.startsWith(FIRE_PROOF);
+            var modular = suffix.substring(fireProof ? FIRE_PROOF.length() : 1);
+            var key = new Handle(SlagEmbers.loc("item/" + prefix + targetName + suffix), SlagEmbers.loc("item/built/" + targetName + (fireProof ? "_fire_proof" : "") + "/" + modular));
+            var model = HANDLES.computeIfAbsent(key, ModularItemRenderer::handle);
+            if (model.isPresent()) return model.get();
         }
         return itemRenderer.getModel(stack, level, player, 0);
     }
+
+    private static Optional<BakedModel> handle(Handle handle) {
+        var manager = Minecraft.getInstance().getModelManager();
+        var model = manager.getModel(ModelResourceLocation.standalone(handle.model()));
+        if (model != manager.getMissingModel()) return Optional.of(model);
+        var sprite = manager.getAtlas(InventoryMenu.BLOCK_ATLAS).getSprite(handle.texture());
+        if (sprite.contents().name().equals(MissingTextureAtlasSprite.getLocation())) return Optional.empty();
+        return Optional.of(DynamicPartRenderer.flat(sprite));
+    }
+
+    @SubscribeEvent
+    public static void onBakingCompleted(ModelEvent.BakingCompleted e) {
+        HANDLES.clear();
+    }
+
+    private record Handle(ResourceLocation model, ResourceLocation texture) {}
 
     @SubscribeEvent
     public static void registerAdditionalModels(ModelEvent.RegisterAdditional e) {
@@ -146,9 +176,8 @@ public class ModularItemRenderer extends CustomRenderedItemModelRenderer {
         e.register(ModelResourceLocation.standalone(SlagEmbers.loc("item/modular_item_baked_equipable")));
         e.register(ModelResourceLocation.standalone(SlagEmbers.loc("item/modular_item_baked_trim")));
 
-        for (var mixture : List.of("pickaxe", "axe", "shovel", "hoe", "sword", "mattock", "prybar", "graip", "mallet", "hammer", "scythe", "maul", "paxel")) {
-            e.register(ModelResourceLocation.standalone(SlagEmbers.loc("item/handle_fire_proof_" + mixture)));
-            e.register(ModelResourceLocation.standalone(SlagEmbers.loc("item/handle_" + mixture)));
-        }
+        var resources = Minecraft.getInstance().getResourceManager();
+        for (var file : resources.listResources("models/item", loc -> loc.getNamespace().equals(MOD_ID) && loc.getPath().startsWith("models/item/handle_") && loc.getPath().endsWith(".json")).keySet())
+            e.register(ModelResourceLocation.standalone(MODELS.fileToId(file)));
     }
 }

@@ -1,11 +1,11 @@
 {
   "parent": "minecraft:recipes/root",
   "criteria": {
-    "has_sword_blade": {
+    "has_table": {
       "conditions": {
         "items": [
           {
-            "items": "#c:sword_blades"
+            "items": "slag:table"
           }
         ]
       },
@@ -21,7 +21,7 @@
   "requirements": [
     [
       "has_the_recipe",
-      "has_sword_blade"
+      "has_table"
     ]
   ],
   "rewards": {

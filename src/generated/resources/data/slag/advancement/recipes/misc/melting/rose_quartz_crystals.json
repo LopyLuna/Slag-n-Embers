@@ -1,0 +1,41 @@
+{
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:not",
+      "value": {
+        "type": "neoforge:tag_empty",
+        "tag": "c:gems/rose_quartz"
+      }
+    }
+  ],
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_meltable_rose_quartz_crystals": {
+      "conditions": {
+        "items": [
+          {
+            "items": "#c:gems/rose_quartz"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "slag:melting/rose_quartz_crystals"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    }
+  },
+  "requirements": [
+    [
+      "has_the_recipe",
+      "has_meltable_rose_quartz_crystals"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "slag:melting/rose_quartz_crystals"
+    ]
+  }
+}

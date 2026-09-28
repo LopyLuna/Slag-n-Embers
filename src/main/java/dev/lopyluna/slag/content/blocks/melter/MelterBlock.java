@@ -28,7 +28,7 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.items.ItemHandlerHelper;
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 
@@ -36,6 +36,9 @@ import javax.annotation.ParametersAreNonnullByDefault;
 public class MelterBlock extends SmartBlock<MelterBE> {
     public static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
     public static final MapCodec<MelterBlock> CODEC = simpleCodec(MelterBlock::new);
+    public static final VoxelShape SHAPE = ShapeUtils.shape(0, 0, 0, 16, 4, 16)
+            .add(0, 0, 0, 16, 16, 3).add(0, 0, 13, 16, 16, 16)
+            .add(0, 0, 0, 3, 16, 16).add(13, 0, 0, 16, 16, 16).build();
 
     public MelterBlock(Properties properties) {
         super(properties);
@@ -53,7 +56,7 @@ public class MelterBlock extends SmartBlock<MelterBE> {
     }
 
     @Override
-    protected @NotNull InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hitResult) {
+    protected @Nonnull InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hitResult) {
         if (!level.isClientSide) {
             if (level.getBlockEntity(pos) instanceof MelterBE be) player.openMenu(be);
             return InteractionResult.CONSUME;
@@ -79,12 +82,19 @@ public class MelterBlock extends SmartBlock<MelterBE> {
     }
 
     @Override
-    protected @NotNull VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
-        var shaper = ShapeUtils.shape(0, 0, 0, 16, 4, 16);
-        var wall = ShapeUtils.shape(0, 0, 0, 16, 16, 3).forHorizontal(Direction.NORTH);
-        var newShape = shaper.add(wall.get(Direction.NORTH)).add(wall.get(Direction.SOUTH)).add(wall.get(Direction.EAST)).add(wall.get(Direction.WEST));
-        if (newShape != null) shaper = newShape;
-        return shaper.build();
+    public int getLightEmission(BlockState state, BlockGetter level, BlockPos pos) {
+        return level.getBlockEntity(pos) instanceof MelterBE be ? be.getLuminosity() : 0;
+    }
+
+    @Override
+    protected @Nonnull VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
+        return SHAPE;
+    }
+
+    @Override
+    protected void neighborChanged(BlockState state, Level level, BlockPos pos, Block neighborBlock, BlockPos neighborPos, boolean movedByPiston) {
+        super.neighborChanged(state, level, pos, neighborBlock, neighborPos, movedByPiston);
+        if (neighborPos.equals(pos.below())) withBlockEntityDo(level, pos, MelterBE::updateHeat);
     }
 
     @Override
@@ -97,10 +107,10 @@ public class MelterBlock extends SmartBlock<MelterBE> {
         return AllBETypes.MELTER.get();
     }
 
-    public @NotNull BlockState rotate(BlockState pState, Rotation pRotation) {
+    public @Nonnull BlockState rotate(BlockState pState, Rotation pRotation) {
         return pState.setValue(FACING, pRotation.rotate(pState.getValue(FACING)));
     }
-    public @NotNull BlockState mirror(BlockState pState, Mirror pMirror) {
+    public @Nonnull BlockState mirror(BlockState pState, Mirror pMirror) {
         return super.rotate(pState, pMirror.getRotation(pState.getValue(FACING)));
     }
 
@@ -115,7 +125,7 @@ public class MelterBlock extends SmartBlock<MelterBE> {
     }
 
     @Override
-    protected @NotNull MapCodec<? extends BaseEntityBlock> codec() {
+    protected @Nonnull MapCodec<? extends BaseEntityBlock> codec() {
         return CODEC;
     }
 }

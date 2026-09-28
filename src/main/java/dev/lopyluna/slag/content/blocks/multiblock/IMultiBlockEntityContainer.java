@@ -1,10 +1,10 @@
 package dev.lopyluna.slag.content.blocks.multiblock;
 
+import dev.lopyluna.slag.content.blocks.multiblock.MultiQueue.Area;
+import it.unimi.dsi.fastutil.longs.LongList;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.IFluidTank;
 
@@ -19,31 +19,18 @@ public interface IMultiBlockEntityContainer {
     <T extends BlockEntity & IMultiBlockEntityContainer> T getControllerBE();
     boolean isController();
     void setController(BlockPos pos);
-    void removeController(boolean keepContents);
+    void removeController();
+    default void detachController() { removeController(); }
     BlockPos getLastKnownPos();
 
     void preventConnectivityUpdate();
     void notifyMultiUpdated();
+    default void formed(LongList fresh, List<Area> absorbed) { notifyMultiUpdated(); }
 
     default void setExtraData(@Nullable Object data) {}
     @Nullable
     default Object getExtraData() { return null; }
     default Object modifyExtraData(Object data) { return data; }
-
-    // multiblock structural information
-    Direction.Axis getMainConnectionAxis();
-
-    default Direction.Axis getMainAxisOf(BlockEntity be) {
-        BlockState state = be.getBlockState();
-
-        Direction.Axis axis;
-        if (state.hasProperty(BlockStateProperties.HORIZONTAL_AXIS)) axis = state.getValue(BlockStateProperties.HORIZONTAL_AXIS);
-        else if (state.hasProperty(BlockStateProperties.FACING)) axis = state.getValue(BlockStateProperties.FACING).getAxis();
-        else if (state.hasProperty(BlockStateProperties.HORIZONTAL_FACING)) axis = state.getValue(BlockStateProperties.HORIZONTAL_FACING).getAxis();
-        else axis = Direction.Axis.Y;
-
-        return axis;
-    }
 
     int getMaxLength(Direction.Axis longAxis, int width);
     int getMaxWidth();
@@ -57,23 +44,6 @@ public interface IMultiBlockEntityContainer {
     int getWidthZ();
     void setWidthZ(int width);
 
-    interface Inventory extends IMultiBlockEntityContainer {
-        default boolean hasInventory() { return false; }
-    }
-
-    interface Fluid extends IMultiBlockEntityContainer {
-        // done here rather than through the Capability to allow greater flexibility
-        default boolean hasTank() { return false; }
-
-        default int getTankSize(int tank) {	return 0; }
-
-        default void setTankSize(int tank, int blocks) {}
-
-        default IFluidTank getTank(int tank) { return null; }
-
-        default FluidStack getFluid(int tank) {	return FluidStack.EMPTY; }
-    }
-
     interface FluidMulti extends IMultiBlockEntityContainer {
         default boolean hasTank() { return false; }
 
@@ -86,5 +56,9 @@ public interface IMultiBlockEntityContainer {
         default IFluidTank getTank() { return null; }
 
         default List<FluidStack> getFluids() {	return new ArrayList<>(); }
+
+        default List<FluidStack> takeFluids() { return new ArrayList<>(); }
+
+        default void giveFluids(List<FluidStack> fluids) {}
     }
 }

@@ -10,7 +10,8 @@
     }
   },
   "pattern": [
-    "RMR"
+    "R",
+    "M"
   ],
   "result": {
     "components": {

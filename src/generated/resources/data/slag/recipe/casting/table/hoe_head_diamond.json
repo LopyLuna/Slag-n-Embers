@@ -3,7 +3,7 @@
   "cast": "slag:cast/hoe_heads",
   "ingredient": {
     "amount": 144,
-    "id": "slag:molten_diamond"
+    "tag": "c:molten/diamond"
   },
   "result": {
     "components": {

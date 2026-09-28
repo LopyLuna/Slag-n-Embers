@@ -1,0 +1,19 @@
+{
+  "effects": [
+    {
+      "type": "slag:block_action",
+      "action": "strip"
+    },
+    {
+      "type": "slag:abilities",
+      "abilities": [
+        "axe_strip",
+        "axe_scrape",
+        "axe_wax_off"
+      ]
+    }
+  ],
+  "hidden": true,
+  "id": "slag:stripping",
+  "sort_order": 190
+}

@@ -5,6 +5,7 @@ import dev.lopyluna.slag.SlagEmbers;
 import dev.lopyluna.slag.content.datagen.MaterialDatagen;
 import dev.lopyluna.slag.content.datagen.ModularDatagen;
 import dev.lopyluna.slag.content.datagen.PartDatagen;
+import dev.lopyluna.slag.content.datagen.TraitDatagen;
 import dev.lopyluna.slag.register.AllSoundEvents;
 import net.minecraft.data.DataGenerator;
 import net.neoforged.neoforge.data.event.GatherDataEvent;
@@ -21,6 +22,7 @@ public class EmbersDatagen {
         DataGenerator generator = event.getGenerator();
         generator.addProvider(event.includeClient(), AllSoundEvents.provider(generator));
 
+        generator.addProvider(event.includeServer(), new TraitDatagen(generator.getPackOutput(), event.getLookupProvider()));
         generator.addProvider(event.includeServer(), new MaterialDatagen(generator.getPackOutput(), event.getLookupProvider()));
         generator.addProvider(event.includeServer(), new PartDatagen(generator.getPackOutput(), event.getLookupProvider()));
         generator.addProvider(event.includeServer(), new ModularDatagen(generator.getPackOutput(), event.getLookupProvider()));

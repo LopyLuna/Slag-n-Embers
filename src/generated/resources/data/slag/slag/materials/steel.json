@@ -1,0 +1,48 @@
+{
+  "conditions": [
+    {
+      "type": "neoforge:not",
+      "value": {
+        "type": "neoforge:tag_empty",
+        "tag": "c:ingots/steel"
+      }
+    }
+  ],
+  "id": "slag:steel",
+  "molten_fluid": "slag:molten_steel",
+  "repair_ingredient": {
+    "tag": "c:ingots/steel"
+  },
+  "sort_order": 360,
+  "texture": "metal",
+  "traits": [
+    {
+      "trait": "slag:attack_damage",
+      "value": 6.0
+    },
+    {
+      "trait": "slag:durability",
+      "value": 768.0
+    },
+    {
+      "trait": "slag:mining_tier",
+      "value": 5.0
+    },
+    {
+      "trait": "slag:mining_speed",
+      "value": 7.0
+    },
+    {
+      "trait": "slag:enchantability",
+      "value": 12.0
+    },
+    {
+      "trait": "slag:armor",
+      "value": 7.0
+    },
+    {
+      "trait": "slag:armor_toughness",
+      "value": 1.0
+    }
+  ]
+}

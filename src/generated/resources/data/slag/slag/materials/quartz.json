@@ -1,15 +1,35 @@
 {
-  "defense": 7.0,
-  "durability": 288.0,
-  "enchantability": 16.0,
   "id": "slag:quartz",
   "molten_fluid": "slag:molten_quartz",
   "repair_ingredient": {
     "tag": "c:gems/quartz"
   },
-  "sharpness": 6.5,
   "sort_order": 150,
-  "speed": 7.0,
   "texture": "metal",
-  "tier": 4.0
+  "traits": [
+    {
+      "trait": "slag:attack_damage",
+      "value": 6.5
+    },
+    {
+      "trait": "slag:durability",
+      "value": 288.0
+    },
+    {
+      "trait": "slag:mining_tier",
+      "value": 4.0
+    },
+    {
+      "trait": "slag:mining_speed",
+      "value": 7.0
+    },
+    {
+      "trait": "slag:enchantability",
+      "value": 16.0
+    },
+    {
+      "trait": "slag:armor",
+      "value": 7.0
+    }
+  ]
 }

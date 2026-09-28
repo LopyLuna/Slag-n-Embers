@@ -3,7 +3,7 @@
   "cast": "slag:cast/chestplates",
   "ingredient": {
     "amount": 432,
-    "id": "slag:molten_lapis"
+    "tag": "c:molten/lapis"
   },
   "result": {
     "components": {

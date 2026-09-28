@@ -1,0 +1,7 @@
+{
+  "variants": {
+    "": {
+      "model": "slag:block/cast_iron_block"
+    }
+  }
+}

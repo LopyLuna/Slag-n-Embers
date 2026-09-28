@@ -1,0 +1,11 @@
+{
+  "effects": [
+    {
+      "type": "slag:block_action",
+      "action": "harvest"
+    }
+  ],
+  "hidden": true,
+  "id": "slag:harvesting",
+  "sort_order": 220
+}

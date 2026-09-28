@@ -3,7 +3,7 @@
   "cast": "slag:cast/plates",
   "ingredient": {
     "amount": 1296,
-    "id": "slag:molten_obsidian"
+    "tag": "c:molten/obsidian"
   },
   "result": {
     "components": {

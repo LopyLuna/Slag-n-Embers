@@ -6,6 +6,7 @@ import dev.lopyluna.slag.content.blocks.melter.MelterBlock;
 import dev.lopyluna.slag.content.blocks.smart.SmartBlock;
 import dev.lopyluna.slag.content.utils.ShapeUtils;
 import dev.lopyluna.slag.register.AllBETypes;
+import net.createmod.catnip.math.VoxelShaper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.sounds.SoundSource;
@@ -32,24 +33,24 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.neoforged.neoforge.capabilities.Capabilities;
-import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nonnull;
 
+import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
 
 @ParametersAreNonnullByDefault
 public class DrainBlock extends SmartBlock<DrainBE> {
     public static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
     public static final MapCodec<DrainBlock> CODEC = simpleCodec(DrainBlock::new);
+    public static final VoxelShaper SHAPE = ShapeUtils.shape(4, 4, 8, 12, 12, 16).forHorizontal(Direction.NORTH);
     public DrainBlock(Properties properties) {
         super(properties);
         registerDefaultState(defaultBlockState().setValue(FACING, Direction.NORTH));
     }
 
     @Override
-    protected @NotNull ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
+    protected @Nonnull ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
         if (!SlagServerConfigs.EXTRACT_FLUID_FROM_DRAIN_TO_ITEM.get()) return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
         if (!(level.getBlockEntity(pos) instanceof DrainBE be)) return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
         var single = stack.copyWithCount(1);
@@ -62,6 +63,7 @@ public class DrainBlock extends SmartBlock<DrainBE> {
 
             var drained = inputInv.drain(itemHandler.getTankCapacity(0), IFluidHandler.FluidAction.SIMULATE);
             if (drained.getAmount() != itemHandler.fill(drained, IFluidHandler.FluidAction.SIMULATE)) return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+            if (level.isClientSide) return ItemInteractionResult.SUCCESS;
 
             inputInv.drain(itemHandler.getTankCapacity(0), IFluidHandler.FluidAction.EXECUTE);
             itemHandler.fill(drained, IFluidHandler.FluidAction.EXECUTE);
@@ -73,21 +75,21 @@ public class DrainBlock extends SmartBlock<DrainBE> {
             else if (!player.getInventory().add(newStack)) player.drop(newStack, false);
 
             level.gameEvent(player, GameEvent.FLUID_PICKUP, pos);
-            return ItemInteractionResult.sidedSuccess(level.isClientSide);
+            return ItemInteractionResult.CONSUME;
         }
         return super.useItemOn(stack, state, level, pos, player, hand, hitResult);
     }
 
     @Override
-    protected @NotNull InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hitResult) {
+    protected @Nonnull InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hitResult) {
         if (player.isShiftKeyDown() || !(level.getBlockEntity(pos) instanceof DrainBE be)) return InteractionResult.PASS;
         be.cycleDrain();
         return InteractionResult.SUCCESS;
     }
 
     @Override
-    protected @NotNull VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
-        return ShapeUtils.shape(4, 4, 8, 12, 12, 16).forHorizontal(Direction.NORTH).get(state.getValue(FACING));
+    protected @Nonnull VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
+        return SHAPE.get(state.getValue(FACING));
     }
 
     @Override
@@ -111,14 +113,10 @@ public class DrainBlock extends SmartBlock<DrainBE> {
     @Override
     protected void neighborChanged(BlockState state, Level level, BlockPos pos, Block neighborBlock, BlockPos neighborPos, boolean movedByPiston) {
         super.neighborChanged(state, level, pos, neighborBlock, neighborPos, movedByPiston);
-        if (level.getBlockEntity(pos) instanceof DrainBE be) {
-            be.checkPowered();
-            if (!level.isClientSide) {
-                be.drainingFluid = FluidStack.EMPTY;
-                be.setChanged();
-                level.sendBlockUpdated(pos, state, state, Block.UPDATE_ALL);
-            }
-        }
+        if (level.isClientSide || !(level.getBlockEntity(pos) instanceof DrainBE be)) return;
+        var previous = be.drainState;
+        be.checkPowered();
+        if (previous != be.drainState) be.update();
     }
 
     @Override
@@ -140,7 +138,7 @@ public class DrainBlock extends SmartBlock<DrainBE> {
     }
 
     @Override
-    protected @NotNull MapCodec<? extends BaseEntityBlock> codec() {
+    protected @Nonnull MapCodec<? extends BaseEntityBlock> codec() {
         return CODEC;
     }
 

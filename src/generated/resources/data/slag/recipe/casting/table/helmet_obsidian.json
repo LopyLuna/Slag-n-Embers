@@ -3,7 +3,7 @@
   "cast": "slag:cast/helmets",
   "ingredient": {
     "amount": 1944,
-    "id": "slag:molten_obsidian"
+    "tag": "c:molten/obsidian"
   },
   "result": {
     "components": {

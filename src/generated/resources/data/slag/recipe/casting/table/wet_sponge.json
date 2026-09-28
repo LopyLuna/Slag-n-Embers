@@ -1,0 +1,17 @@
+{
+  "type": "slag:table_casting",
+  "cast_item": {
+    "ingredient": {
+      "item": "minecraft:sponge"
+    }
+  },
+  "duration": 60,
+  "ingredient": {
+    "amount": 1000,
+    "fluid": "minecraft:water"
+  },
+  "result": {
+    "count": 1,
+    "id": "minecraft:wet_sponge"
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "effects": [
+    {
+      "type": "slag:mining",
+      "blocks": "#farmersdelight:mineable/knife"
+    },
+    {
+      "type": "slag:abilities",
+      "abilities": [
+        "shears_carve",
+        "sword_dig",
+        "knife_dig",
+        "knife_harvest"
+      ]
+    }
+  ],
+  "hidden": true,
+  "id": "slag:knife_mining",
+  "sort_order": 170
+}

@@ -1,0 +1,32 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_decompact": {
+      "conditions": {
+        "items": [
+          {
+            "items": "slag:cast_iron_nugget"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "slag:crafting/ingot_to_block_cast_iron_nugget"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    }
+  },
+  "requirements": [
+    [
+      "has_the_recipe",
+      "has_decompact"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "slag:crafting/ingot_to_block_cast_iron_nugget"
+    ]
+  }
+}

@@ -1,67 +1,35 @@
 package dev.lopyluna.slag.content.blocks.table;
 
-import dev.lopyluna.slag.content.blocks.DirtyInventory;
+import dev.lopyluna.slag.content.blocks.casting.CastingBE;
+import dev.lopyluna.slag.content.blocks.casting.CastingInventory;
 import dev.lopyluna.slag.content.items.dynamic_mold.DynamicMoldItem;
 import dev.lopyluna.slag.register.AllDataComponents;
-import net.minecraft.world.Container;
-import net.minecraft.world.entity.player.Player;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.ItemStack;
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
 
-public class TableInventory extends DirtyInventory<TableBE> {
-    TableBE be;
+import java.util.Collections;
 
-    public TableInventory(int slots, TableBE be) {
-        super(slots, be, 1, false);
-        this.be = be;
+public class TableInventory extends CastingInventory {
+    public TableInventory(TableBE be) {
+        super(be, 2, 1, false);
     }
 
     @Override
-    public @NotNull ItemStack insertItem(int slot, @NotNull ItemStack stack, boolean simulate) {
-        if (!(stack.getItem() instanceof DynamicMoldItem) || !stack.has(AllDataComponents.CAST_TYPE) || !getFirstMoldItem().isEmpty()) return stack;
-        return super.insertItem(slot, stack, simulate);
+    public void load(CompoundTag tag, HolderLookup.Provider registries) {
+        super.load(tag, registries);
+        if (stacks.get(CastingBE.RESULT).getItem() instanceof DynamicMoldItem) Collections.swap(stacks, CastingBE.RESULT, TableBE.MOLD);
     }
 
     @Override
-    public @NotNull ItemStack extractItem(int slot, int amount, boolean simulate) {
-        if (amount == 0) return ItemStack.EMPTY;
-        validateSlotIndex(slot);
-        var existing = this.stacks.get(slot);
-        if (existing.getItem() instanceof DynamicMoldItem) return ItemStack.EMPTY;
-        return super.extractItem(slot, amount, simulate);
+    public boolean isItemValid(int slot, @Nonnull ItemStack stack) {
+        if (slot == TableBE.MOLD) return stack.getItem() instanceof DynamicMoldItem && stack.has(AllDataComponents.CAST_TYPE);
+        return super.isItemValid(slot, stack);
     }
 
     @Override
-    public void setItem(int slot, @NotNull ItemStack stack) {
-        var i = slot;
-        if (getItem(slot).getItem() instanceof DynamicMoldItem) i = 1;
-        stacks.set(i, stack);
-        stack.limitSize(getMaxStackSize(stack));
-        setChanged();
-        onContentsChanged(i);
-    }
-
-    public ItemStack getFirstMoldItem() {
-        for (var s : stacks) if (!s.isEmpty() && s.getItem() instanceof DynamicMoldItem) return s;
-        return ItemStack.EMPTY;
-    }
-    @Override
-    public ItemStack getFirstItem() {
-        for (var s : stacks) if (!s.isEmpty() && !(s.getItem() instanceof DynamicMoldItem)) return s;
-        return ItemStack.EMPTY;
-    }
-
-    @Override
-    public void setChanged() {
-        be.sendDataImmediately();
-    }
-
-    @Override
-    protected void onContentsChanged(int slot) {
-        super.onContentsChanged(slot);
-        be.sendDataImmediately();
-    }
-    @Override public boolean stillValid(@NotNull Player player) {
-        return Container.stillValidBlockEntity(be, player);
+    public @Nonnull ItemStack extractItem(int slot, int amount, boolean simulate) {
+        return slot == TableBE.MOLD ? ItemStack.EMPTY : super.extractItem(slot, amount, simulate);
     }
 }

@@ -1,0 +1,11 @@
+{
+  "effects": [
+    {
+      "type": "slag:stat",
+      "stat": "mining_tier"
+    }
+  ],
+  "hidden": true,
+  "id": "slag:mining_tier",
+  "sort_order": 80
+}

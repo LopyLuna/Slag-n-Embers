@@ -10,7 +10,7 @@ import net.minecraft.data.PackOutput;
 import net.minecraft.data.worldgen.BootstrapContext;
 import net.minecraft.resources.ResourceKey;
 import net.neoforged.neoforge.common.data.DatapackBuiltinEntriesProvider;
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
 
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
@@ -30,7 +30,7 @@ public class ModularDatagen extends DatapackBuiltinEntriesProvider {
     }
 
     @Override
-    public @NotNull String getName() {
+    public @Nonnull String getName() {
         return "Slag Modular Datagen";
     }
 }

@@ -1,0 +1,16 @@
+{
+  "type": "slag:table_casting",
+  "cast_item": {
+    "ingredient": {
+      "item": "minecraft:apple"
+    }
+  },
+  "ingredient": {
+    "amount": 576,
+    "tag": "c:molten/gold"
+  },
+  "result": {
+    "count": 1,
+    "id": "minecraft:golden_apple"
+  }
+}

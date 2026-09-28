@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "slag:item/cutout/cast_iron_mold/pickaxe_heads"
+  }
+}

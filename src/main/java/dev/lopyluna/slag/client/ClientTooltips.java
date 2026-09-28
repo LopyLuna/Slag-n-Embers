@@ -23,24 +23,11 @@ public class ClientTooltips {
                     tooltip.add(AllLangs.tr("modular_tool_waiting").withStyle(ChatFormatting.GRAY));
                     return;
                 }
-                //if (!item.hasModularType(stack)) {
-                //    var player = Minecraft.getInstance().player;
-                //    var tier = item.getTier(stack);
-
-                //    //if (3.5f >= tier) tooltip.add(AllLangs.tr("modular_tool_crafting_hammer_weak").withStyle(ChatFormatting.RED));
-                //    //else tooltip.add(AllLangs.trArgs("modular_tool_crafting_hammer", String.valueOf(tier)).withStyle(ChatFormatting.RED));
-                //}
-
-                if (!item.hasModularType(stack)) AllLangs.modularToolStats(tooltip, parts, stack, item);
-                else if (isTool(item, stack)) AllLangs.modularToolStats(tooltip, parts, stack, item);
+                if (item.isArmor(stack)) AllLangs.modularArmorStats(tooltip, parts, stack, item);
+                else AllLangs.modularToolStats(tooltip, parts, stack, item);
                 AllLangs.modularParts(tooltip, copyParts);
             } else tooltip.add(AllLangs.tr("modular_tool_waiting").withStyle(ChatFormatting.GRAY));
         }
     }
 
-
-    public static boolean isTool(ModularItem item, ItemStack stack) {
-        var modularType = item.getModularType(stack);
-        return modularType != null && modularType.actions.contains("isTool");
-    }
 }

@@ -11,6 +11,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
+import net.minecraft.world.Container;
 import net.minecraft.world.ContainerHelper;
 import net.minecraft.world.WorldlyContainer;
 import net.minecraft.world.entity.ExperienceOrb;
@@ -31,14 +32,14 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nonnull;
 
+import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.ArrayList;
 import java.util.List;
 
-@SuppressWarnings({"unused"})
+@SuppressWarnings({"unused", "NullableProblems"})
 @ParametersAreNonnullByDefault
 public class ForgeBE extends BaseContainerBlockEntity implements RecipeCraftingHolder, WorldlyContainer {
     private NonNullList<ItemStack> items = NonNullList.withSize(4, ItemStack.EMPTY);
@@ -83,17 +84,17 @@ public class ForgeBE extends BaseContainerBlockEntity implements RecipeCraftingH
     }
 
     @Override
-    public @NotNull Component getDisplayName() {
+    public @Nonnull Component getDisplayName() {
         return Component.translatable(getBlockState().getBlock().getDescriptionId());
     }
 
     @Override
-    protected @NotNull Component getDefaultName() {
+    protected @Nonnull Component getDefaultName() {
         return getDisplayName();
     }
 
     @Override
-    protected @NotNull AbstractContainerMenu createMenu(int syncId, Inventory inventory) {
+    protected @Nonnull AbstractContainerMenu createMenu(int syncId, Inventory inventory) {
         return new ForgeMenu(syncId, inventory, this, data);
     }
 
@@ -102,7 +103,7 @@ public class ForgeBE extends BaseContainerBlockEntity implements RecipeCraftingH
         return this.items.size();
     }
 
-    public @NotNull NonNullList<ItemStack> getItems() {
+    public @Nonnull NonNullList<ItemStack> getItems() {
         return items;
     }
     protected void setItems(NonNullList<ItemStack> items) {
@@ -141,7 +142,7 @@ public class ForgeBE extends BaseContainerBlockEntity implements RecipeCraftingH
         boolean flag = !stack.isEmpty() && ItemStack.isSameItemSameComponents(slotStack, stack);
         items.set(slot, stack);
         stack.limitSize(this.getMaxStackSize(stack));
-        if (slot == 0 && !flag) {
+        if (slot <= 1 && !flag) {
             this.cookingTotalTime = getTotalCookTime(this.level, this);
             this.cookingProgress = 0;
             this.setChanged();
@@ -161,7 +162,7 @@ public class ForgeBE extends BaseContainerBlockEntity implements RecipeCraftingH
 
     @Override
     public boolean stillValid(Player player) {
-        return true;
+        return Container.stillValidBlockEntity(this, player);
     }
 
     public boolean isLit() {
@@ -207,7 +208,7 @@ public class ForgeBE extends BaseContainerBlockEntity implements RecipeCraftingH
 
             if (be.isLit() && canBurn(access, recipeholder, be.items, i, be)) {
                 ++be.cookingProgress;
-                if (be.cookingProgress == be.cookingTotalTime) {
+                if (be.cookingProgress >= be.cookingTotalTime) {
                     be.cookingProgress = 0;
                     be.cookingTotalTime = getTotalCookTime(level, be);
                     if (burn(access, recipeholder, be.items, i, be)) be.setRecipeUsed(recipeholder);
@@ -307,7 +308,7 @@ public class ForgeBE extends BaseContainerBlockEntity implements RecipeCraftingH
     }
 
     @Override
-    public int @NotNull[] getSlotsForFace(Direction direction) {
+    public int[] getSlotsForFace(Direction direction) {
         var facing = getBlockState().getValue(ForgeBlock.FACING);
         return direction == Direction.DOWN ? new int[]{3} : direction == Direction.UP ? new int[]{2} : facing == direction ? new int[0] : switch (facing) {
             case NORTH, SOUTH, WEST, EAST -> facing.getClockWise() == direction ? new int[]{0} : facing.getCounterClockWise() == direction ? new int[]{1} : new int[]{2};

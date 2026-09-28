@@ -1,0 +1,47 @@
+{
+  "conditions": [
+    {
+      "type": "neoforge:not",
+      "value": {
+        "type": "neoforge:tag_empty",
+        "tag": "c:ingots/invar"
+      }
+    }
+  ],
+  "id": "slag:invar",
+  "molten_fluid": "slag:molten_invar",
+  "repair_ingredient": {
+    "tag": "c:ingots/invar"
+  },
+  "sort_order": 340,
+  "traits": [
+    {
+      "trait": "slag:attack_damage",
+      "value": 5.5
+    },
+    {
+      "trait": "slag:durability",
+      "value": 512.0
+    },
+    {
+      "trait": "slag:mining_tier",
+      "value": 4.0
+    },
+    {
+      "trait": "slag:mining_speed",
+      "value": 6.0
+    },
+    {
+      "trait": "slag:enchantability",
+      "value": 12.0
+    },
+    {
+      "trait": "slag:armor",
+      "value": 6.0
+    },
+    {
+      "trait": "slag:armor_toughness",
+      "value": 1.0
+    }
+  ]
+}

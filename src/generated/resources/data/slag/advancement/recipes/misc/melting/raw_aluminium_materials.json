@@ -1,0 +1,41 @@
+{
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:not",
+      "value": {
+        "type": "neoforge:tag_empty",
+        "tag": "c:raw_materials/aluminium"
+      }
+    }
+  ],
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_meltable_raw_aluminium_materials": {
+      "conditions": {
+        "items": [
+          {
+            "items": "#c:raw_materials/aluminium"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "slag:melting/raw_aluminium_materials"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    }
+  },
+  "requirements": [
+    [
+      "has_the_recipe",
+      "has_meltable_raw_aluminium_materials"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "slag:melting/raw_aluminium_materials"
+    ]
+  }
+}

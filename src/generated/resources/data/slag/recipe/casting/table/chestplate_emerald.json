@@ -3,7 +3,7 @@
   "cast": "slag:cast/chestplates",
   "ingredient": {
     "amount": 432,
-    "id": "slag:molten_emerald"
+    "tag": "c:molten/emerald"
   },
   "result": {
     "components": {

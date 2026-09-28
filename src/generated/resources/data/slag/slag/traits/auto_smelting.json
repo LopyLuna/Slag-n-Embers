@@ -1,0 +1,10 @@
+{
+  "color": "#FFC22B",
+  "effects": [
+    {
+      "type": "slag:auto_smelt"
+    }
+  ],
+  "id": "slag:auto_smelting",
+  "sort_order": 330
+}

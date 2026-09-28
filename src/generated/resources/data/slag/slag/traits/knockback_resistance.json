@@ -1,0 +1,12 @@
+{
+  "effects": [
+    {
+      "type": "slag:attribute",
+      "attribute": "minecraft:generic.knockback_resistance",
+      "id": "minecraft:armor"
+    }
+  ],
+  "hidden": true,
+  "id": "slag:knockback_resistance",
+  "sort_order": 50
+}

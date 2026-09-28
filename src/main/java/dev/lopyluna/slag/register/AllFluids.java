@@ -13,15 +13,19 @@ import net.minecraft.client.renderer.FogRenderer;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.FluidTags;
+import net.minecraft.tags.TagKey;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.level.*;
 import net.minecraft.world.level.block.BaseFireBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.material.FlowingFluid;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.pathfinder.PathType;
@@ -31,10 +35,15 @@ import net.neoforged.neoforge.event.EventHooks;
 import net.neoforged.neoforge.fluids.BaseFlowingFluid;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.FluidType;
-import org.jetbrains.annotations.NotNull;
 import org.joml.Vector3f;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
@@ -42,37 +51,78 @@ import static dev.lopyluna.slag.SlagEmbers.REG;
 
 @SuppressWarnings("unused")
 public class AllFluids {
-    public static final FluidEntry<LavaLikeFluid.Flowing> MOLTEN_OBSIDIAN = newMoltenFluid("Obsidian", () -> 0x0D0B12).register();
+    public static final Map<FluidEntry<LavaLikeFluid.Flowing>, TagKey<Item>> COMPAT = new LinkedHashMap<>();
+    public static List<FluidEntry<LavaLikeFluid.Flowing>> HIDDEN = List.of();
+
+    public static final FluidEntry<LavaLikeFluid.Flowing> MOLTEN_OBSIDIAN =
+            newMoltenFluid(REG, "Obsidian", () -> 0x3B145F).register();
 
     public static final FluidEntry<LavaLikeFluid.Flowing> MOLTEN_AMETHYST =
-            newMoltenFluid("Amethyst", () -> 0xBA8EE4).register();
+            newMoltenFluid(REG, "Amethyst", () -> 0xAC87CF).register();
     public static final FluidEntry<LavaLikeFluid.Flowing> MOLTEN_COPPER =
-            newMoltenFluid("Copper", () -> 0xD46F4C).register();
+            newMoltenFluid(REG, "Copper", () -> 0xBC674C).register();
     public static final FluidEntry<LavaLikeFluid.Flowing> MOLTEN_DIAMOND =
-            newMoltenFluid("Diamond", () -> 0x59E0CD).register();
+            newMoltenFluid(REG, "Diamond", () -> 0x54CAC1).register();
+    public static final FluidEntry<LavaLikeFluid.Flowing> MOLTEN_ECHO =
+            newMoltenFluid(REG, "Echo", () -> 0x0E5A68).register();
     public static final FluidEntry<LavaLikeFluid.Flowing> MOLTEN_EMERALD =
-            newMoltenFluid("Emerald", () -> 0x39D66C).register();
+            newMoltenFluid(REG, "Emerald", () -> 0x40C066).register();
+    public static final FluidEntry<LavaLikeFluid.Flowing> MOLTEN_GLOWSTONE =
+            newMoltenFluid(REG, "Glowstone", () -> 0xD9A45C).properties(b -> b.lightLevel(15)).register();
     public static final FluidEntry<LavaLikeFluid.Flowing> MOLTEN_GOLD =
-            newMoltenFluid("Gold", () -> 0xFBE870).register();
+            newMoltenFluid(REG, "Gold", () -> 0xEDCC68).register();
     public static final FluidEntry<LavaLikeFluid.Flowing> MOLTEN_IRON =
-            newMoltenFluid("Iron", () -> 0xB8BFC4).register();
+            newMoltenFluid(REG, "Iron", () -> 0xACB2B4).register();
     public static final FluidEntry<LavaLikeFluid.Flowing> MOLTEN_LAPIS =
-            newMoltenFluid("Lapis", () -> 0x325BB2).register();
+            newMoltenFluid(REG, "Lapis", () -> 0x2A54A5).register();
     public static final FluidEntry<LavaLikeFluid.Flowing> MOLTEN_NETHERITE =
-            newMoltenFluid("Netherite", () -> 0x585157).register();
+            newMoltenFluid(REG, "Netherite", () -> 0x50474E).register();
     public static final FluidEntry<LavaLikeFluid.Flowing> MOLTEN_PRISMARINE =
-            newMoltenFluid("Prismarine", () -> 0x86BEAF).register();
+            newMoltenFluid(REG, "Prismarine", () -> 0x7BB5A4).register();
     public static final FluidEntry<LavaLikeFluid.Flowing> MOLTEN_QUARTZ =
-            newMoltenFluid("Quartz", () -> 0xEBE4D5).register();
+            newMoltenFluid(REG, "Quartz", () -> 0xD9D1C3).register();
     public static final FluidEntry<LavaLikeFluid.Flowing> MOLTEN_REDSTONE =
-            newMoltenFluid("Redstone", () -> 0xCB1909).register();
+            newMoltenFluid(REG, "Redstone", () -> 0x910F04).register();
     public static final FluidEntry<LavaLikeFluid.Flowing> MOLTEN_ROSE_GOLD =
-            newMoltenFluid("Rose Gold", () -> 0xFBA4AB).register();
+            newMoltenFluid(REG, "Rose Gold", () -> 0xEBAFB6).register();
 
-    public static FluidBuilder<LavaLikeFluid.Flowing, Registration> newMoltenFluid(String type, Supplier<Integer> hexColor) {
+    public static final FluidEntry<LavaLikeFluid.Flowing> MOLTEN_ALUMINIUM =
+            compatFluid(REG, "Aluminium", () -> 0xBDB6B8);
+    public static final FluidEntry<LavaLikeFluid.Flowing> MOLTEN_BRASS =
+            compatFluid(REG, "Brass", () -> 0xDDB878);
+    public static final FluidEntry<LavaLikeFluid.Flowing> MOLTEN_BRONZE =
+            compatFluid(REG, "Bronze", () -> 0xC88556);
+    public static final FluidEntry<LavaLikeFluid.Flowing> MOLTEN_CAST_IRON =
+            compatFluid(REG, "Cast Iron", () -> 0x414143);
+    public static final FluidEntry<LavaLikeFluid.Flowing> MOLTEN_ELECTRUM =
+            compatFluid(REG, "Electrum", () -> 0xE1C382);
+    public static final FluidEntry<LavaLikeFluid.Flowing> MOLTEN_INVAR =
+            compatFluid(REG, "Invar", () -> 0xAEB0C8);
+    public static final FluidEntry<LavaLikeFluid.Flowing> MOLTEN_LEAD =
+            compatFluid(REG, "Lead", () -> 0x595468);
+    public static final FluidEntry<LavaLikeFluid.Flowing> MOLTEN_NICKEL =
+            compatFluid(REG, "Nickel", () -> 0xD6B879);
+    public static final FluidEntry<LavaLikeFluid.Flowing> MOLTEN_OSMIUM =
+            compatFluid(REG, "Osmium", () -> 0xA5B7C7);
+    public static final FluidEntry<LavaLikeFluid.Flowing> MOLTEN_PLATINUM =
+            compatFluid(REG, "Platinum", () -> 0x9EC3D2);
+    public static final FluidEntry<LavaLikeFluid.Flowing> MOLTEN_ROSE_QUARTZ =
+            compatFluid(REG, "Rose Quartz", () -> 0xF07A92, AllTags.ROSE_QUARTZ);
+    public static final FluidEntry<LavaLikeFluid.Flowing> MOLTEN_SILVER =
+            compatFluid(REG, "Silver", () -> 0x97A2A9);
+    public static final FluidEntry<LavaLikeFluid.Flowing> MOLTEN_STEEL =
+            compatFluid(REG, "Steel", () -> 0x6F6A6E);
+    public static final FluidEntry<LavaLikeFluid.Flowing> MOLTEN_TIN =
+            compatFluid(REG, "Tin", () -> 0xB0CACD);
+    public static final FluidEntry<LavaLikeFluid.Flowing> MOLTEN_TUNGSTEN =
+            compatFluid(REG, "Tungsten", () -> 0xB2B589);
+    public static final FluidEntry<LavaLikeFluid.Flowing> MOLTEN_ZINC =
+            compatFluid(REG, "Zinc", () -> 0xA7BAA4);
+
+    public static FluidBuilder<LavaLikeFluid.Flowing, Registration> newMoltenFluid(Registration reg, String type, Supplier<Integer> hexColor) {
         var name = "Molten " + type;
-        String id = name.toLowerCase().replace(" ", "_");
-        return standardFluidLavaLike(id, TintableFluidType.create(hexColor.get(), () -> 0.025f))
+        String id = name.toLowerCase(Locale.ROOT).replace(" ", "_");
+        return standardFluidLavaLike(reg, id, TintableFluidType.create(hexColor.get(), () -> 0.025f))
                 .lang(name)
                 .renderType(() -> RenderType::solid)
                 .properties(b -> b
@@ -93,22 +143,47 @@ public class AllFluids {
                 .source(LavaLikeFluid.Source::new)
                 .bucket()
                 .tag(AllTags.itemC("buckets/" + id))
+                .build()
+                .block()
+                .tag(AllTags.HEATED_FLUIDS)
                 .build();
+    }
+
+    public static FluidEntry<LavaLikeFluid.Flowing> compatFluid(Registration reg, String type, Supplier<Integer> hexColor) {
+        return compatFluid(reg, type, hexColor, AllTags.itemC("ingots/" + type.toLowerCase(Locale.ROOT).replace(" ", "_")));
+    }
+
+    public static FluidEntry<LavaLikeFluid.Flowing> compatFluid(Registration reg, String type, Supplier<Integer> hexColor, TagKey<Item> tag) {
+        var entry = newMoltenFluid(reg, type, hexColor).register();
+        COMPAT.put(entry, tag);
+        return entry;
+    }
+
+    public static final String MOLTEN = "molten_";
+
+    public static @Nullable TagKey<Fluid> commonTag(Fluid fluid) {
+        var id = BuiltInRegistries.FLUID.getKey(fluid instanceof FlowingFluid flowing ? flowing.getSource() : fluid);
+        if (!id.getNamespace().equals(SlagEmbers.MOD_ID) || !id.getPath().startsWith(MOLTEN)) return null;
+        return AllTags.fluidC("molten/" + id.getPath().substring(MOLTEN.length()));
+    }
+
+    public static List<FluidEntry<LavaLikeFluid.Flowing>> updateHidden() {
+        return HIDDEN = COMPAT.entrySet().stream().filter(e -> BuiltInRegistries.ITEM.getTag(e.getValue()).map(tag -> tag.size() == 0).orElse(true)).map(Map.Entry::getKey).toList();
     }
 
     public static void register() {}
 
 
-    public static FluidBuilder<LavaLikeFluid.Flowing, Registration> standardFluidLavaLike(String name, FluidBuilder.FluidTypeFactory typeFactory) {
-        return REG.fluid(name, SlagEmbers.loc("fluid/" + name + "_still"), SlagEmbers.loc("fluid/" + name + "_flow"), typeFactory, LavaLikeFluid.Flowing::new).tag(AllTags.HOT_FLUIDS);
+    public static FluidBuilder<LavaLikeFluid.Flowing, Registration> standardFluidLavaLike(Registration reg, String name, FluidBuilder.FluidTypeFactory typeFactory) {
+        return reg.fluid(name, SlagEmbers.loc("fluid/" + name + "_still"), SlagEmbers.loc("fluid/" + name + "_flow"), typeFactory, LavaLikeFluid.Flowing::new).tag(AllTags.HOT_FLUIDS);
     }
 
-    public static FluidBuilder<BaseFlowingFluid.Flowing, Registration> standardFluid(String name, FluidBuilder.FluidTypeFactory typeFactory) {
-        return REG.fluid(name, SlagEmbers.loc("fluid/" + name + "_still"), SlagEmbers.loc("fluid/" + name + "_flow"), typeFactory);
+    public static FluidBuilder<BaseFlowingFluid.Flowing, Registration> standardFluid(Registration reg, String name, FluidBuilder.FluidTypeFactory typeFactory) {
+        return reg.fluid(name, SlagEmbers.loc("fluid/" + name + "_still"), SlagEmbers.loc("fluid/" + name + "_flow"), typeFactory);
     }
 
     @ParametersAreNonnullByDefault
-    private abstract static class LavaLikeFluid extends BaseFlowingFluid {
+    public abstract static class LavaLikeFluid extends BaseFlowingFluid {
         protected LavaLikeFluid(Properties properties) {
             super(properties);
         }
@@ -189,7 +264,7 @@ public class AllFluids {
     }
 
     @ParametersAreNonnullByDefault
-    private static class TintableFluidType extends AllFluids.TintedFluidType {
+    public static class TintableFluidType extends AllFluids.TintedFluidType {
         private Vector3f fogColor;
         private Supplier<Float> fogDistance;
 
@@ -238,13 +313,13 @@ public class AllFluids {
         @Override
         public void initializeClient(Consumer<IClientFluidTypeExtensions> consumer) {
             consumer.accept(new IClientFluidTypeExtensions() {
-                @Override public @NotNull ResourceLocation getStillTexture() { return stillTexture; }
-                @Override public @NotNull ResourceLocation getFlowingTexture() { return flowingTexture; }
+                @Override public @Nonnull ResourceLocation getStillTexture() { return stillTexture; }
+                @Override public @Nonnull ResourceLocation getFlowingTexture() { return flowingTexture; }
                 @Override public int getTintColor(FluidStack stack) { return TintedFluidType.this.getTintColor(stack); }
                 @Override public int getTintColor(FluidState state, BlockAndTintGetter getter, BlockPos pos) { return TintedFluidType.this.getTintColor(state, getter, pos); }
 
                 @Override
-                public @NotNull Vector3f modifyFogColor(Camera camera, float partialTick, ClientLevel level, int renderDistance, float darkenWorldAmount, Vector3f fluidFogColor) {
+                public @Nonnull Vector3f modifyFogColor(Camera camera, float partialTick, ClientLevel level, int renderDistance, float darkenWorldAmount, Vector3f fluidFogColor) {
                     var customFogColor = TintedFluidType.this.getCustomFogColor();
                     return customFogColor == null ? fluidFogColor : customFogColor;
                 }

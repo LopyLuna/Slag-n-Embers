@@ -1,24 +1,24 @@
 package dev.lopyluna.slag;
 
 import com.mojang.logging.LogUtils;
-import dev.lopyluna.slag.client.ResourceFallbackGenerator;
+import dev.lopyluna.slag.compat.create.CreateCompat;
 import dev.lopyluna.slag.config.SlagCommonConfigs;
 import dev.lopyluna.slag.config.SlagServerConfigs;
 import dev.lopyluna.slag.content.EmbersDatagen;
 import dev.lopyluna.slag.content.jei.EmbersRecipesJEI;
 import dev.lopyluna.slag.content.utils.EmbersRegistration;
+import dev.lopyluna.slag.content.utils.ItemResult;
 import dev.lopyluna.slag.content.utils.Registration;
 import dev.lopyluna.slag.network.AllNetworks;
 import dev.lopyluna.slag.register.*;
 import net.minecraft.resources.ResourceLocation;
-import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.ModList;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.config.ModConfig;
-import net.neoforged.fml.loading.FMLEnvironment;
+import net.neoforged.fml.event.config.ModConfigEvent;
 import net.neoforged.neoforge.common.NeoForgeMod;
 import org.slf4j.Logger;
 
@@ -35,14 +35,17 @@ public class SlagEmbers {
 
     public SlagEmbers(IEventBus modEventBus, ModContainer modContainer) {
         REGISTER.register(modEventBus);
+        AllTraitEffects.register(modEventBus);
         AllCreativeTabs.register();
         REG.registerEventListeners(modEventBus);
         AllSoundEvents.prepare();
         REG.defaultCreativeTab(BASE_TAB, "base_tab");
 
         if (ModList.get().isLoaded("jei")) EmbersRecipesJEI.register();
+        if (ModList.get().isLoaded("create")) CreateCompat.register(modEventBus);
         AllTags.addGenerators();
         AllDataComponents.register();
+        AllTraits.register();
         AllMaterials.register();
         AllParts.register();
         AllModulars.register();
@@ -63,8 +66,9 @@ public class SlagEmbers {
         modEventBus.addListener(EventPriority.LOWEST, EmbersDatagen::gatherData);
         modContainer.registerConfig(ModConfig.Type.COMMON, SlagCommonConfigs.SPEC);
         modContainer.registerConfig(ModConfig.Type.SERVER, SlagServerConfigs.SPEC);
+        modEventBus.addListener(ModConfigEvent.Loading.class, event -> { if (event.getConfig().getSpec() == SlagServerConfigs.SPEC) ItemResult.invalidate(); });
+        modEventBus.addListener(ModConfigEvent.Reloading.class, event -> { if (event.getConfig().getSpec() == SlagServerConfigs.SPEC) ItemResult.invalidate(); });
 
-        if (FMLEnvironment.dist == Dist.CLIENT) modEventBus.addListener(ResourceFallbackGenerator::onAddPackFinders);
     }
 
     public static ResourceLocation loc(String loc) {

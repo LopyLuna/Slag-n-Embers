@@ -1,0 +1,35 @@
+{
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:not",
+      "value": {
+        "type": "neoforge:tag_empty",
+        "tag": "c:ingots/brass"
+      }
+    },
+    {
+      "type": "neoforge:not",
+      "value": {
+        "type": "neoforge:tag_empty",
+        "tag": "c:ingots/zinc"
+      }
+    }
+  ],
+  "type": "slag:alloying",
+  "ingredients": [
+    {
+      "amount": 8,
+      "tag": "c:molten/copper"
+    },
+    {
+      "amount": 8,
+      "tag": "c:molten/zinc"
+    }
+  ],
+  "result": {
+    "amount": 16,
+    "id": "slag:molten_brass"
+  },
+  "strict_temperature": true,
+  "temperature": "BLAZING"
+}

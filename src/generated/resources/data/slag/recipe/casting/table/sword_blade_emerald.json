@@ -2,8 +2,8 @@
   "type": "slag:table_casting",
   "cast": "slag:cast/sword_blades",
   "ingredient": {
-    "amount": 144,
-    "id": "slag:molten_emerald"
+    "amount": 72,
+    "tag": "c:molten/emerald"
   },
   "result": {
     "components": {

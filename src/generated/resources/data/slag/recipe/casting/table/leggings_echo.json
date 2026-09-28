@@ -1,0 +1,16 @@
+{
+  "type": "slag:table_casting",
+  "cast": "slag:cast/leggings",
+  "ingredient": {
+    "amount": 360,
+    "tag": "c:molten/echo"
+  },
+  "result": {
+    "components": {
+      "slag:material_type": "slag:echo",
+      "slag:part_type": "slag:leggings"
+    },
+    "count": 1,
+    "id": "slag:dynamic_part"
+  }
+}

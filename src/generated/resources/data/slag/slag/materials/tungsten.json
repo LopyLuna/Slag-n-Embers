@@ -1,0 +1,51 @@
+{
+  "conditions": [
+    {
+      "type": "neoforge:not",
+      "value": {
+        "type": "neoforge:tag_empty",
+        "tag": "c:ingots/tungsten"
+      }
+    }
+  ],
+  "id": "slag:tungsten",
+  "molten_fluid": "slag:molten_tungsten",
+  "repair_ingredient": {
+    "tag": "c:ingots/tungsten"
+  },
+  "sort_order": 380,
+  "traits": [
+    {
+      "trait": "slag:attack_damage",
+      "value": 6.5
+    },
+    {
+      "trait": "slag:durability",
+      "value": 1408.0
+    },
+    {
+      "trait": "slag:mining_tier",
+      "value": 6.0
+    },
+    {
+      "trait": "slag:mining_speed",
+      "value": 7.0
+    },
+    {
+      "trait": "slag:enchantability",
+      "value": 10.0
+    },
+    {
+      "trait": "slag:armor",
+      "value": 8.0
+    },
+    {
+      "trait": "slag:armor_toughness",
+      "value": 2.0
+    },
+    {
+      "trait": "slag:knockback_resistance",
+      "value": 0.1
+    }
+  ]
+}

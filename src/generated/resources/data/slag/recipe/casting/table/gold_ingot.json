@@ -3,7 +3,7 @@
   "cast": "slag:cast/ingots",
   "ingredient": {
     "amount": 72,
-    "id": "slag:molten_gold"
+    "tag": "c:molten/gold"
   },
   "result": {
     "count": 1,

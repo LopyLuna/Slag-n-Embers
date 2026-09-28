@@ -1,15 +1,47 @@
 {
-  "defense": 2.0,
-  "durability": 112.0,
-  "enchantability": 5.0,
   "id": "slag:flint",
+  "incompatible": {
+    "parts": [
+      "slag:plate",
+      "slag:helmet",
+      "slag:chestplate",
+      "slag:leggings",
+      "slag:boots"
+    ]
+  },
   "repair_ingredient": {
     "item": "minecraft:flint"
   },
-  "sharpness": 5.0,
   "sort_order": 230,
-  "speed": 3.0,
-  "texture": "metal",
-  "tier": 2.0,
-  "toughness": 1.0
+  "texture": "shiny",
+  "traits": [
+    {
+      "trait": "slag:attack_damage",
+      "value": 5.0
+    },
+    {
+      "trait": "slag:durability",
+      "value": 112.0
+    },
+    {
+      "trait": "slag:mining_tier",
+      "value": 2.0
+    },
+    {
+      "trait": "slag:mining_speed",
+      "value": 3.0
+    },
+    {
+      "trait": "slag:enchantability",
+      "value": 5.0
+    },
+    {
+      "trait": "slag:armor",
+      "value": 2.0
+    },
+    {
+      "trait": "slag:armor_toughness",
+      "value": 1.0
+    }
+  ]
 }

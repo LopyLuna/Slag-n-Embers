@@ -1,11 +1,11 @@
 {
   "parent": "minecraft:recipes/root",
   "criteria": {
-    "has_leggings": {
+    "has_melter": {
       "conditions": {
         "items": [
           {
-            "items": "#c:leggingss"
+            "items": "slag:melter"
           }
         ]
       },
@@ -21,7 +21,7 @@
   "requirements": [
     [
       "has_the_recipe",
-      "has_leggings"
+      "has_melter"
     ]
   ],
   "rewards": {

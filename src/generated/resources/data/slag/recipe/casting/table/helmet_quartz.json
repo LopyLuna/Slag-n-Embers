@@ -3,7 +3,7 @@
   "cast": "slag:cast/helmets",
   "ingredient": {
     "amount": 216,
-    "id": "slag:molten_quartz"
+    "tag": "c:molten/quartz"
   },
   "result": {
     "components": {

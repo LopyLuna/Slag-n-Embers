@@ -1,0 +1,48 @@
+{
+  "values": [
+    {
+      "id": "#c:clumps/copper",
+      "required": false
+    },
+    {
+      "id": "#c:clumps/gold",
+      "required": false
+    },
+    {
+      "id": "#c:clumps/iron",
+      "required": false
+    },
+    {
+      "id": "#c:clumps/aluminum",
+      "required": false
+    },
+    {
+      "id": "#c:clumps/lead",
+      "required": false
+    },
+    {
+      "id": "#c:clumps/nickel",
+      "required": false
+    },
+    {
+      "id": "#c:clumps/osmium",
+      "required": false
+    },
+    {
+      "id": "#c:clumps/platinum",
+      "required": false
+    },
+    {
+      "id": "#c:clumps/silver",
+      "required": false
+    },
+    {
+      "id": "#c:clumps/tin",
+      "required": false
+    },
+    {
+      "id": "#c:clumps/zinc",
+      "required": false
+    }
+  ]
+}

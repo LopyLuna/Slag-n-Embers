@@ -1,0 +1,20 @@
+{
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:not",
+      "value": {
+        "type": "neoforge:tag_empty",
+        "tag": "c:rods/nickel"
+      }
+    }
+  ],
+  "type": "slag:table_casting",
+  "cast": "slag:cast/rods",
+  "ingredient": {
+    "amount": 36,
+    "tag": "c:molten/nickel"
+  },
+  "result": {
+    "tag": "c:rods/nickel"
+  }
+}

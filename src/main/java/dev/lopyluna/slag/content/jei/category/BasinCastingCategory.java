@@ -1,31 +1,25 @@
 package dev.lopyluna.slag.content.jei.category;
 
 import dev.lopyluna.slag.SlagEmbers;
-import dev.lopyluna.slag.content.AllUtils;
+import dev.lopyluna.slag.content.blocks.basin.BasinBE;
 import dev.lopyluna.slag.content.blocks.basin.BasinCastingRecipe;
-import dev.lopyluna.slag.content.blocks.melter.MeltingRecipe;
-import dev.lopyluna.slag.content.blocks.table.TableCastingRecipe;
-import dev.lopyluna.slag.content.items.dynamic_mold.DynamicMoldItem;
+import dev.lopyluna.slag.content.blocks.casting.CastingBE;
 import dev.lopyluna.slag.content.jei.EmbersRecipesJEI;
+import dev.lopyluna.slag.content.utils.FluidInput;
 import dev.lopyluna.slag.register.AllBlocks;
 import dev.lopyluna.slag.register.AllDataComponents;
-import dev.lopyluna.slag.register.AllItems;
-import dev.lopyluna.slag.register.AllTags;
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
 import mezz.jei.api.gui.drawable.IDrawable;
 import mezz.jei.api.gui.widgets.IRecipeExtrasBuilder;
 import mezz.jei.api.helpers.IGuiHelper;
 import mezz.jei.api.helpers.IModIdHelper;
+import mezz.jei.api.neoforge.NeoForgeTypes;
 import mezz.jei.api.recipe.IFocusGroup;
 import mezz.jei.api.recipe.RecipeIngredientRole;
-import mezz.jei.api.recipe.RecipeType;
 import mezz.jei.api.recipe.category.AbstractRecipeCategory;
 import mezz.jei.common.Internal;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
-import net.minecraft.core.component.DataComponentMap;
-import net.minecraft.core.component.DataComponentPatch;
-import net.minecraft.core.component.PatchedDataComponentMap;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -35,6 +29,7 @@ import net.minecraft.world.item.crafting.RecipeHolder;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.ArrayList;
+import java.util.List;
 
 import static dev.lopyluna.slag.content.blocks.crucible_interface.client.InterfaceScreen.createLang;
 
@@ -65,18 +60,27 @@ public class BasinCastingCategory extends AbstractRecipeCategory<RecipeHolder<Ba
                 .setStandardSlotBackground()
                 .addItemStack(recipe.getOutput());
 
-        builder.addSlot(RecipeIngredientRole.RENDER_ONLY, 86, 38)
-                .setStandardSlotBackground()
-                .addItemStack(AllBlocks.BASIN.asStack());
+        var item = recipe.getCastItem();
+        var basinSlot = builder.addSlot(item == null ? RecipeIngredientRole.RENDER_ONLY : RecipeIngredientRole.INPUT, 86, 38)
+                .setStandardSlotBackground();
+        if (item == null) basinSlot.addItemStack(AllBlocks.BASIN.asStack());
+        else {
+            var type = item.imprint() ? recipe.getOutput().get(AllDataComponents.CAST_TYPE) : null;
+            var stacks = type == null ? List.<ItemStack>of() : TableCastingCategory.castStacks(type, item.input());
+            if (stacks.isEmpty()) basinSlot.addIngredients(item.input());
+            else basinSlot.addItemStacks(stacks);
+            basinSlot.addRichTooltipCallback((s, t) -> t.add(item.describe().copy().withStyle(ChatFormatting.GRAY)));
+        }
 
-        var fluid = recipe.getInput();
+        var input = recipe.getInput();
 
         builder.addInputSlot(12, 3)
                 .setFluidRenderer(1000, false, 24, 48)
                 .setOverlay(tankOverlay, -4, -4)
                 .setBackground(tankBackground, -4, -4)
-                .addFluidStack(fluid.getFluid(), fluid.getAmount())
+                .addIngredients(NeoForgeTypes.FLUID_STACK, List.of(input.getFluids()))
                 .addRichTooltipCallback((s, t) -> {
+                    var fluid = s.getDisplayedIngredient(NeoForgeTypes.FLUID_STACK).orElseGet(() -> FluidInput.first(input));
                     var tooltipFlag = Minecraft.getInstance().options.advancedItemTooltips ? TooltipFlag.Default.ADVANCED : TooltipFlag.Default.NORMAL;
                     t.clear();
                     var tooltips = new ArrayList<Component>();
@@ -105,7 +109,8 @@ public class BasinCastingCategory extends AbstractRecipeCategory<RecipeHolder<Ba
 
     @Override
     public void createRecipeExtras(IRecipeExtrasBuilder builder, RecipeHolder<BasinCastingRecipe> holder, IFocusGroup focuses) {
-        builder.addAnimatedRecipeArrow(200).setPosition(49, 17);
+        var recipe = holder.value();
+        builder.addAnimatedRecipeArrow(CastingBE.castingTicks(recipe.getInput().amount(), BasinBE.COOLING_RATE, recipe.getDuration(), recipe.getSpeed())).setPosition(49, 17);
     }
 
     public String getFormattedModNameForModIdWithoutDisplay(IModIdHelper helper, String modId) {

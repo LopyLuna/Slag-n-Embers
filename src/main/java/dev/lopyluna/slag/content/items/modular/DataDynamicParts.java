@@ -2,10 +2,12 @@ package dev.lopyluna.slag.content.items.modular;
 
 import com.mojang.serialization.Codec;
 import dev.lopyluna.slag.content.items.dynamic_part.IDynamicPart;
+import dev.lopyluna.slag.content.traits.Traits;
+import dev.lopyluna.slag.content.types.Incompatible;
+import dev.lopyluna.slag.content.types.MaterialType;
 import dev.lopyluna.slag.content.types.ModularType;
 import dev.lopyluna.slag.register.AllDataComponents;
 import dev.lopyluna.slag.register.AllDynamicTypes;
-import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -16,23 +18,46 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 
+import javax.annotation.Nullable;
 import java.util.*;
 import java.util.stream.Stream;
 
 import static net.minecraft.world.item.ItemStack.isSameItemSameComponents;
 
-@SuppressWarnings({"deprecation", "unused"})
+@SuppressWarnings({"unused"})
 public class DataDynamicParts implements TooltipComponent {
-    public static final DataDynamicParts EMPTY = new DataDynamicParts(new ArrayList<>());
+    public static final DataDynamicParts EMPTY = new DataDynamicParts(List.of());
 
     public static final Codec<DataDynamicParts> CODEC = ItemStack.CODEC.listOf().xmap(DataDynamicParts::new, parts -> parts.items);
     public static final StreamCodec<RegistryFriendlyByteBuf, DataDynamicParts> STREAM_CODEC =
             ItemStack.STREAM_CODEC.apply(ByteBufCodecs.list()).map(DataDynamicParts::new, parts -> parts.items);
 
-    public List<ItemStack> items;
+    public final List<ItemStack> items;
+    private volatile Cache cache;
+    private volatile Possible possible;
 
     public DataDynamicParts(List<ItemStack> items) {
-        this.items = items;
+        this.items = items == null ? List.of() : List.copyOf(items);
+    }
+
+    public @Nullable ModularType getModularType() {
+        return cache().modular;
+    }
+
+    public List<MaterialType> getMaterialTypes() {
+        return cache().materials;
+    }
+
+    public Traits getTraits() {
+        return cache().traits;
+    }
+
+    private Cache cache() {
+        var version = AllDynamicTypes.version;
+        var cache = this.cache;
+        if (cache != null && cache.version == version) return cache;
+        var modular = findModularType();
+        return this.cache = new Cache(version, modular, findMaterialTypes(), Traits.resolve(items, modular));
     }
 
     public ItemStack getItem(Item item) {
@@ -159,18 +184,17 @@ public class DataDynamicParts implements TooltipComponent {
     }
 
     public static boolean itemMatches(List<ItemStack> list, List<ItemStack> other) {
-        if (list.size() != other.size()) return false;
-        for (var stack : list) if (!containsSaidStack(other, stack)) return false;
+        var size = list.size();
+        if (size != other.size()) return false;
+        for (var i = 0; i < size; i++) if (!ItemStack.matches(list.get(i), other.get(i))) return false;
         return true;
-    }
-    public static boolean containsSaidStack(List<ItemStack> list, ItemStack stack) {
-        for (var other : list) if (ItemStack.isSameItemSameComponents(other, stack) && stack.getCount() == other.getCount()) return true;
-        return false;
     }
 
     @Override
     public int hashCode() {
-        return ItemStack.hashStackList(this.items);
+        var hash = 0;
+        for (var stack : items) hash += ItemStack.hashItemAndComponents(stack) * 31 + stack.getCount();
+        return hash;
     }
 
     @Override
@@ -200,14 +224,86 @@ public class DataDynamicParts implements TooltipComponent {
     }
 
     public List<Object> getPossibleParts() {
+        return possible().parts;
+    }
+
+    public List<ModularType> getPossibleModulars() {
+        return possible().modulars;
+    }
+
+    public List<ModularType> getConstructibleModulars() {
+        var result = new ArrayList<ModularType>();
+        if (isEmpty()) return result;
+        for (var modular : AllDynamicTypes.getAllModulars()) if (match(modular) != null) result.add(modular);
+        result.sort(Comparator.comparingInt((ModularType modular) -> modular.sortOrder).thenComparing(modular -> modular.id.toString()));
+        return result;
+    }
+
+    public @Nullable Match match(ModularType modular) {
+        var used = new ArrayList<ItemStack>();
+        var order = new ArrayList<Integer>();
+        var left = itemsCopy();
+        var source = new ArrayList<Integer>();
+        for (var i = 0; i < left.size(); i++) source.add(i);
+        for (var segment : modular.finalSegmentStacks) {
+            var target = unbuilt(segment);
+            var found = -1;
+            for (var i = 0; i < left.size(); i++) {
+                var stack = unbuilt(left.get(i));
+                if (ItemStack.isSameItemSameComponents(stack, target) && stack.getCount() >= target.getCount()) {
+                    found = i;
+                    break;
+                }
+            }
+            if (found < 0) return null;
+            var stack = left.get(found);
+            used.add(stack.copyWithCount(target.getCount()));
+            order.add(source.get(found));
+            stack.shrink(target.getCount());
+            if (stack.isEmpty()) {
+                left.remove(found);
+                source.remove(found);
+            }
+        }
+        for (var segment : modular.segments) {
+            var found = -1;
+            for (var i = 0; i < left.size(); i++) {
+                var stack = left.get(i);
+                if (stack.getItem() instanceof IDynamicPart part ? part.getPartSegment(stack).equals(segment) : stack.is(segment)) {
+                    found = i;
+                    break;
+                }
+            }
+            if (found < 0) return null;
+            used.add(left.remove(found));
+            order.add(source.remove(found));
+        }
+        var indices = new ArrayList<Integer>();
+        for (var i = 0; i < used.size(); i++) indices.add(i);
+        indices.sort(Comparator.comparingInt(order::get));
+        var sorted = new ArrayList<ItemStack>();
+        for (var i : indices) sorted.add(used.get(i));
+        return Incompatible.compatible(sorted, modular) ? new Match(List.copyOf(sorted), List.copyOf(left)) : null;
+    }
+
+    public record Match(List<ItemStack> used, List<ItemStack> leftover) {}
+
+    private Possible possible() {
+        var version = AllDynamicTypes.version;
+        var possible = this.possible;
+        if (possible != null && possible.version == version) return possible;
+        return this.possible = new Possible(version, List.copyOf(findPossibleParts()), List.copyOf(findPossibleModulars()));
+    }
+
+    private List<Object> findPossibleParts() {
         var result = new ArrayList<>();
         var modulars = AllDynamicTypes.getAllModulars();
 
         if (this.isEmpty()) {
             for (var modular : modulars) {
-                for (var sStack : modular.finalSegmentStacks) if (!contains(result, sStack)) {
-                    sStack.remove(AllDataComponents.BUILT);
-                    result.add(sStack);
+                for (var sStack : modular.finalSegmentStacks) {
+                    var stack = unbuilt(sStack);
+                    if (!contains(result, stack)) result.add(stack);
                 }
                 for (var tag : modular.segments) if (!contains(result, tag)) result.add(tag);
             }
@@ -216,16 +312,13 @@ public class DataDynamicParts implements TooltipComponent {
 
         for (var modular : modulars) {
             var missingParts = getMissingParts(modular);
-            if (missingParts != null) for (var part : missingParts) {
-                if (part instanceof ItemStack stack) stack.remove(AllDataComponents.BUILT);
-                if (!contains(result, part)) result.add(part);
-            }
+            if (missingParts != null) for (var part : missingParts) if (!contains(result, part)) result.add(part);
         }
 
         return result;
     }
 
-    public List<ModularType> getPossibleModulars() {
+    private List<ModularType> findPossibleModulars() {
         var modulars = AllDynamicTypes.getAllModulars();
         var result = new ArrayList<ModularType>();
 
@@ -242,7 +335,7 @@ public class DataDynamicParts implements TooltipComponent {
         var ignore = new ArrayList<ModularType>();
 
         for (var modular : modulars) for (var item : this.items) if (!modular.contains(item, false)) ignore.add(modular);
-        for (var modular : modulars) if (!ignore.contains(modular)) potential.add(modular);
+        for (var modular : modulars) if (!ignore.contains(modular) && Incompatible.compatible(items, modular)) potential.add(modular);
 
         return potential;
     }
@@ -252,11 +345,12 @@ public class DataDynamicParts implements TooltipComponent {
         var matched = new ArrayList<>();
 
         for (var item : this.items) if (!modular.contains(item, false)) return null;
+        if (!Incompatible.compatible(items, modular)) return null;
 
         for (var sStack : modular.finalSegmentStacks) {
-            sStack.remove(AllDataComponents.BUILT);
-            if (containsInItems(sStack)) matched.add(sStack);
-            else missing.add(sStack);
+            var stack = unbuilt(sStack);
+            if (containsInItems(stack)) matched.add(stack);
+            else missing.add(stack);
         }
 
         for (var tag : modular.segments) {
@@ -270,6 +364,44 @@ public class DataDynamicParts implements TooltipComponent {
 
     // Helpers
     // =====================================================================================================================================================================================
+
+    private @Nullable ModularType findModularType() {
+        if (isEmpty()) return null;
+        var tags = getAllDynamicPartSegments();
+        var stacks = getAllNonDynamicParts();
+        for (var modular : AllDynamicTypes.getAllModulars()) if (containsExactlyAllStacks(stacks, modular.finalSegmentStacks) && containsExactlyAllTags(tags, modular.segments) && Incompatible.compatible(items, modular)) return modular;
+        return null;
+    }
+
+    private List<MaterialType> findMaterialTypes() {
+        var types = new ArrayList<MaterialType>();
+        for (var stack : items) if (stack.getItem() instanceof IDynamicPart part) {
+            var type = part.getMaterialType(stack).orElse(null);
+            if (type != null && !types.contains(type)) types.add(type);
+        }
+        return List.copyOf(types);
+    }
+
+    private static boolean containsExactlyAllStacks(List<ItemStack> stacks, List<ItemStack> others) {
+        if (stacks.size() != others.size()) return false;
+        for (var stack : stacks) {
+            var copy = unbuilt(stack);
+            if (others.stream().noneMatch(other -> ItemStack.matches(copy, unbuilt(other)))) return false;
+        }
+        return true;
+    }
+
+    private static boolean containsExactlyAllTags(List<TagKey<Item>> tags, List<TagKey<Item>> others) {
+        if (tags.size() != others.size()) return false;
+        for (var tag : tags) if (others.stream().noneMatch(other -> tag.location().equals(other.location()) && tag.registry().location().equals(other.registry().location()))) return false;
+        return true;
+    }
+
+    private static ItemStack unbuilt(ItemStack stack) {
+        var copy = stack.copy();
+        copy.remove(AllDataComponents.BUILT);
+        return copy;
+    }
 
     private boolean containsInItems(ItemStack stack) {
         for (var item : this.items) if (ItemStack.isSameItemSameComponents(item, stack)) return true;
@@ -308,14 +440,7 @@ public class DataDynamicParts implements TooltipComponent {
         return false;
     }
 
-    public static boolean containsAllSameSomeComponents(DataComponentMap a, DataComponentMap b) {
-        if (a == null || b == null) return false;
-        var aSet = a.keySet();
-        var bSet = b.keySet();
-        aSet.remove(AllDataComponents.BUILT.get());
-        aSet.remove(AllDataComponents.MODULAR_TYPE.get());
-        bSet.remove(AllDataComponents.BUILT.get());
-        bSet.remove(AllDataComponents.MODULAR_TYPE.get());
-        return aSet.containsAll(bSet);
-    }
+    private record Cache(int version, @Nullable ModularType modular, List<MaterialType> materials, Traits traits) {}
+
+    private record Possible(int version, List<Object> parts, List<ModularType> modulars) {}
 }

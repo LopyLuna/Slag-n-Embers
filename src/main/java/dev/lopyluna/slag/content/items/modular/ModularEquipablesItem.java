@@ -1,9 +1,7 @@
 package dev.lopyluna.slag.content.items.modular;
 
 import dev.lopyluna.slag.SlagEmbers;
-import dev.lopyluna.slag.content.types.ModularType;
-import dev.lopyluna.slag.register.AllDataComponents;
-import dev.lopyluna.slag.register.AllDynamicTypes;
+import dev.lopyluna.slag.content.traits.Traits;
 import net.minecraft.core.Holder;
 import net.minecraft.core.dispenser.BlockSource;
 import net.minecraft.core.dispenser.DefaultDispenseItemBehavior;
@@ -16,48 +14,26 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.entity.EquipmentSlotGroup;
-import net.minecraft.world.entity.ai.attributes.AttributeModifier;
-import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.*;
-import net.minecraft.world.item.component.ItemAttributeModifiers;
+import net.minecraft.world.item.ArmorItem;
+import net.minecraft.world.item.ArmorMaterial;
+import net.minecraft.world.item.ArmorMaterials;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.EnchantmentEffectComponents;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.DispenserBlock;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nonnull;
 
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
 @SuppressWarnings("unused")
 public class ModularEquipablesItem extends ModularToolsItem {
-    ResourceLocation HELMET_LOC = ResourceLocation.withDefaultNamespace("armor.helmet");
-    ResourceLocation CHESTPLATE_LOC = ResourceLocation.withDefaultNamespace("armor.chestplate");
-    ResourceLocation LEGGINGS_LOC = ResourceLocation.withDefaultNamespace("armor.leggings");
-    ResourceLocation BOOTS_LOC = ResourceLocation.withDefaultNamespace("armor.boots");
     public ModularEquipablesItem(Properties properties) {
         super(properties);
         DispenserBlock.registerBehavior(this, DISPENSE_ITEM_BEHAVIOR);
-    }
-
-    @Override
-    public @NotNull ItemAttributeModifiers getDefaultAttributeModifiers(@NotNull ItemStack stack) {
-        if (!hasModularType(stack) || !isArmor(stack)) return super.getDefaultAttributeModifiers(stack);
-        var modularType = getModularType(stack);
-        if (modularType == null) return super.getDefaultAttributeModifiers(stack);
-        var act = modularType.actions;
-        if (act.isEmpty()) return super.getDefaultAttributeModifiers(stack);
-        var loc = act.contains("helmet") ? HELMET_LOC : act.contains("chestplate") ? CHESTPLATE_LOC : act.contains("leggings") ? LEGGINGS_LOC : act.contains("boots") ? BOOTS_LOC : null;
-        var slot = act.contains("helmet") ? EquipmentSlotGroup.HEAD : act.contains("chestplate") ? EquipmentSlotGroup.CHEST : act.contains("leggings") ? EquipmentSlotGroup.LEGS : act.contains("boots") ? EquipmentSlotGroup.FEET : null;
-        if (loc == null || slot == null) return super.getDefaultAttributeModifiers(stack);
-
-        return super.getDefaultAttributeModifiers(stack)
-                .withModifierAdded(Attributes.ARMOR, new AttributeModifier(loc, Math.round(getDefense(stack)), AttributeModifier.Operation.ADD_VALUE), slot)
-                .withModifierAdded(Attributes.ARMOR_TOUGHNESS, new AttributeModifier(loc, Math.round(getTough(stack)), AttributeModifier.Operation.ADD_VALUE), slot)
-                .withModifierAdded(Attributes.KNOCKBACK_RESISTANCE, new AttributeModifier(loc, getKbRes(stack), AttributeModifier.Operation.ADD_VALUE), slot);
     }
 
     public Holder<SoundEvent> getEquipSound(ItemStack stack) {
@@ -83,22 +59,14 @@ public class ModularEquipablesItem extends ModularToolsItem {
     }
 
     @Override
-    public @Nullable EquipmentSlot getEquipmentSlot(@NotNull ItemStack stack) {
-        if (!hasModularType(stack)) return super.getEquipmentSlot(stack);
-
-        var modularType = getModularType(stack);
-        if (modularType != null) for (var action : modularType.actions) {
-            var onAction = ModularType.doAction(action,"getEquipmentSlot", stack);
-            if (onAction == null) continue;
-            if (!(onAction instanceof EquipmentSlot result)) continue;
-            return result;
-        }
-        return super.getEquipmentSlot(stack);
+    public @Nullable EquipmentSlot getEquipmentSlot(@Nonnull ItemStack stack) {
+        var slot = Traits.of(stack).equipmentSlot;
+        return slot != null ? slot : super.getEquipmentSlot(stack);
     }
 
-    public @NotNull InteractionResultHolder<ItemStack> use(@NotNull Level level, @NotNull Player player, @NotNull InteractionHand hand) {
+    public @Nonnull InteractionResultHolder<ItemStack> use(@Nonnull Level level, @Nonnull Player player, @Nonnull InteractionHand hand) {
         var stack = player.getItemInHand(hand);
-        if (!hasModularType(stack) || !isArmor(stack)) return super.use(level, player, hand);
+        if (!isArmor(stack)) return super.use(level, player, hand);
         return swapWithEquipmentSlot(stack, level, player, hand);
     }
 
@@ -121,31 +89,17 @@ public class ModularEquipablesItem extends ModularToolsItem {
             var bool = pPath.contains("helmet") || pPath.contains("chestplate") || pPath.contains("leggings") || pPath.contains("boots");
             var prefix = bool ? "" : pPath + "/";
             var path = "armors/" + prefix + m.texture + "_layer_" + num + "_" + m.id.getPath();
-            if (bool) list.addFirst(SlagEmbers.loc(m.id.getNamespace(), path));
-            else list.add(SlagEmbers.loc(m.id.getNamespace(), path));
+            if (bool) list.addFirst(SlagEmbers.loc(p.id.getNamespace(), path));
+            else list.add(SlagEmbers.loc(p.id.getNamespace(), path));
         }
         if (list.isEmpty()) list.add(SlagEmbers.loc("textures/armors/metal_layer_" + num + ".png"));
         return list;
     }
 
     public static final DispenseItemBehavior DISPENSE_ITEM_BEHAVIOR = new DefaultDispenseItemBehavior() {
-        public ModularType getModularType(ItemStack stack) {
-            var loc = stack.get(AllDataComponents.MODULAR_TYPE);
-            if (loc == null) return null;
-            return AllDynamicTypes.getModular(loc).orElse(null);
-        }
-        public boolean hasModularType(ItemStack stack) {
-            return stack.has(AllDataComponents.MODULAR_TYPE);
-        }
-
         @Override
-        protected @NotNull ItemStack execute(@NotNull BlockSource source, @NotNull ItemStack stack) {
-            if (!hasModularType(stack)) return super.execute(source, stack);
-            var modularType = getModularType(stack);
-            if (modularType == null) return super.execute(source, stack);
-            var act = modularType.actions;
-            if (act.isEmpty()) return super.execute(source, stack);
-            if (!(act.contains("dispense") || act.contains("helmet") || act.contains("chestplate") || act.contains("leggings") || act.contains("boots"))) return super.execute(source, stack);
+        protected @Nonnull ItemStack execute(@Nonnull BlockSource source, @Nonnull ItemStack stack) {
+            if (Traits.of(stack).equipmentSlot == null) return super.execute(source, stack);
             return ArmorItem.dispenseArmor(source, stack) ? stack : super.execute(source, stack);
         }
     };

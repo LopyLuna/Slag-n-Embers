@@ -29,9 +29,9 @@ import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nonnull;
 
+import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
 
 @ParametersAreNonnullByDefault
@@ -46,7 +46,7 @@ public class ForgeBlock extends BEBlock {
     }
 
     @Override
-    protected @NotNull MapCodec<? extends BaseEntityBlock> codec() {
+    protected @Nonnull MapCodec<? extends BaseEntityBlock> codec() {
         return CODEC;
     }
 
@@ -112,7 +112,7 @@ public class ForgeBlock extends BEBlock {
     }
 
     @Override
-    protected @NotNull InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hitResult) {
+    protected @Nonnull InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hitResult) {
         if (!level.isClientSide) {
             var provider = state.getMenuProvider(level, pos);
             if (provider != null) player.openMenu(provider);
@@ -133,10 +133,10 @@ public class ForgeBlock extends BEBlock {
     }
 
 
-    public @NotNull BlockState rotate(BlockState pState, Rotation pRotation) {
+    public @Nonnull BlockState rotate(BlockState pState, Rotation pRotation) {
         return pState.setValue(FACING, pRotation.rotate(pState.getValue(FACING)));
     }
-    public @NotNull BlockState mirror(BlockState pState, Mirror pMirror) {
+    public @Nonnull BlockState mirror(BlockState pState, Mirror pMirror) {
         return super.rotate(pState, pMirror.getRotation(pState.getValue(FACING)));
     }
 
@@ -151,12 +151,12 @@ public class ForgeBlock extends BEBlock {
     }
 
     @Override
-    public @NotNull RenderShape getRenderShape(BlockState blockState) {
+    public @Nonnull RenderShape getRenderShape(BlockState blockState) {
         return RenderShape.MODEL;
     }
 
     @Override
-    public @NotNull BlockEntityType<? extends BlockEntity> getBlockEntityType() {
+    public @Nonnull BlockEntityType<? extends BlockEntity> getBlockEntityType() {
         return AllBETypes.FORGE.get();
     }
 

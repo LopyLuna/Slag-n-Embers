@@ -1,0 +1,25 @@
+{
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:not",
+      "value": {
+        "type": "neoforge:tag_empty",
+        "tag": "c:ingots/brass"
+      }
+    }
+  ],
+  "type": "slag:table_casting",
+  "cast": "slag:cast/axe_heads",
+  "ingredient": {
+    "amount": 216,
+    "tag": "c:molten/brass"
+  },
+  "result": {
+    "components": {
+      "slag:material_type": "slag:brass",
+      "slag:part_type": "slag:axe_head"
+    },
+    "count": 1,
+    "id": "slag:dynamic_part"
+  }
+}

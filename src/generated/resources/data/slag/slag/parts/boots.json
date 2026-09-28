@@ -1,12 +1,30 @@
 {
-  "defence_modifier": 0.325,
-  "durability": 296.0,
-  "durability_modifier": 0.34,
   "id": "slag:boots",
   "item_tags": [
-    "slag:cast/boots"
+    "slag:cast/boots",
+    "slag:imprintable"
   ],
   "segment_part": "slag:parts/boots",
-  "sharpness_modifier": 0.0,
-  "sort_order": 10
+  "sort_order": 10,
+  "traits": [
+    {
+      "operation": "multiply",
+      "trait": "slag:attack_damage",
+      "value": 0.0
+    },
+    {
+      "trait": "slag:durability",
+      "value": 296.0
+    },
+    {
+      "operation": "multiply",
+      "trait": "slag:durability",
+      "value": 0.34
+    },
+    {
+      "operation": "multiply",
+      "trait": "slag:armor",
+      "value": 0.325
+    }
+  ]
 }

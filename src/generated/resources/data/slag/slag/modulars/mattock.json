@@ -1,9 +1,4 @@
 {
-  "actions": [
-    "axe",
-    "hoe",
-    "isTool"
-  ],
   "final_segment_stacks": [
     {
       "count": 2,
@@ -21,5 +16,13 @@
     "slag:parts/axe_heads",
     "slag:parts/hoe_heads"
   ],
-  "sort_order": 5
+  "sort_order": 5,
+  "traits": [
+    "slag:tool",
+    "slag:axe_mining",
+    "slag:stripping",
+    "slag:shield_breaking",
+    "slag:hoe_mining",
+    "slag:tilling"
+  ]
 }

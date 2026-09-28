@@ -1,0 +1,11 @@
+{
+  "effects": [
+    {
+      "type": "slag:equipment_slot",
+      "slot": "head"
+    }
+  ],
+  "hidden": true,
+  "id": "slag:head_slot",
+  "sort_order": 240
+}

@@ -1,0 +1,11 @@
+{
+  "effects": [
+    {
+      "type": "slag:stat",
+      "stat": "enchantability"
+    }
+  ],
+  "hidden": true,
+  "id": "slag:enchantability",
+  "sort_order": 90
+}

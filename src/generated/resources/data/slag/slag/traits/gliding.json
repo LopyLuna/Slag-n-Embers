@@ -1,0 +1,11 @@
+{
+  "color": "#613E37",
+  "effects": [
+    {
+      "type": "slag:flag",
+      "flag": "gliding"
+    }
+  ],
+  "id": "slag:gliding",
+  "sort_order": 340
+}

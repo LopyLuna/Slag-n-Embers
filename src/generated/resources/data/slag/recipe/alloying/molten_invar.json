@@ -1,0 +1,34 @@
+{
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:not",
+      "value": {
+        "type": "neoforge:tag_empty",
+        "tag": "c:ingots/invar"
+      }
+    },
+    {
+      "type": "neoforge:not",
+      "value": {
+        "type": "neoforge:tag_empty",
+        "tag": "c:ingots/nickel"
+      }
+    }
+  ],
+  "type": "slag:alloying",
+  "ingredients": [
+    {
+      "amount": 16,
+      "tag": "c:molten/iron"
+    },
+    {
+      "amount": 8,
+      "tag": "c:molten/nickel"
+    }
+  ],
+  "result": {
+    "amount": 24,
+    "id": "slag:molten_invar"
+  },
+  "temperature": "BLAZING"
+}

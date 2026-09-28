@@ -1,0 +1,13 @@
+{
+  "effects": [
+    {
+      "type": "slag:abilities",
+      "abilities": [
+        "sword_sweep"
+      ]
+    }
+  ],
+  "hidden": true,
+  "id": "slag:sweeping",
+  "sort_order": 180
+}

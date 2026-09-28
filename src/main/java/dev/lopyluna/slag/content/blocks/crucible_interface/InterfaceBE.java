@@ -18,11 +18,12 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nonnull;
 
+import javax.annotation.Nullable;
 import static dev.lopyluna.slag.content.blocks.crucible_interface.InterfaceBlock.FACING;
 
+@SuppressWarnings("NullableProblems")
 public class InterfaceBE extends BlockEntity implements MenuProvider {
     public int update = 0;
     public IFluidHandler targetCap = null;
@@ -32,18 +33,18 @@ public class InterfaceBE extends BlockEntity implements MenuProvider {
     }
 
     @Override
-    public @NotNull Component getDisplayName() {
+    public @Nonnull Component getDisplayName() {
         return Component.translatable(getBlockState().getBlock().getDescriptionId());
     }
 
     @Override
-    public @Nullable AbstractContainerMenu createMenu(int i, @NotNull Inventory inventory, @NotNull Player player) {
+    public @Nullable AbstractContainerMenu createMenu(int i, @Nonnull Inventory inventory, @Nonnull Player player) {
         update();
         return new InterfaceMenu(i, inventory, worldPosition);
     }
 
     @Override
-    public void writeClientSideData(@NotNull AbstractContainerMenu menu, RegistryFriendlyByteBuf buffer) {
+    public void writeClientSideData(@Nonnull AbstractContainerMenu menu, RegistryFriendlyByteBuf buffer) {
         buffer.writeBlockPos(worldPosition);
     }
 
@@ -66,6 +67,11 @@ public class InterfaceBE extends BlockEntity implements MenuProvider {
         targetCap = level.getCapability(Capabilities.FluidHandler.BLOCK, relPos, facing);
     }
 
+    public IFluidHandler getTarget() {
+        update();
+        return targetCap;
+    }
+
     @Override
     public @Nullable Packet<ClientGamePacketListener> getUpdatePacket() {
         return ClientboundBlockEntityDataPacket.create(this);
@@ -77,12 +83,12 @@ public class InterfaceBE extends BlockEntity implements MenuProvider {
     }
 
     @Override
-    public @NotNull CompoundTag getUpdateTag(HolderLookup.@NotNull Provider registries) {
+    public @Nonnull CompoundTag getUpdateTag(HolderLookup.Provider registries) {
         return saveWithoutMetadata(registries);
     }
 
     @Override
-    protected void loadAdditional(@NotNull CompoundTag tag, HolderLookup.@NotNull Provider registries) {
+    protected void loadAdditional(@Nonnull CompoundTag tag, HolderLookup.Provider registries) {
         super.loadAdditional(tag, registries);
         update = 8;
     }

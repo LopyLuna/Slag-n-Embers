@@ -3,7 +3,7 @@
   "cast": "slag:cast/guards",
   "ingredient": {
     "amount": 648,
-    "id": "slag:molten_obsidian"
+    "tag": "c:molten/obsidian"
   },
   "result": {
     "components": {

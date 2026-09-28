@@ -1,0 +1,28 @@
+{
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:not",
+      "value": {
+        "type": "neoforge:tag_empty",
+        "tag": "c:ingots/nickel"
+      }
+    }
+  ],
+  "type": "slag:melting",
+  "ingredients": [
+    {
+      "components": {
+        "slag:material_type": "slag:nickel",
+        "slag:part_type": "slag:guard"
+      },
+      "count": 1,
+      "id": "slag:dynamic_part"
+    }
+  ],
+  "result": [
+    {
+      "amount": 72,
+      "id": "slag:molten_nickel"
+    }
+  ]
+}

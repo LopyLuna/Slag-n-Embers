@@ -1,0 +1,44 @@
+{
+  "conditions": [
+    {
+      "type": "neoforge:not",
+      "value": {
+        "type": "neoforge:tag_empty",
+        "tag": "c:ingots/zinc"
+      }
+    }
+  ],
+  "id": "slag:zinc",
+  "molten_fluid": "slag:molten_zinc",
+  "repair_ingredient": {
+    "tag": "c:ingots/zinc"
+  },
+  "sort_order": 260,
+  "texture": "shiny",
+  "traits": [
+    {
+      "trait": "slag:attack_damage",
+      "value": 5.5
+    },
+    {
+      "trait": "slag:durability",
+      "value": 272.0
+    },
+    {
+      "trait": "slag:mining_tier",
+      "value": 4.0
+    },
+    {
+      "trait": "slag:mining_speed",
+      "value": 7.0
+    },
+    {
+      "trait": "slag:enchantability",
+      "value": 12.0
+    },
+    {
+      "trait": "slag:armor",
+      "value": 6.0
+    }
+  ]
+}

@@ -3,20 +3,18 @@ package dev.lopyluna.slag.client;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import dev.lopyluna.slag.content.items.modular.ModularEquipablesItem;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.Model;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.layers.HumanoidArmorLayer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.data.models.blockstates.PropertyDispatch;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.item.ArmorMaterial;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.armortrim.ArmorTrim;
@@ -46,9 +44,6 @@ public class ArmorRendering {
                 boolean flag = usesInnerModel.get();
                 var value = item.getPotentialArmorMaterials().value();
 
-                var atlas = Minecraft.getInstance().getModelManager().getAtlas(InventoryMenu.BLOCK_ATLAS);
-                TextureAtlasSprite spriteBase;
-
                 var extensions = IClientItemExtensions.of(stack);
                 extensions.setupModelAnimations(living, stack, slot, model, limbSwing, limbSwingAmount, partialTick, ageInTicks, netHeadYaw, headPitch);
                 int fallbackColor = extensions.getDefaultDyeColor(stack);
@@ -59,23 +54,7 @@ public class ArmorRendering {
 
                     var textures = item.getArmorTextures(stack, living, slot, layer, flag);
                     if (textures == null || textures.isEmpty()) break;
-                    var base = textures.getFirst();
-                    spriteBase = atlas.getSprite(base);
-
-                    if (j != 0) model.renderToBuffer(pose, spriteBase.wrap(buffer.getBuffer(RenderType.armorCutoutNoCull(spriteBase.atlasLocation()))), light, OverlayTexture.NO_OVERLAY, j);
-                    if (j != 0) for (var textureLocation : textures) {
-                        if (textureLocation == null) continue;
-                        if (textureLocation.equals(base)) continue;
-
-                        VertexConsumer vc;
-                        if (textureLocation.getPath().contains(".png")) vc = buffer.getBuffer(RenderType.armorCutoutNoCull(textureLocation));
-                        else {
-                            var sprite = atlas.getSprite(textureLocation);
-                            vc = sprite.wrap(buffer.getBuffer(RenderType.armorCutoutNoCull(sprite.atlasLocation())));
-                        }
-
-                        model.renderToBuffer(pose, vc, light, OverlayTexture.NO_OVERLAY, j);
-                    }
+                    if (j != 0) for (var texture : textures) if (texture != null) model.renderToBuffer(pose, armorBuffer(buffer, texture), light, OverlayTexture.NO_OVERLAY, j);
                 }
 
                 var armortrim = stack.get(DataComponents.TRIM);
@@ -84,5 +63,11 @@ public class ArmorRendering {
             }
             ci.cancel();
         }
+    }
+
+    private static VertexConsumer armorBuffer(MultiBufferSource buffer, ResourceLocation texture) {
+        if (texture.getPath().endsWith(".png")) return buffer.getBuffer(RenderType.armorCutoutNoCull(texture));
+        var sprite = MaterialTextures.getSprite(texture);
+        return sprite.wrap(buffer.getBuffer(RenderType.armorCutoutNoCull(sprite.atlasLocation())));
     }
 }
