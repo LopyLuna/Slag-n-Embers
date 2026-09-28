@@ -1,4 +1,4 @@
-// 1.21.1	2026-09-27T18:45:37.479908	Registrate Provider for slag [Registries, Data Maps, Recipes, Advancements, Loot Tables, Tags (blocks), Tags (enchantments), Tags (items), Tags (fluids), Tags (entity_types), generic_server_provider, Blockstates, Item models, Lang (en_us/en_ud), generic_client_provider]
+// 1.21.1	2026-09-28T10:09:06.2487189	Registrate Provider for slag [Registries, Data Maps, Recipes, Advancements, Loot Tables, Tags (blocks), Tags (enchantments), Tags (items), Tags (fluids), Tags (entity_types), generic_server_provider, Blockstates, Item models, Lang (en_us/en_ud), generic_client_provider]
 84dbc3390ebdc7b0a227f3e7d472443f25a203b5 assets/slag/blockstates/basin.json
 4bec796e30497fab6d5486ba8164ddf8c67386df assets/slag/blockstates/cast_iron_block.json
 337be80708574f8549f239b234ba61c8d54326b1 assets/slag/blockstates/crucible.json
@@ -42,8 +42,8 @@ e82446d219fcdeef67b2be9b393b0a948f8108c7 assets/slag/blockstates/molten_tungsten
 22dfc618aa04ae4410bc383cea641ddc14ffd8a6 assets/slag/blockstates/molten_zinc.json
 47cfac43590c597258fc498fec5a604ff56c5886 assets/slag/blockstates/rose_gold_block.json
 3adae227c18635ebff1aa25c0d3ce3ffc2455625 assets/slag/blockstates/table.json
-ea28ce255f36651718d1baf7b154cca7415eea38 assets/slag/lang/en_ud.json
-8360818f93b48dd49230b32776b417ca68af681e assets/slag/lang/en_us.json
+4766fee6ed8b0f7726b3596cab4a8ae34adfe5b9 assets/slag/lang/en_ud.json
+af49c0e9f4bb52a6b65fd4794db5280942df64eb assets/slag/lang/en_us.json
 ce85267dfa36190991aade8754f4044696b2c11d assets/slag/models/block/cast_iron_block.json
 f395e3af2c9b36f065fba3a7e335cfdbbbad99fa assets/slag/models/block/crucible/block_bottom_window.json
 37c5efe04416a520d7feee9d84d96971a39aa733 assets/slag/models/block/crucible/block_east_bottom_window.json
