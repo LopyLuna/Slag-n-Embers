@@ -192,7 +192,7 @@ public class ModularSmithingMenu extends AbstractContainerMenu {
         item.setParts(built, used);
         item.getTraits(built).applyComponents(built);
         if (ModList.get().isLoaded("bettercombat") && type.betterCombatPreset != null && type.betterCombatPreset.isPresent()) {
-            stack.set(BetterCombatDataComponents.WEAPON_PRESET_ID, type.betterCombatPreset.get());
+            built.set(BetterCombatDataComponents.WEAPON_PRESET_ID, type.betterCombatPreset.get());
         }
         result.setItem(0, built);
     }
