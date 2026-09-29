@@ -22,6 +22,7 @@ import net.neoforged.neoforge.common.conditions.ModLoadedCondition;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 
@@ -39,6 +40,7 @@ public class ModularType {
     public final List<ICondition> conditions;
 
     public final List<TagKey<Item>> itemTags;
+    public final Optional<ResourceLocation> betterCombatPreset; // better combat animation preset
 
     public boolean dontRegister;
 
@@ -53,7 +55,8 @@ public class ModularType {
                     TraitEntry.CODEC.listOf().optionalFieldOf("traits", List.of()).forGetter(m -> m.traits),
                     Incompatible.CODEC.optionalFieldOf("incompatible", Incompatible.EMPTY).forGetter(m -> m.incompatible),
                     ICondition.LIST_CODEC.optionalFieldOf("conditions", List.of()).forGetter(m -> m.conditions),
-                    TagKey.codec(Registries.ITEM).listOf().optionalFieldOf("item_tags", new ArrayList<>()).forGetter(m -> m.itemTags)
+                    TagKey.codec(Registries.ITEM).listOf().optionalFieldOf("item_tags", new ArrayList<>()).forGetter(m -> m.itemTags),
+                    ResourceLocation.CODEC.optionalFieldOf("betterCombatPreset").forGetter(m -> m.betterCombatPreset)
             ).apply(instance, ModularType::new)
     );
 
@@ -85,7 +88,7 @@ public class ModularType {
         return resultStack.copy();
     }
 
-    private ModularType(ResourceLocation id, String modelType, int sortOrder, List<TagKey<Item>> segments, List<ItemStack> finalSegmentStacks, ItemStack resultStack, List<TraitEntry> traits, Incompatible incompatible, List<ICondition> conditions, List<TagKey<Item>> itemTags) {
+    private ModularType(ResourceLocation id, String modelType, int sortOrder, List<TagKey<Item>> segments, List<ItemStack> finalSegmentStacks, ItemStack resultStack, List<TraitEntry> traits, Incompatible incompatible, List<ICondition> conditions, List<TagKey<Item>> itemTags, Optional<ResourceLocation> betterCombatPreset) {
         dontRegister = id == null || id.getNamespace().isEmpty() || id.getPath().isEmpty() || id.getPath().equals("null") || id.getPath().equals("empty");
         this.id = id;
         this.modelType = modelType;
@@ -97,6 +100,7 @@ public class ModularType {
         this.incompatible = incompatible;
         this.conditions = conditions;
         this.itemTags = itemTags;
+        this.betterCombatPreset = betterCombatPreset;
     }
 
     public boolean hasTrait(TraitType trait) {
@@ -116,6 +120,7 @@ public class ModularType {
         private final List<ICondition> conditions = new ArrayList<>();
         private final Incompatible.Builder incompatible = new Incompatible.Builder();
         private List<TagKey<Item>> itemTags = new ArrayList<>();
+        private Optional<ResourceLocation> betterCombatPreset = Optional.empty();
 
         public Builder(ResourceLocation id) { this.id = id; }
         public Builder(String id) { this.id = SlagEmbers.loc(id); }
@@ -175,9 +180,11 @@ public class ModularType {
         public Builder addItemTag(TagKey<Item> itemTag) { this.itemTags.add(itemTag); return this; }
         public Builder addItemTags(List<TagKey<Item>> itemTags) { this.itemTags.addAll(itemTags); return this; }
         @SafeVarargs public final Builder addItemTags(TagKey<Item>... itemTags) { this.itemTags.addAll(List.of(itemTags)); return this; }
+        public Builder betterCombatPreset(ResourceLocation id) { betterCombatPreset = Optional.of(id); return this; }
+        public Builder betterCombatPreset(String id) { betterCombatPreset(ResourceLocation.read(id).getOrThrow()); return this; }
 
         public ModularType register() {
-            return new ModularType(id, modelType, sortOrder, segments, finalSegmentStacks, resultStack == null ? ItemStack.EMPTY : resultStack, List.copyOf(traits), incompatible.build(), List.copyOf(conditions), itemTags);
+            return new ModularType(id, modelType, sortOrder, segments, finalSegmentStacks, resultStack == null ? ItemStack.EMPTY : resultStack, List.copyOf(traits), incompatible.build(), List.copyOf(conditions), itemTags, betterCombatPreset);
         }
     }
 

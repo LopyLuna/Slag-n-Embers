@@ -6,6 +6,7 @@ import dev.lopyluna.slag.content.items.modular.ModularItem;
 import dev.lopyluna.slag.content.types.ModularType;
 import dev.lopyluna.slag.register.AllDataComponents;
 import dev.lopyluna.slag.register.AllMenuTypes;
+import net.bettercombat.api.component.BetterCombatDataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ClientboundContainerSetSlotPacket;
 import net.minecraft.server.level.ServerPlayer;
@@ -18,6 +19,8 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.*;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Blocks;
+import net.neoforged.fml.ModList;
+
 import javax.annotation.Nonnull;
 
 import javax.annotation.Nullable;
@@ -188,6 +191,9 @@ public class ModularSmithingMenu extends AbstractContainerMenu {
         built.set(AllDataComponents.MODULAR_TYPE, type.id);
         item.setParts(built, used);
         item.getTraits(built).applyComponents(built);
+        if (ModList.get().isLoaded("bettercombat") && type.betterCombatPreset != null && type.betterCombatPreset.isPresent()) {
+            built.set(BetterCombatDataComponents.WEAPON_PRESET_ID, type.betterCombatPreset.get());
+        }
         result.setItem(0, built);
     }
 

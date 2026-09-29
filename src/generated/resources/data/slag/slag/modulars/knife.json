@@ -1,4 +1,5 @@
 {
+  "betterCombatPreset": "bettercombat:dagger",
   "conditions": [
     {
       "type": "neoforge:mod_loaded",
