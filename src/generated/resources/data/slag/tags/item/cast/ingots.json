@@ -1,6 +1,11 @@
 {
   "values": [
+    "minecraft:netherite_scrap",
     "#c:ingots",
-    "#c:bricks"
+    "#c:bricks",
+    {
+      "id": "create:bar_of_chocolate",
+      "required": false
+    }
   ]
 }

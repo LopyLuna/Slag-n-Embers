@@ -1,0 +1,12 @@
+{
+  "type": "slag:table_casting",
+  "cast": "slag:cast/ingots",
+  "ingredient": {
+    "amount": 72,
+    "tag": "c:molten/debris"
+  },
+  "result": {
+    "count": 1,
+    "id": "minecraft:netherite_scrap"
+  }
+}

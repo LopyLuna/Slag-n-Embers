@@ -33,6 +33,7 @@ public class CreateCompat {
             BlockSpoutingBehaviour.BY_BLOCK.register(AllBlocks.BASIN.get(), SpoutFilling.BASIN);
             BlockMovementChecks.registerAttachedCheck(CreateCompat::attached);
             CreateRecycling.register();
+            CreateGenerators.register();
         });
     }
 

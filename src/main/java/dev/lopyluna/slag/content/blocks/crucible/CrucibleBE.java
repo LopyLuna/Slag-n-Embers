@@ -31,6 +31,7 @@ import javax.annotation.Nonnull;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 @SuppressWarnings({"DataFlowIssue", "ConstantValue", "deprecation", "NullableProblems"})
 public class CrucibleBE extends FluidMultiBlockEntity {
@@ -469,7 +470,7 @@ public class CrucibleBE extends FluidMultiBlockEntity {
 
         @Override
         public @Nonnull String getSerializedName() {
-            return name().toLowerCase();
+            return name().toLowerCase(Locale.ROOT);
         }
 
         public static Shape fromDir(Direction direction) {

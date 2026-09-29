@@ -1,0 +1,32 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_meltable_gravel": {
+      "conditions": {
+        "items": [
+          {
+            "items": "#c:gravels"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "slag:melting/gravel"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    }
+  },
+  "requirements": [
+    [
+      "has_the_recipe",
+      "has_meltable_gravel"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "slag:melting/gravel"
+    ]
+  }
+}

@@ -111,6 +111,8 @@ public class AllBlocks {
                 alloy(p, AllFluids.MOLTEN_BRONZE, 4, Tiers.HEATED, false, "bronze", fluid(AllFluids.MOLTEN_COPPER.getSource(), MelterBE.NUGGET_SIZE * 3), "tin", fluid(AllFluids.MOLTEN_TIN.getSource(), MelterBE.NUGGET_SIZE));
                 alloy(p, AllFluids.MOLTEN_BRASS, 2, Tiers.BLAZING, true, "brass", fluid(AllFluids.MOLTEN_COPPER.getSource(), MelterBE.NUGGET_SIZE), "zinc", fluid(AllFluids.MOLTEN_ZINC.getSource(), MelterBE.NUGGET_SIZE));
                 alloy(p, AllFluids.MOLTEN_ELECTRUM, 2, Tiers.HEATED, false, "electrum", fluid(AllFluids.MOLTEN_GOLD.getSource(), MelterBE.NUGGET_SIZE), "silver", fluid(AllFluids.MOLTEN_SILVER.getSource(), MelterBE.NUGGET_SIZE));
+                AlloyingRecipeBuilder.create(AllFluids.MOLTEN_NETHERITE.getSource(), MelterBE.NUGGET_SIZE, fluid(AllFluids.MOLTEN_DEBRIS.getSource(), MelterBE.NUGGET_SIZE * 4), fluid(AllFluids.MOLTEN_GOLD.getSource(), MelterBE.NUGGET_SIZE * 4)).temperature(Tiers.BLAZING)
+                        .unlockedBy("has_netherite_scrap", has(Items.NETHERITE_SCRAP)).save(p, SlagEmbers.loc("alloying/molten_netherite"));
                 alloy(p, AllFluids.MOLTEN_INVAR, 3, Tiers.BLAZING, false, "invar", fluid(AllFluids.MOLTEN_IRON.getSource(), MelterBE.NUGGET_SIZE * 2), "nickel", fluid(AllFluids.MOLTEN_NICKEL.getSource(), MelterBE.NUGGET_SIZE));
             })
             .addLayer(() -> RenderType::cutoutMipped)
@@ -138,6 +140,8 @@ public class AllBlocks {
                 create(p, "ingot", "iron", Items.IRON_INGOT, AllFluids.MOLTEN_IRON, MelterBE.INGOT_SIZE, AllTags.CAST_INGOTS);
                 create(p, "ingot", "rose_gold", AllItems.ROSE_GOLD_INGOT.get(), AllFluids.MOLTEN_ROSE_GOLD, MelterBE.INGOT_SIZE, AllTags.CAST_INGOTS);
                 create(p, "ingot", "netherite", Items.NETHERITE_INGOT, AllFluids.MOLTEN_NETHERITE, MelterBE.INGOT_SIZE, AllTags.CAST_INGOTS);
+                TableCastingRecipeBuilder.create(new ItemStack(Items.NETHERITE_SCRAP), AllFluids.MOLTEN_DEBRIS.getSource(), MelterBE.INGOT_SIZE, AllTags.CAST_INGOTS)
+                        .unlockedBy("has_netherite_scrap", has(Items.NETHERITE_SCRAP)).save(p, SlagEmbers.loc("casting/table/netherite_scrap"));
 
                 create(p, "gem", "diamond", Items.DIAMOND, AllFluids.MOLTEN_DIAMOND, MelterBE.INGOT_SIZE, AllTags.CAST_GEMS);
                 create(p, "gem", "emerald", Items.EMERALD, AllFluids.MOLTEN_EMERALD, MelterBE.INGOT_SIZE, AllTags.CAST_GEMS);
@@ -164,6 +168,7 @@ public class AllBlocks {
                 createTag(p, "dust", "gold", AllFluids.MOLTEN_GOLD, MelterBE.INGOT_SIZE, AllTags.CAST_DUSTS);
                 createTag(p, "dust", "iron", AllFluids.MOLTEN_IRON, MelterBE.INGOT_SIZE, AllTags.CAST_DUSTS);
                 createTag(p, "dust", "netherite", AllFluids.MOLTEN_NETHERITE, MelterBE.INGOT_SIZE, AllTags.CAST_DUSTS);
+                createTag(p, "dust", "obsidian", AllFluids.MOLTEN_OBSIDIAN, MelterBE.INGOT_SIZE, AllTags.CAST_DUSTS);
                 createTag(p, "dust", "diamond", AllFluids.MOLTEN_DIAMOND, MelterBE.INGOT_SIZE, AllTags.CAST_DUSTS);
                 createTag(p, "dust", "emerald", AllFluids.MOLTEN_EMERALD, MelterBE.INGOT_SIZE, AllTags.CAST_DUSTS);
                 createTag(p, "dust", "lapis", AllFluids.MOLTEN_LAPIS, MelterBE.INGOT_SIZE, AllTags.CAST_DUSTS);
@@ -418,6 +423,16 @@ public class AllBlocks {
                 MeltingRecipeBuilder.create(p, AllFluids.MOLTEN_IRON.getSource(), MelterBE.INGOT_SIZE * 24, Items.HEAVY_CORE);
                 MeltingRecipeBuilder.create(p, AllFluids.MOLTEN_GOLD.getSource(), MelterBE.INGOT_SIZE * 8 * 4, Items.ENCHANTED_GOLDEN_APPLE);
                 MeltingRecipeBuilder.create(p, AllFluids.MOLTEN_GOLD.getSource(), MelterBE.BLOCK_SIZE, Items.BELL);
+                MeltingRecipeBuilder.create(Fluids.LAVA, 50, Ingredient.of(Tags.Items.COBBLESTONES_NORMAL)).temperature(Tiers.BLAZING)
+                        .unlockedBy("has_meltable_cobblestone", has(Tags.Items.COBBLESTONES_NORMAL)).save(p, SlagEmbers.loc("melting/cobblestone"));
+                MeltingRecipeBuilder.create(Fluids.WATER, 1000, Ingredient.of(Items.ICE)).temperature(Tiers.WARM)
+                        .unlockedBy("has_meltable_ice", has(Items.ICE)).save(p, SlagEmbers.loc("melting/ice"));
+                MeltingRecipeBuilder.create(Fluids.LAVA, 50, Ingredient.of(Tags.Items.SANDS)).temperature(Tiers.BLAZING)
+                        .unlockedBy("has_meltable_sand", has(Tags.Items.SANDS)).save(p, SlagEmbers.loc("melting/sand"));
+                MeltingRecipeBuilder.create(Fluids.LAVA, 50, Ingredient.of(Tags.Items.GRAVELS)).temperature(Tiers.BLAZING)
+                        .unlockedBy("has_meltable_gravel", has(Tags.Items.GRAVELS)).save(p, SlagEmbers.loc("melting/gravel"));
+                MeltingRecipeBuilder.create(Fluids.LAVA, 50, Ingredient.of(Tags.Items.GLASS_BLOCKS_CHEAP)).temperature(Tiers.BLAZING)
+                        .unlockedBy("has_meltable_glass", has(Tags.Items.GLASS_BLOCKS_CHEAP)).save(p, SlagEmbers.loc("melting/glass"));
 
                 gemMeltable(p, "diamond", AllFluids.MOLTEN_DIAMOND.getSource(), Tags.Items.STORAGE_BLOCKS_DIAMOND, Tags.Items.GEMS_DIAMOND, AllTags.itemC("nuggets/diamond"));
                 gemMeltable(p, "emerald", AllFluids.MOLTEN_EMERALD.getSource(), Tags.Items.STORAGE_BLOCKS_EMERALD, Tags.Items.GEMS_EMERALD, AllTags.itemC("nuggets/emerald"));
@@ -428,6 +443,7 @@ public class AllBlocks {
                 crystalMeltable(p, "prismarine", AllFluids.MOLTEN_PRISMARINE.getSource(), null, Tags.Items.GEMS_PRISMARINE);
                 compatMeltable(p, "rose_quartz_crystals", AllFluids.MOLTEN_ROSE_QUARTZ.getSource(), MelterBE.INGOT_SIZE, AllTags.ROSE_QUARTZ);
                 compatMeltable(p, "polished_rose_quartz", AllFluids.MOLTEN_ROSE_QUARTZ.getSource(), MelterBE.INGOT_SIZE, AllTags.POLISHED_ROSE_QUARTZ);
+                compatMeltable(p, "engine_assembly", AllFluids.MOLTEN_IRON.getSource(), MelterBE.INGOT_SIZE, AllTags.ENGINE_ASSEMBLY);
                 MeltingRecipeBuilder.create(p, "echo_shards", AllFluids.MOLTEN_ECHO.getSource(), MelterBE.INGOT_SIZE, Items.ECHO_SHARD);
                 dustMeltable(p, "glowstone", AllFluids.MOLTEN_GLOWSTONE.getSource(), null, Tags.Items.DUSTS_GLOWSTONE);
                 MeltingRecipeBuilder.create(p, "glowstone_blocks", AllFluids.MOLTEN_GLOWSTONE.getSource(), MelterBE.SMALL_BLOCK_SIZE, Items.GLOWSTONE);
@@ -435,6 +451,8 @@ public class AllBlocks {
                 ingotMeltable(p, "gold", AllFluids.MOLTEN_GOLD.getSource(), Tags.Items.STORAGE_BLOCKS_GOLD, Tags.Items.INGOTS_GOLD, Tags.Items.NUGGETS_GOLD);
                 ingotMeltable(p, "iron", AllFluids.MOLTEN_IRON.getSource(), Tags.Items.STORAGE_BLOCKS_IRON, Tags.Items.INGOTS_IRON, Tags.Items.NUGGETS_IRON);
                 ingotMeltable(p, "netherite", AllFluids.MOLTEN_NETHERITE.getSource(), Tags.Items.STORAGE_BLOCKS_NETHERITE, Tags.Items.INGOTS_NETHERITE, AllTags.itemC("nuggets/netherite"));
+                oreMeltable(p, "ancient_debris", AllFluids.MOLTEN_DEBRIS.getSource(), null, Tags.Items.ORES_NETHERITE_SCRAP, null);
+                MeltingRecipeBuilder.create(p, AllFluids.MOLTEN_DEBRIS.getSource(), MelterBE.INGOT_SIZE, Items.NETHERITE_SCRAP);
                 ingotMeltable(p, "rose_gold", AllFluids.MOLTEN_ROSE_GOLD.getSource(), AllTags.itemC("storage_blocks/rose_gold"), AllTags.itemC("ingots/rose_gold"), AllTags.itemC("nuggets/rose_gold"));
 
                 oreMeltable(p, "raw_copper", AllFluids.MOLTEN_COPPER.getSource(), Tags.Items.STORAGE_BLOCKS_RAW_COPPER, AllTags.COPPER_RAW_MATERIALS, null);
@@ -477,6 +495,7 @@ public class AllBlocks {
                         .unlockedBy("has_meltable_obsidian", has(Tags.Items.OBSIDIANS))
                         .save(p, SlagEmbers.loc("melting/obsidian_blocks"));
                 compatMeltable(p, "obsidian_plates", AllFluids.MOLTEN_OBSIDIAN.getSource(), MelterBE.INGOT_SIZE, AllTags.itemC("plates/obsidian"));
+                compatMeltable(p, "obsidian_dusts", AllFluids.MOLTEN_OBSIDIAN.getSource(), MelterBE.INGOT_SIZE, AllTags.itemC("dusts/obsidian"));
 
                 MeltingRecipeBuilder.create(AllFluids.MOLTEN_AMETHYST.getSource(), MelterBE.INGOT_SIZE * 3, Items.LARGE_AMETHYST_BUD)
                         .unlockedBy("has_meltable_buds", has(Tags.Items.BUDS))

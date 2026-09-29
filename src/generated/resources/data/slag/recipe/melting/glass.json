@@ -1,0 +1,14 @@
+{
+  "type": "slag:melting",
+  "ingredient": {
+    "tag": "c:glass_blocks/cheap"
+  },
+  "ingredients": [],
+  "result": [
+    {
+      "amount": 50,
+      "id": "minecraft:lava"
+    }
+  ],
+  "temperature": "BLAZING"
+}

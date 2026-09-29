@@ -175,16 +175,12 @@ public class MelterBE extends SmartBlockEntity implements MenuProvider {
     }
 
     private boolean pour(@Nullable IFluidHandler output) {
-        if (output == null || output.getTanks() <= 0) return false;
-        var stored = output.getFluidInTank(0);
-        var space = output.getTankCapacity(0) - stored.getAmount();
-        if (space <= 0) return false;
-        var amount = Math.min(stored.isEmpty() ? 1 : 10, space);
+        if (output == null) return false;
         for (var fluid : tankInventory.getFluids()) {
             if (fluid.isEmpty()) continue;
-            var poured = fluid.copyWithAmount(Math.min(amount, fluid.getAmount()));
-            if (output.fill(poured, IFluidHandler.FluidAction.SIMULATE) != poured.getAmount()) continue;
-            output.fill(tankInventory.drain(poured, IFluidHandler.FluidAction.EXECUTE), IFluidHandler.FluidAction.EXECUTE);
+            var accepted = output.fill(fluid.copyWithAmount(Math.min(10, fluid.getAmount())), IFluidHandler.FluidAction.SIMULATE);
+            if (accepted <= 0) continue;
+            output.fill(tankInventory.drain(fluid.copyWithAmount(accepted), IFluidHandler.FluidAction.EXECUTE), IFluidHandler.FluidAction.EXECUTE);
             return true;
         }
         return false;

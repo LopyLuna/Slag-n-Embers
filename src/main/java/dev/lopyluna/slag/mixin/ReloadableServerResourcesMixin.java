@@ -3,6 +3,7 @@ package dev.lopyluna.slag.mixin;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMultimap;
 import dev.lopyluna.slag.SlagEmbers;
+import dev.lopyluna.slag.api.RecipeGenerators;
 import dev.lopyluna.slag.content.blocks.melter.Recycling;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.ReloadableServerResources;
@@ -13,6 +14,8 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+import java.util.ArrayList;
+
 @SuppressWarnings("DataFlowIssue")
 @Mixin(ReloadableServerResources.class)
 public class ReloadableServerResourcesMixin {
@@ -21,7 +24,11 @@ public class ReloadableServerResourcesMixin {
         try {
             var accessor = (RecipeManagerAccessor) ((ReloadableServerResources) (Object) this).getRecipeManager();
             var byName = accessor.slag$getByName();
-            var generated = Recycling.generate(byName.values(), accessor.slag$getRegistries());
+            var registries = accessor.slag$getRegistries();
+            var generated = new ArrayList<>(RecipeGenerators.generate(byName.values(), registries));
+            var all = new ArrayList<>(byName.values());
+            all.addAll(generated);
+            generated.addAll(Recycling.generate(all, registries));
             if (generated.isEmpty()) return;
             var types = ImmutableMultimap.<RecipeType<?>, RecipeHolder<?>>builder().putAll(accessor.slag$getByType());
             var names = ImmutableMap.<ResourceLocation, RecipeHolder<?>>builder().putAll(byName);
@@ -33,7 +40,7 @@ public class ReloadableServerResourcesMixin {
             accessor.slag$setByType(types.build());
             accessor.slag$setByName(names.build());
         } catch (Exception e) {
-            SlagEmbers.LOGGER.error("Couldn't generate melting recipes", e);
+            SlagEmbers.LOGGER.error("Couldn't generate recipes", e);
         }
     }
 }

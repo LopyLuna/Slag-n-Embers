@@ -56,6 +56,7 @@ public class AllTags {
                 .add(AllFluids.MOLTEN_GOLD.getSource())
                 .add(AllFluids.MOLTEN_IRON.getSource())
                 .add(AllFluids.MOLTEN_NETHERITE.getSource())
+                .add(AllFluids.MOLTEN_DEBRIS.getSource())
                 .add(AllFluids.MOLTEN_ROSE_GOLD.getSource())
                 .add(AllFluids.MOLTEN_ALUMINIUM.getSource())
                 .add(AllFluids.MOLTEN_BRASS.getSource())
@@ -158,6 +159,7 @@ public class AllTags {
     public static TagKey<Item> BARS_BRASS = itemC("bars/brass");
     public static TagKey<Item> ROSE_QUARTZ = itemC("gems/rose_quartz");
     public static TagKey<Item> POLISHED_ROSE_QUARTZ = item("polished_rose_quartz");
+    public static TagKey<Item> ENGINE_ASSEMBLY = item("engine_assembly");
     public static TagKey<Item> ANDESITE_ALLOY = itemC("alloys/andesite");
 
     public static TagKey<Item> RECYCLING_BLACKLIST = item("recycling_blacklist");
@@ -174,6 +176,7 @@ public class AllTags {
         prov.tag(BARS_BRASS).addOptional(SlagEmbers.loc("create", "brass_bars"));
         prov.tag(ROSE_QUARTZ).addOptional(SlagEmbers.loc("create", "rose_quartz"));
         prov.tag(POLISHED_ROSE_QUARTZ).addOptional(SlagEmbers.loc("create", "polished_rose_quartz"));
+        prov.tag(ENGINE_ASSEMBLY).addOptional(SlagEmbers.loc("simulated", "engine_assembly"));
         prov.tag(ANDESITE_ALLOY).addOptional(SlagEmbers.loc("create", "andesite_alloy"));
 
         for (var path : List.of("ingots/", "nuggets/", "storage_blocks/", "storage_blocks/raw_", "raw_materials/", "ores/", "dusts/", "plates/", "rods/", "wires/", "clumps/")) prov.tag(itemC(path + "aluminium")).addOptionalTag(itemC(path + "aluminum").location());
@@ -196,8 +199,7 @@ public class AllTags {
                 .add(Items.SADDLE)
                 .add(Items.ENDER_PEARL)
                 .add(Items.ENDER_EYE)
-                .add(Items.GUNPOWDER)
-                .add(Items.BLAZE_POWDER)
+                .add(Items.MAGMA_CREAM)
                 .add(Items.FLINT)
                 .add(Items.HONEYCOMB)
                 .add(Items.HONEYCOMB_BLOCK)
@@ -206,6 +208,7 @@ public class AllTags {
                 .add(Items.SCULK)
                 .add(Items.SCULK_VEIN)
                 .add(Items.SCULK_SENSOR)
+                .addOptional(SlagEmbers.loc("supplementaries", "soap"))
                 .addTag(Tags.Items.DYES)
                 .addTag(Tags.Items.LEATHERS)
                 .addTag(Tags.Items.RODS_WOODEN)
@@ -215,6 +218,10 @@ public class AllTags {
                 .addTag(Tags.Items.FENCE_GATES_WOODEN)
                 .addTag(Tags.Items.CHESTS_WOODEN)
                 .addTag(Tags.Items.BARRELS_WOODEN)
+                .addTag(Tags.Items.SLIME_BALLS)
+                .addTag(Tags.Items.STORAGE_BLOCKS_SLIME)
+                .addTag(Tags.Items.DUSTS)
+                .addTag(ItemTags.CANDLES)
                 .addTag(ItemTags.LOGS)
                 .addTag(ItemTags.PLANKS)
                 .addTag(ItemTags.WOODEN_SLABS)
@@ -230,9 +237,10 @@ public class AllTags {
                 .addTag(ItemTags.CHEST_BOATS)
                 .addTag(ItemTags.BAMBOO_BLOCKS)
                 .addTag(ItemTags.SAPLINGS)
-                .addTag(ItemTags.LEAVES);
+                .addTag(ItemTags.LEAVES)
+                .addOptionalTag(SlagEmbers.loc("c", "fuels"));
 
-        prov.tag(CAST_INGOTS).addTag(Tags.Items.INGOTS).addTag(Tags.Items.BRICKS);
+        prov.tag(CAST_INGOTS).add(Items.NETHERITE_SCRAP).addTag(Tags.Items.INGOTS).addTag(Tags.Items.BRICKS).addOptional(SlagEmbers.loc("create", "bar_of_chocolate"));
         prov.tag(CAST_GEMS).add(Items.ECHO_SHARD).addTag(ItemTags.COALS).addTag(Tags.Items.GEMS).addTag(Tags.Items.NETHER_STARS);
         prov.tag(CAST_BALLS).add(Items.WIND_CHARGE).add(Items.FIRE_CHARGE).add(Items.FIREWORK_STAR).add(Items.ENDER_EYE).add(Items.CLAY_BALL).add(Items.SNOWBALL).add(Items.MAGMA_CREAM).add(Items.HEART_OF_THE_SEA).addTag(Tags.Items.SLIME_BALLS).addTag(Tags.Items.ENDER_PEARLS);
         prov.tag(CAST_NUGGETS).addTag(Tags.Items.NUGGETS);

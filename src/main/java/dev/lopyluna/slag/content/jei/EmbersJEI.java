@@ -24,6 +24,7 @@ import mezz.jei.api.IModPlugin;
 import mezz.jei.api.JeiPlugin;
 import mezz.jei.api.constants.RecipeTypes;
 import mezz.jei.api.constants.VanillaTypes;
+import mezz.jei.api.helpers.IModIdHelper;
 import mezz.jei.api.gui.handlers.IGuiContainerHandler;
 import mezz.jei.api.neoforge.NeoForgeTypes;
 import mezz.jei.api.recipe.category.IRecipeCategory;
@@ -31,13 +32,12 @@ import mezz.jei.api.registration.*;
 import mezz.jei.api.runtime.IClickableIngredient;
 import mezz.jei.api.runtime.IIngredientManager;
 import mezz.jei.api.runtime.IJeiRuntime;
-import mezz.jei.common.util.ErrorUtil;
-import mezz.jei.library.plugins.vanilla.crafting.CategoryRecipeValidator;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.Rect2i;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemStackLinkedSet;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.*;
 import net.neoforged.neoforge.fluids.FluidStack;
@@ -49,7 +49,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
-@SuppressWarnings({"unused", "NullableProblems"})
+@SuppressWarnings({"unused", "NullableProblems", "FieldCanBeLocal"})
 @JeiPlugin
 public class EmbersJEI implements IModPlugin {
     @Override
@@ -63,6 +63,7 @@ public class EmbersJEI implements IModPlugin {
     @Nullable private IRecipeCategory<RecipeHolder<BasinCastingRecipe>> basinCastingCategory;
     @Nullable private IRecipeCategory<RecipeHolder<AlloyingRecipe>> alloyingCategory;
     @Nullable private IRecipeCategory<ModularType> modularCategory;
+    public static IModIdHelper modIds;
     private List<HeatingCategory.Heater> heaters = List.of();
     private int heaterVersion = -1;
 
@@ -70,6 +71,7 @@ public class EmbersJEI implements IModPlugin {
     public void registerCategories(IRecipeCategoryRegistration registration) {
         var jeiHelpers = registration.getJeiHelpers();
         var guiHelper = jeiHelpers.getGuiHelper();
+        modIds = jeiHelpers.getModIdHelper();
 
         registration.addRecipeCategories(forgeCategory = new DoubleSmeltingCategory(guiHelper));
         registration.addRecipeCategories(melterCategory = new MeltingCategory(guiHelper));
@@ -82,23 +84,15 @@ public class EmbersJEI implements IModPlugin {
 
     @Override
     public void registerRecipes(@Nonnull IRecipeRegistration registration) {
-        ErrorUtil.checkNotNull(forgeCategory, "furnaceCategory");
-        ErrorUtil.checkNotNull(melterCategory, "melterCategory");
-        ErrorUtil.checkNotNull(tableCastingCategory, "tableCastingCategory");
-        ErrorUtil.checkNotNull(basinCastingCategory, "tableCastingCategory");
-        ErrorUtil.checkNotNull(alloyingCategory, "alloyingCategory");
-        ErrorUtil.checkNotNull(modularCategory, "modularCategory");
-        var ingredientManager = registration.getIngredientManager();
         var level = Minecraft.getInstance().level;
         if (level == null) return;
 
-
-        registration.addRecipes(EmbersRecipesJEI.DOUBLE_SMELTING.get(), getBrickForgeRecipes(forgeCategory, level, ingredientManager));
-        registration.addRecipes(EmbersRecipesJEI.MELTING.get(), getMelterRecipes(melterCategory, level, ingredientManager));
-        registration.addRecipes(EmbersRecipesJEI.TABLE_CASTING.get(), getTableCastingRecipes(tableCastingCategory, level, ingredientManager));
-        registration.addRecipes(EmbersRecipesJEI.BASIN_CASTING.get(), getBasinCastingRecipes(basinCastingCategory, level, ingredientManager));
-        registration.addRecipes(EmbersRecipesJEI.ALLOYING.get(), getAlloyingRecipes(alloyingCategory, level, ingredientManager));
-        registration.addRecipes(EmbersRecipesJEI.MODULAR, getModularRecipes());
+        safely("double smelting", () -> registration.addRecipes(EmbersRecipesJEI.DOUBLE_SMELTING.get(), handled(level, AllRecipes.DOUBLE_SMELTING.get(), forgeCategory)));
+        safely("melting", () -> registration.addRecipes(EmbersRecipesJEI.MELTING.get(), handled(level, AllRecipes.MELTING.get(), melterCategory)));
+        safely("table casting", () -> registration.addRecipes(EmbersRecipesJEI.TABLE_CASTING.get(), getTableCastingRecipes(tableCastingCategory, level)));
+        safely("basin casting", () -> registration.addRecipes(EmbersRecipesJEI.BASIN_CASTING.get(), handled(level, AllRecipes.BASIN_CASTING.get(), basinCastingCategory)));
+        safely("alloying", () -> registration.addRecipes(EmbersRecipesJEI.ALLOYING.get(), handled(level, AllRecipes.ALLOYING.get(), alloyingCategory)));
+        safely("modular", () -> registration.addRecipes(EmbersRecipesJEI.MODULAR, getModularRecipes()));
         heaters = HeatingCategory.heaters();
         heaterVersion = Temperatures.version;
         registration.addRecipes(EmbersRecipesJEI.HEATING, heaters);
@@ -170,18 +164,9 @@ public class EmbersJEI implements IModPlugin {
                 .toList();
     }
 
-    public List<RecipeHolder<DoubleSmeltingRecipe>> getBrickForgeRecipes(IRecipeCategory<RecipeHolder<DoubleSmeltingRecipe>> forgeCategory, ClientLevel level, IIngredientManager manager) {
-        CategoryRecipeValidator<DoubleSmeltingRecipe> validator = new CategoryRecipeValidator<>(forgeCategory, manager, 1);
-        return getValidHandledRecipes(level.getRecipeManager(), AllRecipes.DOUBLE_SMELTING.get(), validator);
-    }
-    public List<RecipeHolder<MeltingRecipe>> getMelterRecipes(IRecipeCategory<RecipeHolder<MeltingRecipe>> forgeCategory, ClientLevel level, IIngredientManager manager) {
-        CategoryRecipeValidator<MeltingRecipe> validator = new CategoryRecipeValidator<>(forgeCategory, manager, 1);
-        return getValidHandledRecipes(level.getRecipeManager(), AllRecipes.MELTING.get(), validator);
-    }
-    public List<RecipeHolder<TableCastingRecipe>> getTableCastingRecipes(IRecipeCategory<RecipeHolder<TableCastingRecipe>> forgeCategory, ClientLevel level, IIngredientManager manager) {
-        CategoryRecipeValidator<TableCastingRecipe> validator = new CategoryRecipeValidator<>(forgeCategory, manager, 1);
+    public List<RecipeHolder<TableCastingRecipe>> getTableCastingRecipes(IRecipeCategory<RecipeHolder<TableCastingRecipe>> category, ClientLevel level) {
         var recipes = new ArrayList<RecipeHolder<TableCastingRecipe>>();
-        for (var holder : getValidHandledRecipes(level.getRecipeManager(), AllRecipes.TABLE_CASTING.get(), validator)) {
+        for (var holder : handled(level, AllRecipes.TABLE_CASTING.get(), category)) {
             var recipe = holder.value();
             var item = recipe.getCastItem();
             if (item == null || !item.imprint()) {
@@ -198,16 +183,24 @@ public class EmbersJEI implements IModPlugin {
         }
         return recipes;
     }
-    public List<RecipeHolder<BasinCastingRecipe>> getBasinCastingRecipes(IRecipeCategory<RecipeHolder<BasinCastingRecipe>> forgeCategory, ClientLevel level, IIngredientManager manager) {
-        CategoryRecipeValidator<BasinCastingRecipe> validator = new CategoryRecipeValidator<>(forgeCategory, manager, 1);
-        return getValidHandledRecipes(level.getRecipeManager(), AllRecipes.BASIN_CASTING.get(), validator);
+    private static <C extends RecipeInput, T extends Recipe<C>> List<RecipeHolder<T>> handled(ClientLevel level, RecipeType<T> type, IRecipeCategory<RecipeHolder<T>> category) {
+        var out = new ArrayList<RecipeHolder<T>>();
+        for (var holder : level.getRecipeManager().getAllRecipesFor(type)) {
+            try {
+                if (category.isHandled(holder)) out.add(holder);
+            } catch (RuntimeException | LinkageError e) {
+                SlagEmbers.LOGGER.error("Skipping broken recipe {} in JEI", holder.id(), e);
+            }
+        }
+        return out;
     }
-    public List<RecipeHolder<AlloyingRecipe>> getAlloyingRecipes(IRecipeCategory<RecipeHolder<AlloyingRecipe>> forgeCategory, ClientLevel level, IIngredientManager manager) {
-        CategoryRecipeValidator<AlloyingRecipe> validator = new CategoryRecipeValidator<>(forgeCategory, manager, 1);
-        return getValidHandledRecipes(level.getRecipeManager(), AllRecipes.ALLOYING.get(), validator);
-    }
-    private static <C extends RecipeInput, T extends Recipe<C>> List<RecipeHolder<T>> getValidHandledRecipes(RecipeManager recipeManager, RecipeType<T> recipeType, CategoryRecipeValidator<T> validator) {
-        return recipeManager.getAllRecipesFor(recipeType).stream().filter(validator::isRecipeHandled).toList();
+
+    private static void safely(String name, Runnable task) {
+        try {
+            task.run();
+        } catch (RuntimeException | LinkageError e) {
+            SlagEmbers.LOGGER.error("Couldn't add {} recipes to JEI", name, e);
+        }
     }
 
     @Override
@@ -279,7 +272,10 @@ public class EmbersJEI implements IModPlugin {
             variants.add(stack);
         }
 
-        im.addIngredientsAtRuntime(VanillaTypes.ITEM_STACK, variants);
+        var known = ItemStackLinkedSet.createTypeAndComponentsSet();
+        known.addAll(im.getAllItemStacks());
+        variants.removeIf(stack -> !known.add(stack));
+        if (!variants.isEmpty()) im.addIngredientsAtRuntime(VanillaTypes.ITEM_STACK, variants);
 
         var fluids = new ArrayList<FluidStack>();
         var buckets = new ArrayList<ItemStack>();

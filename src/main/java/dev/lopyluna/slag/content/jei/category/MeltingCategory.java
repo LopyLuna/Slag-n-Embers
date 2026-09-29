@@ -5,6 +5,7 @@ import dev.lopyluna.slag.SlagEmbers;
 import dev.lopyluna.slag.content.AllUtils;
 import dev.lopyluna.slag.content.blocks.melter.MelterBE;
 import dev.lopyluna.slag.content.blocks.melter.MeltingRecipe;
+import dev.lopyluna.slag.content.jei.EmbersJEI;
 import dev.lopyluna.slag.content.jei.EmbersRecipesJEI;
 import dev.lopyluna.slag.register.AllBlocks;
 import dev.lopyluna.slag.register.AllLangs;
@@ -18,7 +19,6 @@ import mezz.jei.api.recipe.IFocusGroup;
 import mezz.jei.api.recipe.IRecipeManager;
 import mezz.jei.api.recipe.RecipeIngredientRole;
 import mezz.jei.api.recipe.category.AbstractRecipeCategory;
-import mezz.jei.common.Internal;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
@@ -109,7 +109,7 @@ public class MeltingCategory extends AbstractRecipeCategory<RecipeHolder<Melting
                 if (advance) {
                     var loc = BuiltInRegistries.FLUID.getKey(fluid.getFluid());
                     tooltips.add(Component.literal(loc.toString()).withStyle(ChatFormatting.DARK_GRAY));
-                    var helper = Internal.getJeiRuntime().getJeiHelpers().getModIdHelper();
+                    var helper = EmbersJEI.modIds;
                     tooltips.add(Component.literal(getFormattedModNameForModIdWithoutDisplay(helper, loc.getNamespace())).withStyle(ChatFormatting.BLUE).withStyle(ChatFormatting.ITALIC));
                     var name = getRegistryName(holder);
                     if (name != null) {

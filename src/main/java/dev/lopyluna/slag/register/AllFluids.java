@@ -61,6 +61,8 @@ public class AllFluids {
             newMoltenFluid(REG, "Amethyst", () -> 0xAC87CF).register();
     public static final FluidEntry<LavaLikeFluid.Flowing> MOLTEN_COPPER =
             newMoltenFluid(REG, "Copper", () -> 0xBC674C).register();
+    public static final FluidEntry<LavaLikeFluid.Flowing> MOLTEN_DEBRIS =
+            newMoltenFluid(REG, "Debris", () -> 0x5C3A30).register();
     public static final FluidEntry<LavaLikeFluid.Flowing> MOLTEN_DIAMOND =
             newMoltenFluid(REG, "Diamond", () -> 0x54CAC1).register();
     public static final FluidEntry<LavaLikeFluid.Flowing> MOLTEN_ECHO =

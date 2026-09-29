@@ -14,7 +14,7 @@ import mezz.jei.api.recipe.IFocusGroup;
 import mezz.jei.api.recipe.IRecipeManager;
 import mezz.jei.api.recipe.RecipeIngredientRole;
 import mezz.jei.api.recipe.category.AbstractRecipeCategory;
-import mezz.jei.library.util.RecipeUtil;
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.crafting.RecipeHolder;
@@ -41,7 +41,7 @@ public class DoubleSmeltingCategory extends AbstractRecipeCategory<RecipeHolder<
 
         builder.addOutputSlot(61, 19)
                 .setOutputSlotBackground()
-                .addItemStack(RecipeUtil.getResultItem(recipe));
+                .addItemStack(recipe.getResultItem(RegistryAccess.EMPTY));
     }
 
     @Override
