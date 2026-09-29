@@ -26,6 +26,7 @@ import net.neoforged.neoforge.fluids.IFluidTank;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 import net.neoforged.neoforge.fluids.capability.templates.FluidTank;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
@@ -404,8 +405,23 @@ public class FluidMultiBlockEntity extends SmartBlockEntity implements IMultiBlo
         invalidateCapabilities();
     }
 
+    private static final FluidTank NO_TANK = new FluidTank(0);
+
+    protected final IFluidHandler controllerHandler = new IFluidHandler() {
+        private IFluidHandler get() {
+            return getControllerBE() instanceof FluidMultiBlockEntity be && be.isController ? be.tankInventory : NO_TANK;
+        }
+        @Override public int getTanks() { return get().getTanks(); }
+        @Override public @Nonnull FluidStack getFluidInTank(int tank) { return get().getFluidInTank(tank); }
+        @Override public int getTankCapacity(int tank) { return get().getTankCapacity(tank); }
+        @Override public boolean isFluidValid(int tank, @Nonnull FluidStack stack) { return get().isFluidValid(tank, stack); }
+        @Override public int fill(@Nonnull FluidStack resource, @Nonnull FluidAction action) { return get().fill(resource, action); }
+        @Override public @Nonnull FluidStack drain(@Nonnull FluidStack resource, @Nonnull FluidAction action) { return get().drain(resource, action); }
+        @Override public @Nonnull FluidStack drain(int maxDrain, @Nonnull FluidAction action) { return get().drain(maxDrain, action); }
+    };
+
     protected IFluidHandler handlerForCapability() {
-        return isController ? tankInventory : ((getControllerBE() != null) ? getControllerBE().handlerForCapability() : new FluidTank(0));
+        return isController ? tankInventory : controllerHandler;
     }
 
     @Override

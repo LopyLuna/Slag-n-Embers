@@ -39,11 +39,11 @@ public class DynamicMoldRenderer extends CustomRenderedItemModelRenderer {
         var item = id.getPath();
         if (!hasMold || cast == null) {
             //renderer.render(manager.getModel(ModelResourceLocation.standalone(Embers.loc(modID, "item/cutout/" + item))), light);
-            if (cutout) renderer.render(manager.getModel(ModelResourceLocation.standalone(SlagEmbers.loc(modID, "item/cutout/" + item))), light);
+            if (cutout) renderer.render(getModel(SlagEmbers.loc(modID, "item/cutout/" + item), manager), light);
             else renderer.render(model.getOriginalModel(), light);
             return;
         }
-        renderer.render(manager.getModel(ModelResourceLocation.standalone(SlagEmbers.loc(modID, "item/" + ((cutout ? "cutout/" : "") + item + "/" + cast.location().getPath().split("/")[1])))), light);
+        renderer.render(getModel(SlagEmbers.loc(modID, "item/" + ((cutout ? "cutout/" : "") + item + "/" + cast.location().getPath().split("/")[1])), manager), light);
     }
 
     @SubscribeEvent

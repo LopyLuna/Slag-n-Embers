@@ -91,6 +91,9 @@
     { "type": "single", "resource": "slag:fluid/molten_glowstone_still" },
 
     { "type": "single", "resource": "slag:fluid/molten_rose_quartz_flow" },
-    { "type": "single", "resource": "slag:fluid/molten_rose_quartz_still" }
+    { "type": "single", "resource": "slag:fluid/molten_rose_quartz_still" },
+
+    { "type": "single", "resource": "slag:fluid/molten_debris_flow" },
+    { "type": "single", "resource": "slag:fluid/molten_debris_still" }
   ]
 }

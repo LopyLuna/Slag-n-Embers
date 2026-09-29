@@ -4,6 +4,7 @@ import dev.lopyluna.slag.SlagEmbers;
 import dev.lopyluna.slag.content.blocks.casting.CastingBE;
 import dev.lopyluna.slag.content.blocks.table.TableBE;
 import dev.lopyluna.slag.content.blocks.table.TableCastingRecipe;
+import dev.lopyluna.slag.content.jei.EmbersJEI;
 import dev.lopyluna.slag.content.jei.EmbersRecipesJEI;
 import dev.lopyluna.slag.content.types.Incompatible;
 import dev.lopyluna.slag.content.utils.FluidInput;
@@ -20,7 +21,6 @@ import mezz.jei.api.neoforge.NeoForgeTypes;
 import mezz.jei.api.recipe.IFocusGroup;
 import mezz.jei.api.recipe.RecipeIngredientRole;
 import mezz.jei.api.recipe.category.AbstractRecipeCategory;
-import mezz.jei.common.Internal;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -107,7 +107,7 @@ public class TableCastingCategory extends AbstractRecipeCategory<RecipeHolder<Ta
                     if (tooltipFlag.advanced()) {
                         var loc = BuiltInRegistries.FLUID.getKey(fluid.getFluid());
                         tooltips.add(Component.literal(loc.toString()).withStyle(ChatFormatting.DARK_GRAY));
-                        var helper = Internal.getJeiRuntime().getJeiHelpers().getModIdHelper();
+                        var helper = EmbersJEI.modIds;
                         tooltips.add(Component.literal(getFormattedModNameForModIdWithoutDisplay(helper, loc.getNamespace())).withStyle(ChatFormatting.BLUE).withStyle(ChatFormatting.ITALIC));
                         var name = getRegistryName(holder);
                         if (name != null) {

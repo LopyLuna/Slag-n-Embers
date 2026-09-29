@@ -31,8 +31,13 @@ public final class ItemResult {
             ExtraCodecs.intRange(1, 99).optionalFieldOf("count", 1).forGetter(result -> result.count)
     ).apply(instance, ItemResult::of));
 
-    public static final Codec<ItemResult> CODEC = Codec.either(ItemStack.CODEC, TAG_CODEC)
-            .xmap(either -> either.map(ItemResult::of, Function.identity()), result -> result.tag == null ? Either.left(result.stack) : Either.right(result));
+    private static final Codec<ItemResult> ITEM_CODEC = RecordCodecBuilder.create(instance -> instance.group(
+            BuiltInRegistries.ITEM.byNameCodec().fieldOf("item").forGetter(result -> result.stack.getItem()),
+            ExtraCodecs.intRange(1, 99).optionalFieldOf("count", 1).forGetter(result -> result.count)
+    ).apply(instance, (item, count) -> of(new ItemStack(item, count))));
+
+    public static final Codec<ItemResult> CODEC = Codec.withAlternative(Codec.either(ItemStack.CODEC, TAG_CODEC)
+            .xmap(either -> either.map(ItemResult::of, Function.identity()), result -> result.tag == null ? Either.left(result.stack) : Either.right(result)), ITEM_CODEC);
 
     public static final StreamCodec<RegistryFriendlyByteBuf, ItemResult> STREAM_CODEC = StreamCodec.of((buffer, result) -> {
         buffer.writeBoolean(result.tag != null);

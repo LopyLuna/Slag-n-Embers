@@ -154,7 +154,7 @@ public class ModularItemRenderer extends CustomRenderedItemModelRenderer {
 
     private static Optional<BakedModel> handle(Handle handle) {
         var manager = Minecraft.getInstance().getModelManager();
-        var model = manager.getModel(ModelResourceLocation.standalone(handle.model()));
+        var model = getModel(handle.model(), manager);
         if (model != manager.getMissingModel()) return Optional.of(model);
         var sprite = manager.getAtlas(InventoryMenu.BLOCK_ATLAS).getSprite(handle.texture());
         if (sprite.contents().name().equals(MissingTextureAtlasSprite.getLocation())) return Optional.empty();

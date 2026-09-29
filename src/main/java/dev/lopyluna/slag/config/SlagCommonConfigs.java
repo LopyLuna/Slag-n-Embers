@@ -26,5 +26,11 @@ public class SlagCommonConfigs {
     public static final ModConfigSpec.BooleanValue RECYCLING = BUILDER.comment("Whether to generate recycling recipes from crafting, cooking, stonecutting and smithing recipes, for items that don't have a melting recipe yet")
             .define("RecyclingRecipes", true);
 
+    public static final ModConfigSpec.BooleanValue GENERATED_FORGE = BUILDER.comment("Whether to generate brick forge recipes from smelting recipes whose result has no blasting or smoking recipe and is stackable")
+            .define("GeneratedForgeRecipes", true);
+
+    public static final ModConfigSpec.BooleanValue GENERATED_CREATE = BUILDER.comment("Whether to generate alloying, melting and casting recipes from Create's mixing and compacting recipes")
+            .define("GeneratedCreateRecipes", true);
+
     public static final ModConfigSpec SPEC = BUILDER.build();
 }

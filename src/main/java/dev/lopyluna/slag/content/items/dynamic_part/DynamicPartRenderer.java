@@ -80,7 +80,7 @@ public class DynamicPartRenderer extends CustomRenderedItemModelRenderer {
 
     private static @Nullable Part model(ResourceLocation id) {
         var manager = Minecraft.getInstance().getModelManager();
-        var model = manager.getModel(ModelResourceLocation.standalone(id));
+        var model = getModel(id, manager);
         return model == manager.getMissingModel() ? null : new Part(model, Sheets.translucentCullBlockSheet());
     }
 

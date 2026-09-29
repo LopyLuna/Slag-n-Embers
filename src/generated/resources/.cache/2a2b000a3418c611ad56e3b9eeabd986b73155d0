@@ -1,4 +1,4 @@
-// 1.21.1	2026-09-27T18:45:37.479908	Registrate Provider for slag [Registries, Data Maps, Recipes, Advancements, Loot Tables, Tags (blocks), Tags (enchantments), Tags (items), Tags (fluids), Tags (entity_types), generic_server_provider, Blockstates, Item models, Lang (en_us/en_ud), generic_client_provider]
+// 1.21.1	2026-09-28T19:05:59.5380701	Registrate Provider for slag [Registries, Data Maps, Recipes, Advancements, Loot Tables, Tags (blocks), Tags (enchantments), Tags (items), Tags (fluids), Tags (entity_types), generic_server_provider, Blockstates, Item models, Lang (en_us/en_ud), generic_client_provider]
 84dbc3390ebdc7b0a227f3e7d472443f25a203b5 assets/slag/blockstates/basin.json
 4bec796e30497fab6d5486ba8164ddf8c67386df assets/slag/blockstates/cast_iron_block.json
 337be80708574f8549f239b234ba61c8d54326b1 assets/slag/blockstates/crucible.json
@@ -15,6 +15,7 @@ d1c72a59e28b63b445bb97619643dcb4a8192c1c assets/slag/blockstates/molten_brass.js
 6eaf0f7d9545214b0caaa5589f5bc6d60b79753a assets/slag/blockstates/molten_bronze.json
 9380a6da99751539d74a76a2814fd511cfba96c0 assets/slag/blockstates/molten_cast_iron.json
 a0d87b7e0e59fde360600a7e203a07fe34391119 assets/slag/blockstates/molten_copper.json
+914f03f1fe1b9f46fe6d946171813d117c37f281 assets/slag/blockstates/molten_debris.json
 1d15a65061e5cf433515d056b5957d9d7e2c99ad assets/slag/blockstates/molten_diamond.json
 ba0a5bc4d499ea83ed39f4717aa82e0d0adfb6d3 assets/slag/blockstates/molten_echo.json
 4148f95e72b623bbd4f58ce2d738d1be4d091f81 assets/slag/blockstates/molten_electrum.json
@@ -42,8 +43,8 @@ e82446d219fcdeef67b2be9b393b0a948f8108c7 assets/slag/blockstates/molten_tungsten
 22dfc618aa04ae4410bc383cea641ddc14ffd8a6 assets/slag/blockstates/molten_zinc.json
 47cfac43590c597258fc498fec5a604ff56c5886 assets/slag/blockstates/rose_gold_block.json
 3adae227c18635ebff1aa25c0d3ce3ffc2455625 assets/slag/blockstates/table.json
-ea28ce255f36651718d1baf7b154cca7415eea38 assets/slag/lang/en_ud.json
-8360818f93b48dd49230b32776b417ca68af681e assets/slag/lang/en_us.json
+142609588716578cea07a5d0c8c39330ea681d7c assets/slag/lang/en_ud.json
+6d175037435e50cc7f55af267ffaa2504a7cbd43 assets/slag/lang/en_us.json
 ce85267dfa36190991aade8754f4044696b2c11d assets/slag/models/block/cast_iron_block.json
 f395e3af2c9b36f065fba3a7e335cfdbbbad99fa assets/slag/models/block/crucible/block_bottom_window.json
 37c5efe04416a520d7feee9d84d96971a39aa733 assets/slag/models/block/crucible/block_east_bottom_window.json
@@ -98,6 +99,7 @@ e575515229e747c1d1d6b129eb3145e99bc8c64d assets/slag/models/block/molten_brass.j
 f27865aadf0b1856a3f1d0e008326b065dc592cc assets/slag/models/block/molten_bronze.json
 ba097e0353bcfccb16ba3f2e99a80b13bc227a7d assets/slag/models/block/molten_cast_iron.json
 6345c3c6b8b1f121f578179b035c1e33b67c40f8 assets/slag/models/block/molten_copper.json
+f6eb0d4f647640fc14d2c72af9625254be1514b6 assets/slag/models/block/molten_debris.json
 53d51f169ce8cb08f4c94e6b3b86317db3607783 assets/slag/models/block/molten_diamond.json
 f1da287fcec9a0022cdd5a2c3b6a5ddde4180c80 assets/slag/models/block/molten_echo.json
 4c0e8eb40e79bf525e96a9611bfd68bb91726fea assets/slag/models/block/molten_electrum.json
@@ -263,6 +265,7 @@ b96cd04dc87eab0a03dbccb98479afde332d856d assets/slag/models/item/molten_aluminiu
 a0000be98c96db5372bbae116a033e42096804f7 assets/slag/models/item/molten_bronze_bucket.json
 e9ceb026f9d0e65540c65e7bf3df37b67b5dedaa assets/slag/models/item/molten_cast_iron_bucket.json
 4582abfef0ac1d54dbd1bc43e678f7f25e16bff2 assets/slag/models/item/molten_copper_bucket.json
+bc1fa5a8ec95a221d33a3bd9df7ad750aad02cf1 assets/slag/models/item/molten_debris_bucket.json
 e57029a4f7e5b78785224d23e050f64896fb8882 assets/slag/models/item/molten_diamond_bucket.json
 ff061e977f08965f27a285cc375c247d5f5dd765 assets/slag/models/item/molten_echo_bucket.json
 f67ce16c811e9904c01a6fbfb1575af69887d15d assets/slag/models/item/molten_electrum_bucket.json
@@ -338,6 +341,7 @@ e1fee3135dab7ccd40b1a54ddd076f85751266f8 data/c/tags/fluid/molten/aluminium.json
 098a0a174260d14f79777903af2a86fdabbfa9d5 data/c/tags/fluid/molten/bronze.json
 6e0139356b2f5615f4bfe0228d246f6386ac6403 data/c/tags/fluid/molten/cast_iron.json
 afe1d85e1a31e062670c0a3b9826dd1603cf0eaa data/c/tags/fluid/molten/copper.json
+3b1c81c6b802a348da10b5bc18fa911ccfc330e4 data/c/tags/fluid/molten/debris.json
 9d052cbfae8467cb913ebc43cfac9ffaffa957e4 data/c/tags/fluid/molten/diamond.json
 0a796c95c4feeb04f1809076bbee9e0bea599fd8 data/c/tags/fluid/molten/echo.json
 ae4f632b7cd84596603713a6d4ea112c0d360573 data/c/tags/fluid/molten/electrum.json
@@ -369,6 +373,7 @@ a7d32eb15f849bb3d497e50ce0bc9ef4555a2f99 data/c/tags/fluid/molten_aluminium.json
 3168cf3271c6f0c93c967df448b6b98382757e1f data/c/tags/fluid/molten_bronze.json
 66b10f858bd304db1e542e69b7331ecad18d7f03 data/c/tags/fluid/molten_cast_iron.json
 a5433ea1cdcb73e028bcb17cfb436830b006146b data/c/tags/fluid/molten_copper.json
+0640b3c886fcd96faf7dfffb6605510cb7d78a4b data/c/tags/fluid/molten_debris.json
 1ff0461ac92628e1f6558dfe1fd25f3946676ada data/c/tags/fluid/molten_diamond.json
 1e2be8491a23def4ba250da4366def00e592c12e data/c/tags/fluid/molten_echo.json
 a57b734f4a131059725dfe910300f0a0f484c498 data/c/tags/fluid/molten_electrum.json
@@ -403,6 +408,7 @@ d9c9a49d853adb5b33315775d5129e791332beab data/c/tags/item/buckets/molten_alumini
 15f65096f366fe0ee8d0ecd7e2a281fb93929f74 data/c/tags/item/buckets/molten_bronze.json
 4e462ef67e5f697de7e2d4449be3828ada1f3dcc data/c/tags/item/buckets/molten_cast_iron.json
 f7d8c21076c400788522e173bc0693cfeb943ab7 data/c/tags/item/buckets/molten_copper.json
+065aee59f9813e7c6b2b53d02b0a8fdd64f6fe8a data/c/tags/item/buckets/molten_debris.json
 b29bbae352b63a37afed2e0fb65e5aef751c1565 data/c/tags/item/buckets/molten_diamond.json
 8c0bae782db2afefc9cde9b40b42728384c94129 data/c/tags/item/buckets/molten_echo.json
 6ccdf37fe0a1a3ec365d48e2dfec1b9575dd4039 data/c/tags/item/buckets/molten_electrum.json
@@ -475,7 +481,7 @@ d9b479cd5101d66093c904f273dda20094ad7e35 data/minecraft/tags/block/beacon_base_b
 260eeed91f8d5a2d94e1f50c7ba343e4f4332691 data/minecraft/tags/block/mineable/pickaxe.json
 ab094c4db0bb0da83cb2e1f3b25e79a8d23d684b data/minecraft/tags/block/needs_iron_tool.json
 cff3ebec58f05af0b3ef769ad64df17e7fdf4247 data/minecraft/tags/block/needs_stone_tool.json
-30532cc024b4747cfc27824ac7b3636900a19a08 data/minecraft/tags/fluid/lava.json
+5618150203a3c1dc682cc6a511a23374921954b4 data/minecraft/tags/fluid/lava.json
 1e54dbf2629c298709549af8073c1530b4e097f6 data/minecraft/tags/item/beacon_payment_items.json
 e434d4b7f944a8dd370669604a8f59deca5895fd data/slag/advancement/recipes/building_blocks/double_smelting/cracked_deepslate_bricks.json
 d8af972d2aa36d4570a783be96d2e3890418ce72 data/slag/advancement/recipes/building_blocks/double_smelting/cracked_deepslate_tiles.json
@@ -511,6 +517,7 @@ ef6570466222fa35db1885939f642dff4a365532 data/slag/advancement/recipes/misc/allo
 747261bf43a93cca78cc7756c47ef4320c0249a2 data/slag/advancement/recipes/misc/alloying/molten_bronze.json
 42e323730a81f342967f1f0a905c87319d2307a5 data/slag/advancement/recipes/misc/alloying/molten_electrum.json
 ee8a24e17dfd593704855c5add6b9aa586889ce3 data/slag/advancement/recipes/misc/alloying/molten_invar.json
+6875e35bdd8ca9ba781d736b380a6e0a2dd83b06 data/slag/advancement/recipes/misc/alloying/molten_netherite.json
 0182b80c3d8a709c3e87aab4ed6926da8ea953b0 data/slag/advancement/recipes/misc/alloying/molten_obsidian.json
 2291d4103338c5a31bc7f50072245ba872a6d4a6 data/slag/advancement/recipes/misc/alloying/molten_rose_gold.json
 926fac918ac0b83cba482aa4cf999eb741aba65c data/slag/advancement/recipes/misc/alloying/molten_rose_quartz.json
@@ -807,10 +814,12 @@ b3bfe3b8d41198f55f14b2d00fcddfc47c794380 data/slag/advancement/recipes/misc/cast
 8b899022bfa88b7d9801cf996dbdd655fefa9b89 data/slag/advancement/recipes/misc/casting/table/netherite_ingot.json
 52d53b3edd1b9d3a680438b77340651b0e60cc61 data/slag/advancement/recipes/misc/casting/table/netherite_nugget.json
 b60b7fd421d4fbd88cdc638c72822498a38b7202 data/slag/advancement/recipes/misc/casting/table/netherite_rod.json
+732670f39ae081b115fb9bf3705d50791629b942 data/slag/advancement/recipes/misc/casting/table/netherite_scrap.json
 5d25600daa953242f4c857fffc2d58d36f8013fd data/slag/advancement/recipes/misc/casting/table/nickel_dust.json
 f8b4d217a60c150f7798d2e38846370a9ae45fc1 data/slag/advancement/recipes/misc/casting/table/nickel_ingot.json
 2d9afa0c39e394eb4cb59a2fbd2486c9dc472bbf data/slag/advancement/recipes/misc/casting/table/nickel_nugget.json
 3a75ee930e23c334b042b59f273bd1924ca5e820 data/slag/advancement/recipes/misc/casting/table/nickel_rod.json
+5d6cf5638aea216cba31921e3298725a5856d082 data/slag/advancement/recipes/misc/casting/table/obsidian_dust.json
 a9aeced75cfb7c228fed051afefcea6125c42e99 data/slag/advancement/recipes/misc/casting/table/osmium_dust.json
 3e1f291104455faaaa2f0b82b155a926b3be3891 data/slag/advancement/recipes/misc/casting/table/osmium_ingot.json
 60ba48a2aa3c2a173c7c5e4acb4c3d201357dce2 data/slag/advancement/recipes/misc/casting/table/osmium_nugget.json
@@ -1003,6 +1012,7 @@ a8eecb64555b804bfa6efff14ab003a3dce1093e data/slag/advancement/recipes/misc/melt
 45dfc2bb419561635ba4fd29416290631789d4a3 data/slag/advancement/recipes/misc/melting/amethyst_dusts.json
 f970dc769c5fc365701af74a221ce8d55e51abc4 data/slag/advancement/recipes/misc/melting/amethyst_plates.json
 009a72fca21f6ab8c715c3ce07e167f790ebd69c data/slag/advancement/recipes/misc/melting/amethyst_rods.json
+e397e924e9722cda79214d049927694acefeb2a1 data/slag/advancement/recipes/misc/melting/ancient_debris_materials.json
 0481c257db9e13e8db5c4b3e37e2c293c328509a data/slag/advancement/recipes/misc/melting/axe_head_aluminium.json
 cc6d3904b0f961069485047d6618e4ddfc95e68c data/slag/advancement/recipes/misc/melting/axe_head_amethyst.json
 5e9562a40b401897796fe10dd4455749bea32d2c data/slag/advancement/recipes/misc/melting/axe_head_brass.json
@@ -1107,6 +1117,7 @@ c27bc2a8b822b56b738bf960cee469c7c8b155f7 data/slag/advancement/recipes/misc/melt
 f31da3613e8f3dfd9724dc9d5a2768a64f76b126 data/slag/advancement/recipes/misc/melting/chestplate_tin.json
 9b651454e7f32e634cbef3d5fbf88fe1bf1d5e14 data/slag/advancement/recipes/misc/melting/chestplate_tungsten.json
 2bc6d44428ba8b5d984c22c0b4aaca7719a72b0a data/slag/advancement/recipes/misc/melting/chestplate_zinc.json
+0790ea0cd20cc92e25719b86cc3f6a399dc40d04 data/slag/advancement/recipes/misc/melting/cobblestone.json
 d7a3907182e713cdf6b60de673b1757019ee98ed data/slag/advancement/recipes/misc/melting/copper_blocks.json
 0c169b9537a7570d667f6c128bef810daf717c7c data/slag/advancement/recipes/misc/melting/copper_clumps.json
 a297e084b8cb0e1e1d29179a00a7c03d581dc761 data/slag/advancement/recipes/misc/melting/copper_dusts.json
@@ -1136,6 +1147,8 @@ f9765b919476a372eaf58dbabd6761c05016b0c9 data/slag/advancement/recipes/misc/melt
 4895cac0d38bfee88a633182959f00b98d0e33b1 data/slag/advancement/recipes/misc/melting/emerald_rods.json
 2d1a629f1c1f3b529f381ea8241ea7538df6cfb3 data/slag/advancement/recipes/misc/melting/emerald_shards.json
 fe24cf49d026c3d8194e2d55b5f2bb00ff1cb2ba data/slag/advancement/recipes/misc/melting/enchanted_golden_apple.json
+26096aa7575c9f00c603d4a7a3e11dfc88c6e37d data/slag/advancement/recipes/misc/melting/engine_assembly.json
+237462afdb7a6aae9081a3d200098e82c530f9ae data/slag/advancement/recipes/misc/melting/glass.json
 a144f02e19cd95b30813fe0c89dec4de4b89a368 data/slag/advancement/recipes/misc/melting/glowstone_blocks.json
 1f0a1d1f0162a873b91f3a69696b2a548ac4cee2 data/slag/advancement/recipes/misc/melting/glowstone_dusts.json
 8ad56ca0877f387ba313a20b2e2c2871eb154193 data/slag/advancement/recipes/misc/melting/gold_blocks.json
@@ -1146,6 +1159,7 @@ fb9522c9893f63b199286fa55f891ef854ba194a data/slag/advancement/recipes/misc/melt
 0e4e204431113ec7e54a350321cf3c0be5dcb34a data/slag/advancement/recipes/misc/melting/gold_plates.json
 f2dab604efcf34614a26f9cbbbbb23167014836e data/slag/advancement/recipes/misc/melting/gold_rods.json
 4bb90b2e677e0712e3ab99c8d2c7cf02e0a68895 data/slag/advancement/recipes/misc/melting/gold_wires.json
+f13630e5bf554910b68fddd4949aa00a39b66033 data/slag/advancement/recipes/misc/melting/gravel.json
 8e1a5c1ba14f5f0f2a4d72b863bfef3b9d3d0b5d data/slag/advancement/recipes/misc/melting/guard_aluminium.json
 b2aa50f0fda5668ffcbed1dd6702728c32c5c316 data/slag/advancement/recipes/misc/melting/guard_amethyst.json
 8ee4051fdbd073bf2fa5f0847e344471587f9401 data/slag/advancement/recipes/misc/melting/guard_brass.json
@@ -1228,6 +1242,7 @@ ca6278860a7297c3c6da3f8e8c19d1eea4ac5aac data/slag/advancement/recipes/misc/melt
 616b0c3419805720583d578a7da72e2a41403da0 data/slag/advancement/recipes/misc/melting/hoe_head_tin.json
 5b99d208c36ddd1a6f7640f4c56a2c7efd4c1635 data/slag/advancement/recipes/misc/melting/hoe_head_tungsten.json
 bacb0850cdf1ad018a842ec1c933251597db3cb3 data/slag/advancement/recipes/misc/melting/hoe_head_zinc.json
+b320febf1b6b5200df8005e5da16ac3bbacd8921 data/slag/advancement/recipes/misc/melting/ice.json
 f5e9862257d0462f34afac23aa8e736e4e79c9b0 data/slag/advancement/recipes/misc/melting/invar_blocks.json
 a6ce2bd2515fc5ac3b5762638fbea702e7024f20 data/slag/advancement/recipes/misc/melting/invar_dusts.json
 1690c8262ea0450d212cb82581d42d9636b2547b data/slag/advancement/recipes/misc/melting/invar_ingots.json
@@ -1294,6 +1309,7 @@ eb0bfe485247824fe11d1e0824250c653e3db4f5 data/slag/advancement/recipes/misc/melt
 400a62534d8d12a991cc0283c81e2c3f4ba33cfd data/slag/advancement/recipes/misc/melting/netherite_nuggets.json
 e7392a022cd4e56f43f636911ff5bcdfbf84571a data/slag/advancement/recipes/misc/melting/netherite_plates.json
 ad3e83596cc6c9aeee4d7759b9758f9d381643ab data/slag/advancement/recipes/misc/melting/netherite_rods.json
+7bae5a42a40ae8a50fb6313cfbc317394fceab7f data/slag/advancement/recipes/misc/melting/netherite_scrap.json
 39aabc594e6e145462e689b00953160f1a3c61a5 data/slag/advancement/recipes/misc/melting/netherite_wires.json
 e268a2e8a282d4db398862be46d39cb8219b60f6 data/slag/advancement/recipes/misc/melting/nickel_blocks.json
 6148dc0f9f921cf67917815690c332dd56dbe63c data/slag/advancement/recipes/misc/melting/nickel_clumps.json
@@ -1305,6 +1321,7 @@ fa2da7e0077e96ba864ca935598b82202c1fb29c data/slag/advancement/recipes/misc/melt
 bc4c0c1eb4e6d11b48c621ed9ae3fbe9ce00a873 data/slag/advancement/recipes/misc/melting/nickel_rods.json
 3e5950bac8828a989440c03982ed173ce38e066b data/slag/advancement/recipes/misc/melting/nickel_wires.json
 39375e8bb3bc41c2849ceed9e69c03220aeca91b data/slag/advancement/recipes/misc/melting/obsidian_blocks.json
+56e6610cdafa8ba91752302010ae9cf06ad7e793 data/slag/advancement/recipes/misc/melting/obsidian_dusts.json
 8832072071d3e54fae3061d4e21a99b605a38956 data/slag/advancement/recipes/misc/melting/obsidian_plates.json
 38ab1bfdd7b4dc902cc9ef51ce7a3a7ad3260e5d data/slag/advancement/recipes/misc/melting/osmium_blocks.json
 bb4bb317c83d2d68b92ef8944c217509aaa5f5c5 data/slag/advancement/recipes/misc/melting/osmium_clumps.json
@@ -1424,6 +1441,7 @@ f8f9e5b9473f68761c5413d60c5a50be607d131d data/slag/advancement/recipes/misc/melt
 d784f414e8376d0f8c7b21d2f040c281cb3c1f77 data/slag/advancement/recipes/misc/melting/rose_quartz_dusts.json
 f78275dd9aebda6f6da991bf7a798f889872efa8 data/slag/advancement/recipes/misc/melting/rose_quartz_plates.json
 a97089431a7665c57f42d8c36b3b60ba792338f6 data/slag/advancement/recipes/misc/melting/rose_quartz_rods.json
+2d29c38338f63720f102e3aff1ff2bbbed54721d data/slag/advancement/recipes/misc/melting/sand.json
 f4ad71978c42e2f6f3496b9325da808f661126af data/slag/advancement/recipes/misc/melting/shovel_head_aluminium.json
 8a4538d8ea350e7a46bb3d8b7061145d7164ba7c data/slag/advancement/recipes/misc/melting/shovel_head_amethyst.json
 629ad8706721af49d4e9b43f3a90b7f5d3db5115 data/slag/advancement/recipes/misc/melting/shovel_head_brass.json
@@ -1863,6 +1881,7 @@ e808fe0b59e3aa16b951d1f2b6b47827ecadf581 data/slag/loot_table/blocks/rose_gold_b
 5875cc62bf553ee3741d04fe9997627adf25ceae data/slag/recipe/alloying/molten_bronze.json
 e5234660d14eb4511225fe8938eb78fee595059c data/slag/recipe/alloying/molten_electrum.json
 3794e4b617d5199ae08600f6c4776b91a8a38f42 data/slag/recipe/alloying/molten_invar.json
+51fe084ab4d3425912a9db732cb1c7fe76cbb346 data/slag/recipe/alloying/molten_netherite.json
 fabc0ff065480121ecc092a17744280c7590ca33 data/slag/recipe/alloying/molten_obsidian.json
 0dd46e55a1df9c5dbb6693a728c030e90a8ce944 data/slag/recipe/alloying/molten_rose_gold.json
 221922146246bf3f6557e5a828bc91201f2193fd data/slag/recipe/alloying/molten_rose_quartz.json
@@ -2159,10 +2178,12 @@ fa615a6935d7157a52c4b5aaa7da3568a83612a6 data/slag/recipe/casting/table/netherit
 7ef22261b2c77833bcb586ae487c92578e1c79d9 data/slag/recipe/casting/table/netherite_ingot.json
 7e8d43e548ea6a8dcef3d4a32dc9f09916b4356c data/slag/recipe/casting/table/netherite_nugget.json
 1f07a07187d7edd3954137f4d897b8f6901bc4b7 data/slag/recipe/casting/table/netherite_rod.json
+bde0307816e46745dcfa901e230ee0c3ae748219 data/slag/recipe/casting/table/netherite_scrap.json
 4bb14490e3fb7d6dc7885687cd6c189cde81d414 data/slag/recipe/casting/table/nickel_dust.json
 f2de972c4f9155ecb3deecc46a2cfe4dd789566d data/slag/recipe/casting/table/nickel_ingot.json
 5fc4d40cde1962cf3a25bb017729ca38d3b854e7 data/slag/recipe/casting/table/nickel_nugget.json
 b05f88351de4ec0d8a6890ee274440c168a4c617 data/slag/recipe/casting/table/nickel_rod.json
+f3b52f133b124d9ea42647edc62859c060c858c4 data/slag/recipe/casting/table/obsidian_dust.json
 382db2009cdc9e6fd5e7c66c432b3ac38193b551 data/slag/recipe/casting/table/osmium_dust.json
 f47ac0bd79664d8a157366aa3757b3106a0892b9 data/slag/recipe/casting/table/osmium_ingot.json
 27ec7a2d054a6742f782b4e6e0b4caeed29afd4c data/slag/recipe/casting/table/osmium_nugget.json
@@ -2709,6 +2730,7 @@ aad719f6b9932a21e3b90f5c271b448562771f4d data/slag/recipe/melting/aluminium_wire
 d0c0dd245be8ef064c9fdcf7aa53d15365594320 data/slag/recipe/melting/amethyst_dusts.json
 bb519de8d8e73d7ae4eac76f0d12cfa3154688f3 data/slag/recipe/melting/amethyst_plates.json
 d0b380e21d1d83ed5e765d951fdc09b933fa84b7 data/slag/recipe/melting/amethyst_rods.json
+2f6928f37a6e0ab0b30cce4f0b4f721279e58070 data/slag/recipe/melting/ancient_debris_materials.json
 345fcbee28a6e17f5ab2805f266affbc5123a360 data/slag/recipe/melting/axe_head_aluminium.json
 d187353f04ffda9a94c0cde5ba78cca7c64b171a data/slag/recipe/melting/axe_head_amethyst.json
 9389f837c4fa44647eacc251a4a47335eb726627 data/slag/recipe/melting/axe_head_brass.json
@@ -2813,6 +2835,7 @@ fc05992c49beb161f6ec00d5e3f09dd8527c7c3f data/slag/recipe/melting/chestplate_ste
 cbbf11e66f08ed7c660056c99de3541082f7f64d data/slag/recipe/melting/chestplate_tin.json
 5e929e6e045e91f3bd236292d9267433eaade318 data/slag/recipe/melting/chestplate_tungsten.json
 0ff2e502283714719cc6bb778f0c6ce9ea1d8abe data/slag/recipe/melting/chestplate_zinc.json
+c02979a38131a5950edfa157d30c057da3ab0224 data/slag/recipe/melting/cobblestone.json
 b981b758589157edf4c5470cd5573a6690c9c12e data/slag/recipe/melting/copper_blocks.json
 7890ec4be27074ee9ccb80d706af580384478942 data/slag/recipe/melting/copper_clumps.json
 a9964f5ed92bc2dc3849979addf70e2f5aa75a68 data/slag/recipe/melting/copper_dusts.json
@@ -2842,6 +2865,8 @@ dda48a5db64b7156ebd78b3efed26cab2899b5c6 data/slag/recipe/melting/emerald_blocks
 b3574336d54435db0ef009318c1e555c638ac493 data/slag/recipe/melting/emerald_rods.json
 6ede835afe93df998e7d4e1386573f873d3526ff data/slag/recipe/melting/emerald_shards.json
 a29a6d2c6c0c246bd0e3ce34cb323499136c039f data/slag/recipe/melting/enchanted_golden_apple.json
+1fc6e494d4e031e7961c206bb18d196870cbe240 data/slag/recipe/melting/engine_assembly.json
+d0dbb2fb28b3ca9abcbeee544206659260b888b5 data/slag/recipe/melting/glass.json
 d2cf92db023692af1aa99ab0193911d83b4630c4 data/slag/recipe/melting/glowstone_blocks.json
 1fb8eb0a34f6b8b98f52ad4f3655ff27babbefe0 data/slag/recipe/melting/glowstone_dusts.json
 0d96e8b02ebaaf1e82e8c6f0c0943f73b20a8dad data/slag/recipe/melting/gold_blocks.json
@@ -2852,6 +2877,7 @@ da225a88ed5181f0f823155321a438367d1c8026 data/slag/recipe/melting/gold_ingots.js
 03cb6fb3567c70808f262a3dd0c76993a4b02308 data/slag/recipe/melting/gold_plates.json
 8c0fd84aec584694c2fbae408c55a4c5d6d0ce0d data/slag/recipe/melting/gold_rods.json
 bbad2a585fce9783ff58de6c70ac41d53db65c3c data/slag/recipe/melting/gold_wires.json
+92aeb8f89413e7c0eefb27e47e39a5ee7c73083d data/slag/recipe/melting/gravel.json
 d51d049f96346746a152bc158f6272fb2e2a0ab5 data/slag/recipe/melting/guard_aluminium.json
 fb56ddd97e808c890304702dc66d0af2192409ef data/slag/recipe/melting/guard_amethyst.json
 e2d5ad901c91595d4c2512beb1b12beb0d8b4ac2 data/slag/recipe/melting/guard_brass.json
@@ -2934,6 +2960,7 @@ ea5f6a29f7461bece5aa7319d807cdae61466651 data/slag/recipe/melting/hoe_head_silve
 9308685512292062426a4494e64eb0c8ec2218c4 data/slag/recipe/melting/hoe_head_tin.json
 2677b55e4f5d7a1ceb97f8fc0842b581c5e6bbd5 data/slag/recipe/melting/hoe_head_tungsten.json
 f374c967c9dd257680f16033c93e933a76767c70 data/slag/recipe/melting/hoe_head_zinc.json
+22634a305c8fe85542b4c18cf561c566ddf25b27 data/slag/recipe/melting/ice.json
 9c9e0a955019a16fff1c4728f12471964c379304 data/slag/recipe/melting/invar_blocks.json
 13033db55306a38c26deb097baaa6144e88116cb data/slag/recipe/melting/invar_dusts.json
 c1e3746fe9c01e8a494a1b735bc4d03afa71b832 data/slag/recipe/melting/invar_ingots.json
@@ -3000,6 +3027,7 @@ fe0036c2ad163309628b7efcfdf9eb04769770a4 data/slag/recipe/melting/netherite_ingo
 b1b00e374465c39c50c0dcfd5621cfe9c4322571 data/slag/recipe/melting/netherite_nuggets.json
 541b75948d4b53f775480b7a715e6347fec95f99 data/slag/recipe/melting/netherite_plates.json
 97d198d15dfc44b13c7040db9239d552f4608689 data/slag/recipe/melting/netherite_rods.json
+585edbf71ee3ec53447db8542f5a93ee36be4f67 data/slag/recipe/melting/netherite_scrap.json
 736c7c50337c8f24d202c847077a1fa9f0531bce data/slag/recipe/melting/netherite_wires.json
 691de4e2edcca93a9d9c686468569813c95f9803 data/slag/recipe/melting/nickel_blocks.json
 1fdd5dc7ab20bce933fc10d1dca74b26d685d153 data/slag/recipe/melting/nickel_clumps.json
@@ -3011,6 +3039,7 @@ d6b03dc009bf9c06bcf066090011414909716425 data/slag/recipe/melting/nickel_plates.
 9f351b776806e36e43abaf0bfbf64746272b687d data/slag/recipe/melting/nickel_rods.json
 1d0e81f8838a1684c45a5f86f5940c564ca3a9f7 data/slag/recipe/melting/nickel_wires.json
 ea39583ab01c3731a78a916ab53d0b9dc7ea8fc8 data/slag/recipe/melting/obsidian_blocks.json
+29a569f9eb7e3af2ff0752c47a2e3778521fae6c data/slag/recipe/melting/obsidian_dusts.json
 852dbe38daf22a39421a6677a079fb29eab1aea0 data/slag/recipe/melting/obsidian_plates.json
 152414e7830738e51e80e7ad4478d888794d42cb data/slag/recipe/melting/osmium_blocks.json
 7ea7da818ac266a68132e9c193bdeef2d884c1e9 data/slag/recipe/melting/osmium_clumps.json
@@ -3130,6 +3159,7 @@ b333ec42b20a4c6b0f7f3ea54fb34ecbd73240e0 data/slag/recipe/melting/rose_gold_nugg
 03888c6838b0356277f5f7baad130c68d8f03b7d data/slag/recipe/melting/rose_quartz_dusts.json
 585976dff0bb16953926515aa1771156c20f124f data/slag/recipe/melting/rose_quartz_plates.json
 7e49aa2cf2839d3ee3654b4e76a762f9e91c89c2 data/slag/recipe/melting/rose_quartz_rods.json
+98db25a949dea5669c404e6e667b979544f2a5b3 data/slag/recipe/melting/sand.json
 f3b592441d2f47a3dca917d6ef5f049453c674e9 data/slag/recipe/melting/shovel_head_aluminium.json
 a9a4aac998c667a61ad00811bbb23d1f204aa33d data/slag/recipe/melting/shovel_head_amethyst.json
 916d8a834da6246e79cc14214e1d34996f5d6b2d data/slag/recipe/melting/shovel_head_brass.json
@@ -3229,24 +3259,25 @@ af20f0d29ce1356804ef726e4895e690dbd6689a data/slag/recipe/melting/zinc_plates.js
 3f6f033048d237824d136359a669579155dbfde4 data/slag/recipe/melting/zinc_rods.json
 5dd528dc9e6134fa79d807e25c11a64e13709cc3 data/slag/recipe/melting/zinc_wires.json
 e1e0b0b25f60e64386ddf24bd76413a9a02c707d data/slag/tags/block/harvestable.json
-058c12a621f577ec1c0fceccd45e9c265587906c data/slag/tags/block/heated_fluids.json
+b4f0182e0f2821407ac9024ed1b1d1282a94a766 data/slag/tags/block/heated_fluids.json
 517625696f89da7636e3126a405201cc977453f0 data/slag/tags/block/vein_mineable.json
-30532cc024b4747cfc27824ac7b3636900a19a08 data/slag/tags/fluid/hot_fluids.json
+5618150203a3c1dc682cc6a511a23374921954b4 data/slag/tags/fluid/hot_fluids.json
 0baeff3d691a1f4aec01cb8f04e5a4ba72a705a0 data/slag/tags/fluid/molten_crystals.json
 ef456442f7304f473c0e4a9f5947879a570abc9b data/slag/tags/fluid/molten_dusts.json
 39dbd0a23f9b2eb1505e9adf00e91fe64a8b429b data/slag/tags/fluid/molten_dusts_small.json
 36619ecffbfd269a4ceac77946196e15fd15fb71 data/slag/tags/fluid/molten_gems.json
-7e9c9d986cea39ea1551d155da59d0d91bca3c88 data/slag/tags/fluid/molten_metals.json
+c479a46cf7234d022b2f94dbd6fa13aed6b6971f data/slag/tags/fluid/molten_metals.json
 2e36f07ba2c458632242f6d00e51864f25267b76 data/slag/tags/item/amethyst_blocks.json
 bbfb62e2fb31a8272f7989572bba46cda741ffcd data/slag/tags/item/blacklisted_hotbar_items.json
 9a0b6dc4b8c1d6e85333f0ac92e188b14ea2d99b data/slag/tags/item/cast/balls.json
 09c49c7ca1b9bad8ea48ff2411ddffdf40d1d4bf data/slag/tags/item/cast/dusts.json
 169ab3ab7910b920226546e6cd1bf3043ae0b54f data/slag/tags/item/cast/gems.json
-650e24628de6c32a44cc8f76c196db82a3a1dc85 data/slag/tags/item/cast/ingots.json
+6920d73da386bdea7010025f26989641bcf18aae data/slag/tags/item/cast/ingots.json
 b4355c5e094dff3a8fb9794bfb55f37d29856c47 data/slag/tags/item/cast/nuggets.json
 8bb43dd55abb41f90c2f4578f076cd5e0e5a7de0 data/slag/tags/item/cast/rods.json
 6ae9c308d34f4b51dccf2e0d0e5048065cf5e7d1 data/slag/tags/item/copper_blocks.json
 75791d829b311eb698dafe627d4136b8d2da09db data/slag/tags/item/copper_raw_materials.json
+0f5463a27a39bb7ff7ce22128c2eb18097a1f454 data/slag/tags/item/engine_assembly.json
 2d6e20c7639385eddd88dfe4e59672396147c9c3 data/slag/tags/item/gold_raw_materials.json
 341b44759110fdf444977c9770b9c59f3c77f4c4 data/slag/tags/item/imprintable.json
 f06fc25fc5777dcd0f14de2339624387c7e4d2d8 data/slag/tags/item/iron_raw_materials.json
@@ -3254,4 +3285,4 @@ d5f343c7758a465f388bcae8fa3ff0406efd1d5c data/slag/tags/item/molds/reusable.json
 1681fbe1efaf272eca840745885f12069d03f0ce data/slag/tags/item/molds/single.json
 ed89bd00684e45c4198269c0053267c257e784c6 data/slag/tags/item/polished_rose_quartz.json
 0d3f5770d103a70449b778b86adab072fdb36a6b data/slag/tags/item/quartz_blocks.json
-9612dd97247cdda22e3628e9ca60f5c1f9ee841f data/slag/tags/item/recycling_free.json
+7bf38b31d88f479ca4cc084990812fcf75b1faee data/slag/tags/item/recycling_free.json

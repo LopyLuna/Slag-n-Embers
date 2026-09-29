@@ -1,0 +1,18 @@
+{
+  "type": "slag:alloying",
+  "ingredients": [
+    {
+      "amount": 32,
+      "tag": "c:molten/debris"
+    },
+    {
+      "amount": 32,
+      "tag": "c:molten/gold"
+    }
+  ],
+  "result": {
+    "amount": 8,
+    "id": "slag:molten_netherite"
+  },
+  "temperature": "BLAZING"
+}

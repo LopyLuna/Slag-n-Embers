@@ -26,7 +26,7 @@ public abstract class CustomRenderedItemModelRenderer extends BlockEntityWithout
     @Override
     public void renderByItem(ItemStack stack, ItemDisplayContext transformType, PoseStack ms, MultiBufferSource buffer, int light, int overlay) {
         var itemRenderer = mc.getItemRenderer();
-        var mainModel = (CustomRenderedItemModel) itemRenderer.getModel(stack, null, null, 0);
+        if (!(itemRenderer.getModel(stack, null, null, 0) instanceof CustomRenderedItemModel mainModel)) return;
         var renderer = PartialItemModelRenderer.of(stack, transformType, ms, buffer, overlay);
         ms.pushPose();
         ms.translate(0.5F, 0.5F, 0.5F);
@@ -40,8 +40,10 @@ public abstract class CustomRenderedItemModelRenderer extends BlockEntityWithout
         return model;
     }
 
+    @SuppressWarnings("ConstantValue")
     public static BakedModel getModel(ResourceLocation location, ModelManager manager) {
-        return manager.getModel(ModelResourceLocation.standalone(location));
+        var model = manager.getModel(ModelResourceLocation.standalone(location));
+        return model == null ? manager.getMissingModel() : model;
     }
 
     protected abstract void render(ItemStack stack, ItemRenderer itemRenderer, CustomRenderedItemModel model, PartialItemModelRenderer renderer, ItemDisplayContext transformType, PoseStack ms, MultiBufferSource buffer, int light, int overlay);

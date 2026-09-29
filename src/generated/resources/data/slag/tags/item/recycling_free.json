@@ -9,8 +9,7 @@
     "minecraft:saddle",
     "minecraft:ender_pearl",
     "minecraft:ender_eye",
-    "minecraft:gunpowder",
-    "minecraft:blaze_powder",
+    "minecraft:magma_cream",
     "minecraft:flint",
     "minecraft:honeycomb",
     "minecraft:honeycomb_block",
@@ -19,6 +18,10 @@
     "minecraft:sculk",
     "minecraft:sculk_vein",
     "minecraft:sculk_sensor",
+    {
+      "id": "supplementaries:soap",
+      "required": false
+    },
     "#c:dyes",
     "#c:leathers",
     "#c:rods/wooden",
@@ -28,6 +31,10 @@
     "#c:fence_gates/wooden",
     "#c:chests/wooden",
     "#c:barrels/wooden",
+    "#c:slime_balls",
+    "#c:storage_blocks/slime",
+    "#c:dusts",
+    "#minecraft:candles",
     "#minecraft:logs",
     "#minecraft:planks",
     "#minecraft:wooden_slabs",
@@ -43,6 +50,10 @@
     "#minecraft:chest_boats",
     "#minecraft:bamboo_blocks",
     "#minecraft:saplings",
-    "#minecraft:leaves"
+    "#minecraft:leaves",
+    {
+      "id": "#c:fuels",
+      "required": false
+    }
   ]
 }

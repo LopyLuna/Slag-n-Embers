@@ -10,6 +10,7 @@ import org.joml.Vector3d;
 import org.joml.Vector4d;
 
 import java.util.EnumMap;
+import java.util.Locale;
 import java.util.Map;
 
 import static com.mojang.blaze3d.platform.GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA;
@@ -185,10 +186,10 @@ public class ColorUtils {
             double bN = (bC.b == 0) ? 1.0 : aC.b / bC.b;
             double aN = (bC.a == 0) ? 1.0 : aC.a / bC.a;
 
-            rN = Math.max(0.0, Math.min(1.0, rN));
-            gN = Math.max(0.0, Math.min(1.0, gN));
-            bN = Math.max(0.0, Math.min(1.0, bN));
-            aN = Math.max(0.0, Math.min(1.0, aN));
+            rN = Math.clamp(rN, 0.0, 1.0);
+            gN = Math.clamp(gN, 0.0, 1.0);
+            bN = Math.clamp(bN, 0.0, 1.0);
+            aN = Math.clamp(aN, 0.0, 1.0);
 
             return new RGBA(rN, gN, bN, aN);
         }
@@ -277,9 +278,9 @@ public class ColorUtils {
             double inv = 1 - gray;
             double factor = (gray == 0) ? 0 : inv / gray;
             return new RGBA(
-                    Math.max(0, Math.min(1, rgb.r * factor)),
-                    Math.max(0, Math.min(1, rgb.g * factor)),
-                    Math.max(0, Math.min(1, rgb.b * factor)),
+                    Math.clamp(rgb.r * factor, 0, 1),
+                    Math.clamp(rgb.g * factor, 0, 1),
+                    Math.clamp(rgb.b * factor, 0, 1),
                     this.toRGBA().a
             );
         }
@@ -407,10 +408,10 @@ public class ColorUtils {
             double b = aC.b + 2 * bC.b - 1;
             double a = aC.a + 2 * bC.a - 1;
 
-            r = Math.max(0, Math.min(1, r));
-            g = Math.max(0, Math.min(1, g));
-            b = Math.max(0, Math.min(1, b));
-            a = Math.max(0, Math.min(1, a));
+            r = Math.clamp(r, 0, 1);
+            g = Math.clamp(g, 0, 1);
+            b = Math.clamp(b, 0, 1);
+            a = Math.clamp(a, 0, 1);
 
             return new RGBA(r, g, b, a);
         }
@@ -432,10 +433,10 @@ public class ColorUtils {
                     ? Math.min(aC.a, 2 * bC.a)
                     : Math.max(aC.a, 2 * bC.a - 1);
 
-            r = Math.max(0, Math.min(1, r));
-            g = Math.max(0, Math.min(1, g));
-            b = Math.max(0, Math.min(1, b));
-            a = Math.max(0, Math.min(1, a));
+            r = Math.clamp(r, 0, 1);
+            g = Math.clamp(g, 0, 1);
+            b = Math.clamp(b, 0, 1);
+            a = Math.clamp(a, 0, 1);
 
             return new RGBA(r, g, b, a);
         }
@@ -1470,11 +1471,11 @@ public class ColorUtils {
         }
 
         private static void putCustom(ColorBlendType t, Runnable blendFunc) {
-            TYPES.put(t, rt("cm_" + t.name().toLowerCase(), rt(t.name().toLowerCase() + "_transparency", blendFunc)));
+            TYPES.put(t, rt("cm_" + t.name().toLowerCase(Locale.ROOT), rt(t.name().toLowerCase(Locale.ROOT) + "_transparency", blendFunc)));
         }
 
         private static void putCustom(ColorBlendType t, Runnable blendFuncPre, Runnable blendFuncPost) {
-            TYPES.put(t, rt("cm_" + t.name().toLowerCase(), rt(t.name().toLowerCase() + "_transparency", blendFuncPre, blendFuncPost)));
+            TYPES.put(t, rt("cm_" + t.name().toLowerCase(Locale.ROOT), rt(t.name().toLowerCase(Locale.ROOT) + "_transparency", blendFuncPre, blendFuncPost)));
         }
 
         private static TransparencyStateShard rt(String name, Runnable blendFuncPre, Runnable blendFuncPost) {

@@ -1,0 +1,14 @@
+{
+  "type": "slag:melting",
+  "ingredient": {
+    "item": "minecraft:ice"
+  },
+  "ingredients": [],
+  "result": [
+    {
+      "amount": 1000,
+      "id": "minecraft:water"
+    }
+  ],
+  "temperature": "WARM"
+}
