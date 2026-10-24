@@ -19,6 +19,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemNameBlockItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.RecipeHolder;
@@ -128,7 +129,7 @@ public class CreateGenerators {
         var result = output.getStack();
         if (output.getChance() < 1 || result.isEmpty() || !cast.add(result.getItem())) return null;
         var path = id.getNamespace() + "/" + id.getPath();
-        if (result.getItem() instanceof BlockItem) {
+        if (result.getItem() instanceof BlockItem && !(result.getItem() instanceof ItemNameBlockItem)) {
             var basin = new BasinCastingRecipe("", inputs.getFirst(), Optional.empty(), 0, 1f, ItemResult.of(result.copy()));
             return new RecipeHolder<>(SlagEmbers.loc("casting/basin/generated/" + path), basin);
         }

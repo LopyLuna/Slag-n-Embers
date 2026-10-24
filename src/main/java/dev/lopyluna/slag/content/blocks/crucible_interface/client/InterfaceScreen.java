@@ -265,7 +265,7 @@ public class InterfaceScreen extends AbstractContainerScreen<InterfaceMenu> {
                             var type = fs.getFluidType();
                             Optional.ofNullable(type.getSound(SoundActions.BUCKET_FILL)).ifPresent(s -> menu.player.playSound(s, 0.5f, 1f));
                             Optional.ofNullable(type.getSound(SoundActions.BUCKET_EMPTY)).ifPresent(s -> menu.player.playSound(s, 0.5f, 1f));
-                            PacketDistributor.sendToServer(new SelectFluidIndexC2S(menu.getControllerPos(), i));
+                            PacketDistributor.sendToServer(new SelectFluidIndexC2S(i));
                             return true;
                         }
                         yTop -= h;

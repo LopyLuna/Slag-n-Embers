@@ -1,11 +1,9 @@
 package dev.lopyluna.slag.content.blocks.crucible_interface.client;
 
-import dev.lopyluna.slag.content.blocks.crucible.CrucibleTank;
+import dev.lopyluna.slag.content.blocks.crucible.CrucibleBE;
 import dev.lopyluna.slag.content.blocks.crucible_interface.InterfaceBE;
-import dev.lopyluna.slag.content.blocks.multiblock.IMultiBlockEntityContainer;
 import dev.lopyluna.slag.register.AllMenuTypes;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
@@ -17,6 +15,7 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -43,18 +42,16 @@ public class InterfaceMenu extends AbstractContainerMenu {
         for (int m = 0; m < 9; ++m) this.addSlot(new Slot(playerInventory, m, 8 + m * 18, 142));
     }
 
-    public BlockPos getControllerPos() {
-        var s = level.getBlockState(this.pos);
-        var facing = s.hasProperty(BlockStateProperties.HORIZONTAL_FACING) ? s.getValue(BlockStateProperties.HORIZONTAL_FACING) :
-                s.hasProperty(BlockStateProperties.FACING) ? s.getValue(BlockStateProperties.FACING) : Direction.NORTH;
-        var back = pos.relative(facing.getOpposite());
-        var be = level.getBlockEntity(back);
-        if (be instanceof IMultiBlockEntityContainer.FluidMulti mb && mb.getControllerBE() != null) return be.getBlockPos();
-        return back;
+    public @Nullable CrucibleBE getCrucible() {
+        var s = level.getBlockState(pos);
+        if (!s.hasProperty(BlockStateProperties.HORIZONTAL_FACING)) return null;
+        var back = pos.relative(s.getValue(BlockStateProperties.HORIZONTAL_FACING).getOpposite());
+        if (!level.isLoaded(back) || !(level.getBlockEntity(back) instanceof CrucibleBE cr)) return null;
+        return cr.getControllerBE() instanceof CrucibleBE be && be.tankInventory != null ? be : null;
     }
 
     public boolean isCrucible() {
-        return getFluidHandler() instanceof CrucibleTank;
+        return getCrucible() != null;
     }
 
     public IFluidHandler getFluidHandler() {
@@ -82,7 +79,8 @@ public class InterfaceMenu extends AbstractContainerMenu {
         var list = new ArrayList<FluidStack>();
         var handler = getFluidHandler();
         if (handler == null) return list;
-        if (handler instanceof CrucibleTank tank) list.addAll(tank.getFluidCopy());
+        var crucible = getCrucible();
+        if (crucible != null) list.addAll(crucible.tankInventory.getFluidCopy());
         else for (int i = 0; handler.getTanks() > i; i++) {
             var fluid = handler.getFluidInTank(i);
             if (fluid.isEmpty()) continue;
