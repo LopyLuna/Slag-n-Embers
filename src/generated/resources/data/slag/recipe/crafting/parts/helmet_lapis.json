@@ -8,12 +8,8 @@
   "type": "minecraft:crafting_shaped",
   "category": "equipment",
   "key": {
-    "M": {
-      "tag": "c:gems/lapis"
-    },
-    "R": {
-      "item": "minecraft:paper"
-    }
+    "M": "#c:gems/lapis",
+    "R": "minecraft:paper"
   },
   "pattern": [
     "MMM",
@@ -24,7 +20,6 @@
       "slag:material_type": "slag:lapis",
       "slag:part_type": "slag:helmet"
     },
-    "count": 1,
     "id": "slag:dynamic_part"
   }
 }

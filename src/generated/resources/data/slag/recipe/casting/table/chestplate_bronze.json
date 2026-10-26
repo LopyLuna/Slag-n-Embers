@@ -12,14 +12,13 @@
   "cast": "slag:cast/chestplates",
   "ingredient": {
     "amount": 432,
-    "tag": "c:molten/bronze"
+    "ingredient": "#c:molten/bronze"
   },
   "result": {
     "components": {
       "slag:material_type": "slag:bronze",
       "slag:part_type": "slag:chestplate"
     },
-    "count": 1,
     "id": "slag:dynamic_part"
   }
 }

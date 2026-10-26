@@ -9,9 +9,7 @@
     }
   ],
   "type": "slag:melting",
-  "ingredient": {
-    "tag": "c:nuggets/tin"
-  },
+  "ingredient": "#c:nuggets/tin",
   "ingredients": [],
   "result": [
     {

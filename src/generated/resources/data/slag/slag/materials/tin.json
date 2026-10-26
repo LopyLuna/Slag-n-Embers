@@ -1,5 +1,5 @@
 {
-  "conditions": [
+  "neoforge:conditions": [
     {
       "type": "neoforge:not",
       "value": {
@@ -10,9 +10,7 @@
   ],
   "id": "slag:tin",
   "molten_fluid": "slag:molten_tin",
-  "repair_ingredient": {
-    "tag": "c:ingots/tin"
-  },
+  "repair_ingredient": "#c:ingots/tin",
   "sort_order": 250,
   "texture": "shiny",
   "traits": [

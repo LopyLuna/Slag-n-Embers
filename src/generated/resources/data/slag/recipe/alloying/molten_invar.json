@@ -19,11 +19,11 @@
   "ingredients": [
     {
       "amount": 16,
-      "tag": "c:molten/iron"
+      "ingredient": "#c:molten/iron"
     },
     {
       "amount": 8,
-      "tag": "c:molten/nickel"
+      "ingredient": "#c:molten/nickel"
     }
   ],
   "result": {

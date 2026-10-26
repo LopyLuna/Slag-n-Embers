@@ -22,8 +22,8 @@ import javax.annotation.Nonnull;
 import java.util.Objects;
 import java.util.Optional;
 
-@SuppressWarnings("OptionalUsedAsFieldOrParameterType")
-public class TableCastingRecipeSer implements RecipeSerializer<TableCastingRecipe> {
+@SuppressWarnings({"OptionalUsedAsFieldOrParameterType", "unused"})
+public class TableCastingRecipeSer {
     private static final StreamCodec<ByteBuf, Optional<TagKey<Item>>> CAST_CODEC = ByteBufCodecs.optional(AllUtils.tagKeyStreamCodec(Registries.ITEM));
     private static final StreamCodec<RegistryFriendlyByteBuf, Optional<CastItem>> ITEM_CODEC = ByteBufCodecs.optional(CastItem.STREAM_CODEC);
     private final TableCastingRecipe.Factory factory;
@@ -34,7 +34,7 @@ public class TableCastingRecipeSer implements RecipeSerializer<TableCastingRecip
         this.factory = factory;
         this.codec = RecordCodecBuilder.mapCodec((instance) -> {
             var recipe = instance.group(
-                    Codec.STRING.optionalFieldOf("group", "").forGetter(Recipe::getGroup),
+                    Codec.STRING.optionalFieldOf("group", "").forGetter(Recipe::group),
                     TagKey.codec(Registries.ITEM).optionalFieldOf("cast").forGetter(TableCastingRecipe::getCast),
                     FluidInput.CODEC.fieldOf("ingredient").forGetter(TableCastingRecipe::getInput),
                     CastItem.CODEC.optionalFieldOf("cast_item").forGetter(TableCastingRecipe::getItem),
@@ -46,11 +46,14 @@ public class TableCastingRecipeSer implements RecipeSerializer<TableCastingRecip
         });
         this.streamCodec = StreamCodec.of(this::toNetwork, this::fromNetwork);
     }
-    @Override public @Nonnull MapCodec<TableCastingRecipe> codec() {
+    public @Nonnull MapCodec<TableCastingRecipe> codec() {
         return codec;
     }
-    @Override public @Nonnull StreamCodec<RegistryFriendlyByteBuf, TableCastingRecipe> streamCodec() {
+    public @Nonnull StreamCodec<RegistryFriendlyByteBuf, TableCastingRecipe> streamCodec() {
         return streamCodec;
+    }
+    public RecipeSerializer<TableCastingRecipe> serializer() {
+        return new RecipeSerializer<>(codec, streamCodec);
     }
     @Override public String toString() {
         return "table_casting";
@@ -69,7 +72,7 @@ public class TableCastingRecipeSer implements RecipeSerializer<TableCastingRecip
     }
 
     private void toNetwork(RegistryFriendlyByteBuf buffer, TableCastingRecipe recipe) {
-        buffer.writeUtf(recipe.getGroup());
+        buffer.writeUtf(recipe.group());
         SizedFluidIngredient.STREAM_CODEC.encode(buffer, recipe.getInput());
         CAST_CODEC.encode(buffer, recipe.getCast());
         ITEM_CODEC.encode(buffer, recipe.getItem());

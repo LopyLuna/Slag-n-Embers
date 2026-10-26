@@ -11,7 +11,7 @@
   "type": "slag:basin_casting",
   "ingredient": {
     "amount": 648,
-    "tag": "c:molten/osmium"
+    "ingredient": "#c:molten/osmium"
   },
   "result": {
     "tag": "c:storage_blocks/osmium"

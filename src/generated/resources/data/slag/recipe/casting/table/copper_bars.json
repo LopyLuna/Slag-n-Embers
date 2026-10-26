@@ -11,7 +11,7 @@
   "type": "slag:table_casting",
   "ingredient": {
     "amount": 18,
-    "tag": "c:molten/copper"
+    "ingredient": "#c:molten/copper"
   },
   "result": {
     "tag": "c:bars/copper"

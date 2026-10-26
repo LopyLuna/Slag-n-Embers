@@ -1,7 +1,6 @@
 package dev.lopyluna.slag;
 
 import com.mojang.logging.LogUtils;
-import dev.lopyluna.slag.compat.create.CreateCompat;
 import dev.lopyluna.slag.config.SlagCommonConfigs;
 import dev.lopyluna.slag.config.SlagServerConfigs;
 import dev.lopyluna.slag.content.EmbersDatagen;
@@ -11,7 +10,10 @@ import dev.lopyluna.slag.content.utils.ItemResult;
 import dev.lopyluna.slag.content.utils.Registration;
 import dev.lopyluna.slag.network.AllNetworks;
 import dev.lopyluna.slag.register.*;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.item.crafting.Recipe;
 import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModContainer;
@@ -39,10 +41,9 @@ public class SlagEmbers {
         AllCreativeTabs.register();
         REG.registerEventListeners(modEventBus);
         AllSoundEvents.prepare();
-        REG.defaultCreativeTab(BASE_TAB, "base_tab");
+        REG.defaultCreativeTab(BASE_TAB.getKey());
 
         if (ModList.get().isLoaded("jei")) EmbersRecipesJEI.register();
-        if (ModList.get().isLoaded("create")) CreateCompat.register(modEventBus);
         AllTags.addGenerators();
         AllDataComponents.register();
         AllTraits.register();
@@ -55,6 +56,7 @@ public class SlagEmbers {
         AllFluids.register();
         AllMenuTypes.register();
         AllRecipes.register();
+        AllArguments.register();
         AllLangs.addTranslations();
 
         NeoForgeMod.enableMilkFluid();
@@ -71,16 +73,19 @@ public class SlagEmbers {
 
     }
 
-    public static ResourceLocation loc(String loc) {
-        return ResourceLocation.fromNamespaceAndPath(MOD_ID, loc);
+    public static Identifier loc(String loc) {
+        return Identifier.fromNamespaceAndPath(MOD_ID, loc);
     }
-    public static ResourceLocation loc(String modID, String loc) {
-        return ResourceLocation.fromNamespaceAndPath(modID, loc);
+    public static ResourceKey<Recipe<?>> recipe(String loc) {
+        return ResourceKey.create(Registries.RECIPE, loc(loc));
     }
-    public static ResourceLocation locMC(String loc) {
-        return ResourceLocation.withDefaultNamespace(loc);
+    public static Identifier loc(String modID, String loc) {
+        return Identifier.fromNamespaceAndPath(modID, loc);
     }
-    public static ResourceLocation empty() {
-        return ResourceLocation.fromNamespaceAndPath(MOD_ID, "empty");
+    public static Identifier locMC(String loc) {
+        return Identifier.withDefaultNamespace(loc);
+    }
+    public static Identifier empty() {
+        return Identifier.fromNamespaceAndPath(MOD_ID, "empty");
     }
 }

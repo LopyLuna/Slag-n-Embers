@@ -1,16 +1,13 @@
 {
   "type": "slag:basin_casting",
   "cast_item": {
-    "ingredient": {
-      "item": "minecraft:cobblestone"
-    }
+    "ingredient": "minecraft:cobblestone"
   },
   "ingredient": {
     "amount": 50,
-    "fluid": "minecraft:lava"
+    "ingredient": "minecraft:lava"
   },
   "result": {
-    "count": 1,
     "id": "minecraft:stone"
   }
 }

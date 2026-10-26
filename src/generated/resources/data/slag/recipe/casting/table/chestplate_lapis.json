@@ -3,14 +3,13 @@
   "cast": "slag:cast/chestplates",
   "ingredient": {
     "amount": 432,
-    "tag": "c:molten/lapis"
+    "ingredient": "#c:molten/lapis"
   },
   "result": {
     "components": {
       "slag:material_type": "slag:lapis",
       "slag:part_type": "slag:chestplate"
     },
-    "count": 1,
     "id": "slag:dynamic_part"
   }
 }

@@ -3,14 +3,13 @@
   "cast": "slag:cast/boots",
   "ingredient": {
     "amount": 144,
-    "tag": "c:molten/diamond"
+    "ingredient": "#c:molten/diamond"
   },
   "result": {
     "components": {
       "slag:material_type": "slag:diamond",
       "slag:part_type": "slag:boots"
     },
-    "count": 1,
     "id": "slag:dynamic_part"
   }
 }

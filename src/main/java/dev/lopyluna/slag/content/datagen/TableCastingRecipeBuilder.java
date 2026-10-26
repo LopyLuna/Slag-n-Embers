@@ -7,14 +7,17 @@ import dev.lopyluna.slag.content.utils.ItemResult;
 import net.minecraft.advancements.AdvancementRequirements;
 import net.minecraft.advancements.AdvancementRewards;
 import net.minecraft.advancements.Criterion;
-import net.minecraft.advancements.critereon.RecipeUnlockedTrigger;
+import net.minecraft.advancements.criterion.RecipeUnlockedTrigger;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.data.recipes.RecipeBuilder;
 import net.minecraft.data.recipes.RecipeOutput;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.level.material.Fluid;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.crafting.SizedFluidIngredient;
@@ -76,36 +79,28 @@ public class TableCastingRecipeBuilder implements RecipeBuilder {
     }
 
     @Override
-    public void save(RecipeOutput recipeOutput, ResourceLocation loc) {
-        if (this.criteria.isEmpty()) throw new IllegalStateException("No way of obtaining recipe " + loc);
-        var builder = recipeOutput.advancement().addCriterion("has_the_recipe", RecipeUnlockedTrigger.unlocked(loc))
-                .rewards(AdvancementRewards.Builder.recipe(loc)).requirements(AdvancementRequirements.Strategy.OR);
+    public void save(RecipeOutput recipeOutput, ResourceKey<Recipe<?>> key) {
+        if (this.criteria.isEmpty()) throw new IllegalStateException("No way of obtaining recipe " + key.identifier());
+        var builder = recipeOutput.advancement().addCriterion("has_the_recipe", RecipeUnlockedTrigger.unlocked(key))
+                .rewards(AdvancementRewards.Builder.recipe(key)).requirements(AdvancementRequirements.Strategy.OR);
         Objects.requireNonNull(builder);
         this.criteria.forEach(builder::addCriterion);
 
         TableCastingRecipe recipe = this.factory.create(Objects.requireNonNullElse(this.group, ""), Optional.ofNullable(this.castType), this.input, Optional.ofNullable(this.castItem), this.duration, this.speed, this.result);
-        recipeOutput.accept(loc, recipe, builder.build(loc.withPrefix("recipes/misc/")));
+        recipeOutput.accept(key, recipe, builder.build(key.identifier().withPrefix("recipes/misc/")));
 
     }
 
-    @Override
     public @Nonnull Item getResult() {
         return result.stack().getItem();
     }
 
     @Override
-    public void save(RecipeOutput recipeOutput) {
-        this.save(recipeOutput, getDefaultRecipeId(this.getResult()));
-    }
-    @Override
-    public void save(RecipeOutput recipeOutput, String id) {
-        var loc = getDefaultRecipeId(this.getResult());
-        var parse = ResourceLocation.parse(id);
-        if (parse.equals(loc)) throw new IllegalStateException("Recipe " + id + " should remove its 'save' argument as it is equal to default one");
-        else this.save(recipeOutput, parse);
+    public @Nonnull ResourceKey<Recipe<?>> defaultId() {
+        return ResourceKey.create(Registries.RECIPE, getDefaultRecipeId(this.getResult()));
     }
 
-    static ResourceLocation getDefaultRecipeId(Item item) {
+    static Identifier getDefaultRecipeId(Item item) {
         return BuiltInRegistries.ITEM.getKey(item);
     }
 

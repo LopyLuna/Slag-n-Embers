@@ -1,5 +1,5 @@
 {
-  "conditions": [
+  "neoforge:conditions": [
     {
       "type": "neoforge:not",
       "value": {
@@ -10,9 +10,7 @@
   ],
   "id": "slag:silver",
   "molten_fluid": "slag:molten_silver",
-  "repair_ingredient": {
-    "tag": "c:ingots/silver"
-  },
+  "repair_ingredient": "#c:ingots/silver",
   "sort_order": 280,
   "texture": "shiny",
   "traits": [

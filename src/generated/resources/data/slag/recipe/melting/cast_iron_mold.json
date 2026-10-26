@@ -1,8 +1,6 @@
 {
   "type": "slag:melting",
-  "ingredient": {
-    "item": "slag:cast_iron_mold"
-  },
+  "ingredient": "slag:cast_iron_mold",
   "ingredients": [],
   "result": [
     {

@@ -12,7 +12,7 @@
   "cast": "slag:cast/dusts",
   "ingredient": {
     "amount": 72,
-    "tag": "c:molten/zinc"
+    "ingredient": "#c:molten/zinc"
   },
   "result": {
     "tag": "c:dusts/zinc"

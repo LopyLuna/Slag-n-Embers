@@ -7,7 +7,6 @@ import dev.lopyluna.slag.content.types.ModularType;
 import dev.lopyluna.slag.register.AllDataComponents;
 import dev.lopyluna.slag.register.AllMenuTypes;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.protocol.game.ClientboundContainerSetSlotPacket;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.Container;
@@ -59,6 +58,7 @@ public class ModularSmithingMenu extends AbstractContainerMenu {
         addSlot(new Slot(inputs, BLUEPRINT, AREA_X + (AREA_W - 16) / 2, AREA_Y + (AREA_H - 16) / 2) {
             @Override public boolean mayPlace(ItemStack stack) { return false; }
             @Override public boolean mayPickup(Player picker) { return false; }
+            @Override public boolean isHighlightable() { return false; }
         });
         addSlot(new Slot(inputs, SLOT_A, 8, 48) {
             @Override public boolean mayPlace(ItemStack stack) { return canInsert(stack); }
@@ -88,7 +88,7 @@ public class ModularSmithingMenu extends AbstractContainerMenu {
         if (carried.isEmpty()) return;
         var opened = user.containerMenu;
         opened.setCarried(carried);
-        user.connection.send(new ClientboundContainerSetSlotPacket(-1, opened.incrementStateId(), -1, carried));
+        opened.broadcastChanges();
     }
 
     public ItemStack blueprint() {
@@ -256,7 +256,7 @@ public class ModularSmithingMenu extends AbstractContainerMenu {
 
     private void swapVanilla() {
         if (!(player instanceof ServerPlayer serverPlayer)) return;
-        access.execute((level, pos) -> serverPlayer.serverLevel().getServer().execute(() -> {
+        access.execute((level, pos) -> serverPlayer.level().getServer().execute(() -> {
             if (serverPlayer.containerMenu != this) return;
             for (var index : new int[]{BLUEPRINT, SLOT_A, SLOT_B}) {
                 var stack = inputs.getItem(index);
@@ -265,7 +265,7 @@ public class ModularSmithingMenu extends AbstractContainerMenu {
                 if (getCarried().isEmpty()) setCarried(stack);
                 else give(serverPlayer, stack);
             }
-            open(serverPlayer, (id, inventory, p) -> new SmithingMenu(id, inventory, ContainerLevelAccess.create(level, pos)), Component.translatable("container.upgrade"));
+            open(serverPlayer, (id, inventory, _) -> new SmithingMenu(id, inventory, ContainerLevelAccess.create(level, pos)), Component.translatable("container.upgrade"));
         }));
     }
 
@@ -294,7 +294,7 @@ public class ModularSmithingMenu extends AbstractContainerMenu {
     public void removed(Player user) {
         closing = true;
         super.removed(user);
-        access.execute((level, pos) -> clearContainer(user, inputs));
+        access.execute((_, _) -> clearContainer(user, inputs));
     }
 
     @Override

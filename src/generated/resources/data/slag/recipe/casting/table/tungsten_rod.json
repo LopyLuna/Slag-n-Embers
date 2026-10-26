@@ -12,7 +12,7 @@
   "cast": "slag:cast/rods",
   "ingredient": {
     "amount": 36,
-    "tag": "c:molten/tungsten"
+    "ingredient": "#c:molten/tungsten"
   },
   "result": {
     "tag": "c:rods/tungsten"

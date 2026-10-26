@@ -2,10 +2,9 @@
   "type": "slag:basin_casting",
   "ingredient": {
     "amount": 648,
-    "tag": "c:molten/netherite"
+    "ingredient": "#c:molten/netherite"
   },
   "result": {
-    "count": 1,
     "id": "minecraft:netherite_block"
   }
 }

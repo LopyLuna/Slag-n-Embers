@@ -9,9 +9,7 @@
     }
   ],
   "type": "slag:melting",
-  "ingredient": {
-    "tag": "c:raw_materials/nickel"
-  },
+  "ingredient": "#c:raw_materials/nickel",
   "ingredients": [],
   "result": [
     {

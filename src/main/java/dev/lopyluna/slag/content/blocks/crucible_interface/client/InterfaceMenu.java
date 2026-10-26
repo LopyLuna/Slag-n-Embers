@@ -13,7 +13,9 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.neoforged.neoforge.fluids.FluidStack;
-import net.neoforged.neoforge.fluids.capability.IFluidHandler;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.fluid.FluidResource;
+import net.neoforged.neoforge.transfer.fluid.FluidUtil;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
@@ -54,7 +56,7 @@ public class InterfaceMenu extends AbstractContainerMenu {
         return getCrucible() != null;
     }
 
-    public IFluidHandler getFluidHandler() {
+    public @Nullable ResourceHandler<FluidResource> getFluidHandler() {
         if (level.getBlockEntity(pos) instanceof InterfaceBE be) return be.getTarget();
         return null;
     }
@@ -63,7 +65,7 @@ public class InterfaceMenu extends AbstractContainerMenu {
         var handler = getFluidHandler();
         if (handler == null) return 0;
         var capacity = 0;
-        for (int i = 0; handler.getTanks() > i; i++) capacity += handler.getTankCapacity(i);
+        for (int i = 0; handler.size() > i; i++) capacity += handler.getCapacityAsInt(i, handler.getResource(i));
         return capacity;
     }
 
@@ -71,7 +73,7 @@ public class InterfaceMenu extends AbstractContainerMenu {
         var handler = getFluidHandler();
         if (handler == null) return 0;
         var amount = 0;
-        for (int i = 0; handler.getTanks() > i; i++) amount += handler.getFluidInTank(i).getAmount();
+        for (int i = 0; handler.size() > i; i++) amount += handler.getAmountAsInt(i);
         return amount;
     }
 
@@ -81,8 +83,8 @@ public class InterfaceMenu extends AbstractContainerMenu {
         if (handler == null) return list;
         var crucible = getCrucible();
         if (crucible != null) list.addAll(crucible.tankInventory.getFluidCopy());
-        else for (int i = 0; handler.getTanks() > i; i++) {
-            var fluid = handler.getFluidInTank(i);
+        else for (int i = 0; handler.size() > i; i++) {
+            var fluid = FluidUtil.getStack(handler, i);
             if (fluid.isEmpty()) continue;
             list.add(fluid);
         }
@@ -113,7 +115,7 @@ public class InterfaceMenu extends AbstractContainerMenu {
 
     @Override
     public boolean stillValid(Player player) {
-        if (!player.canInteractWithBlock(pos, 4.0)) return false;
+        if (!player.isWithinBlockInteractionRange(pos, 4.0)) return false;
         return level.getBlockEntity(pos) instanceof InterfaceBE be && !be.isRemoved();
     }
 }

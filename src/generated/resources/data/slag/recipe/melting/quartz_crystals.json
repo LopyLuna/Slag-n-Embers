@@ -1,8 +1,6 @@
 {
   "type": "slag:melting",
-  "ingredient": {
-    "tag": "c:gems/quartz"
-  },
+  "ingredient": "#c:gems/quartz",
   "ingredients": [],
   "result": [
     {

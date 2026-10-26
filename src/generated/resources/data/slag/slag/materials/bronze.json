@@ -1,5 +1,5 @@
 {
-  "conditions": [
+  "neoforge:conditions": [
     {
       "type": "neoforge:not",
       "value": {
@@ -10,9 +10,7 @@
   ],
   "id": "slag:bronze",
   "molten_fluid": "slag:molten_bronze",
-  "repair_ingredient": {
-    "tag": "c:ingots/bronze"
-  },
+  "repair_ingredient": "#c:ingots/bronze",
   "sort_order": 320,
   "texture": "metal",
   "traits": [

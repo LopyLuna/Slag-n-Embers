@@ -2,12 +2,8 @@
   "type": "slag:double_smelting",
   "cookingTime": 200,
   "experience": 2.0,
-  "ingredientA": {
-    "item": "minecraft:cactus"
-  },
-  "ingredientB": {
-    "item": "minecraft:cactus"
-  },
+  "ingredientA": "minecraft:cactus",
+  "ingredientB": "minecraft:cactus",
   "result": {
     "count": 2,
     "id": "minecraft:green_dye"

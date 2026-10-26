@@ -3,11 +3,11 @@
   "ingredients": [
     {
       "amount": 8,
-      "fluid": "minecraft:water"
+      "ingredient": "minecraft:water"
     },
     {
       "amount": 8,
-      "fluid": "minecraft:lava"
+      "ingredient": "minecraft:lava"
     }
   ],
   "result": {

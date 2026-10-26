@@ -9,9 +9,7 @@
     }
   ],
   "type": "slag:melting",
-  "ingredient": {
-    "tag": "c:nuggets/cast_iron"
-  },
+  "ingredient": "#c:nuggets/cast_iron",
   "ingredients": [],
   "result": [
     {

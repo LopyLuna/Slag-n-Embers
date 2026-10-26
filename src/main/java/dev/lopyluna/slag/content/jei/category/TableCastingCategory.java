@@ -25,7 +25,7 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -52,14 +52,12 @@ public class TableCastingCategory extends AbstractRecipeCategory<RecipeHolder<Ta
                 guiHelper.createDrawableItemLike(AllBlocks.TABLE),
                 123, 54);
 
-        ResourceLocation backgroundTexture = SlagEmbers.loc("textures/gui/jei.png");
+        Identifier backgroundTexture = SlagEmbers.loc("textures/gui/jei.png");
         this.tankBackground = guiHelper.createDrawable(backgroundTexture, 0, 0, 32, 56);
         this.tankOverlay = guiHelper.createDrawable(backgroundTexture, 32, 0, 32, 56);
         this.castingTable = guiHelper.createDrawable(backgroundTexture, 84, 0, 20, 20);
     }
 
-
-    @SuppressWarnings("removal")
     @Override
     public void setRecipe(IRecipeLayoutBuilder builder, RecipeHolder<TableCastingRecipe> holder, IFocusGroup focuses) {
         var recipe = holder.value();
@@ -74,20 +72,20 @@ public class TableCastingCategory extends AbstractRecipeCategory<RecipeHolder<Ta
 
         builder.addOutputSlot(86, 1)
                 .setStandardSlotBackground()
-                .addItemStack(recipe.getOutput());
+                .add(recipe.getOutput());
 
-        var tableSlot = builder.addSlot(item != null && molds.isEmpty() ? RecipeIngredientRole.INPUT : RecipeIngredientRole.CATALYST, 86, 38)
+        var tableSlot = builder.addSlot(item != null && molds.isEmpty() ? RecipeIngredientRole.INPUT : RecipeIngredientRole.CRAFTING_STATION, 86, 38)
                 .setBackground(castingTable, -2, -2);
         if (!molds.isEmpty()) tableSlot.addItemStacks(molds);
-        else if (item == null) tableSlot.addItemStack(AllBlocks.TABLE.asStack());
+        else if (item == null) tableSlot.add(AllBlocks.TABLE.asStack());
 
         if (item != null) {
             var itemSlot = molds.isEmpty() ? tableSlot : builder.addInputSlot(49, 36).setStandardSlotBackground();
             var type = item.imprint() ? recipe.getOutput().get(AllDataComponents.CAST_TYPE) : null;
             var stacks = type == null ? List.<ItemStack>of() : castStacks(type, item.input());
-            if (stacks.isEmpty()) itemSlot.addIngredients(item.input());
+            if (stacks.isEmpty()) itemSlot.add(item.input());
             else itemSlot.addItemStacks(stacks);
-            itemSlot.addRichTooltipCallback((s, t) -> t.add(item.describe().copy().withStyle(ChatFormatting.GRAY)));
+            itemSlot.addRichTooltipCallback((_, t) -> t.add(item.describe().copy().withStyle(ChatFormatting.GRAY)));
         }
 
         var input = recipe.getInput();
@@ -96,20 +94,20 @@ public class TableCastingCategory extends AbstractRecipeCategory<RecipeHolder<Ta
                 .setFluidRenderer(1000, false, 24, 48)
                 .setOverlay(tankOverlay, -4, -4)
                 .setBackground(tankBackground, -4, -4)
-                .addIngredients(NeoForgeTypes.FLUID_STACK, List.of(input.getFluids()))
+                .addIngredients(NeoForgeTypes.FLUID_STACK, FluidInput.stacks(input))
                 .addRichTooltipCallback((s, t) -> {
                     var fluid = s.getDisplayedIngredient(NeoForgeTypes.FLUID_STACK).orElseGet(() -> FluidInput.first(input));
                     var tooltipFlag = Minecraft.getInstance().options.advancedItemTooltips ? TooltipFlag.Default.ADVANCED : TooltipFlag.Default.NORMAL;
                     t.clear();
                     var tooltips = new ArrayList<Component>();
-                    tooltips.add(fluid.getDisplayName());
+                    tooltips.add(fluid.getHoverName());
                     createLang(fluid, tooltips).run();
                     if (tooltipFlag.advanced()) {
                         var loc = BuiltInRegistries.FLUID.getKey(fluid.getFluid());
                         tooltips.add(Component.literal(loc.toString()).withStyle(ChatFormatting.DARK_GRAY));
                         var helper = EmbersJEI.modIds;
                         tooltips.add(Component.literal(getFormattedModNameForModIdWithoutDisplay(helper, loc.getNamespace())).withStyle(ChatFormatting.BLUE).withStyle(ChatFormatting.ITALIC));
-                        var name = getRegistryName(holder);
+                        var name = getIdentifier(holder);
                         if (name != null) {
                             tooltips.add(Component.translatable("jei.tooltip.recipe.id", Component.literal(name.toString())).withStyle(ChatFormatting.DARK_GRAY));
 
@@ -128,7 +126,7 @@ public class TableCastingCategory extends AbstractRecipeCategory<RecipeHolder<Ta
     @Override
     public void createRecipeExtras(IRecipeExtrasBuilder builder, RecipeHolder<TableCastingRecipe> holder, IFocusGroup focuses) {
         var recipe = holder.value();
-        builder.addAnimatedRecipeArrow(CastingBE.castingTicks(recipe.getInput().amount(), TableBE.COOLING_RATE, recipe.getDuration(), recipe.getSpeed())).setPosition(49, 17);
+        builder.addAnimatedRecipeArrowWidget(CastingBE.castingTicks(recipe.getInput().amount(), TableBE.COOLING_RATE, recipe.getDuration(), recipe.getSpeed())).setPosition(49, 17);
     }
 
     public static List<ItemStack> castStacks(TagKey<Item> cast, Ingredient input) {
@@ -152,11 +150,11 @@ public class TableCastingCategory extends AbstractRecipeCategory<RecipeHolder<Ta
     }
 
     public String getFormattedModNameForModIdWithoutDisplay(IModIdHelper helper, String modId) {
-        return helper.getFormattedModNameForModId(modId);
+        return helper.getFormattedModNameComponentForModId(modId).getString();
     }
 
     public String getFormattedModNameForModId(IModIdHelper helper, String modId) {
         if (!helper.isDisplayingModNameEnabled()) return "";
-        return helper.getFormattedModNameForModId(modId);
+        return helper.getFormattedModNameComponentForModId(modId).getString();
     }
 }

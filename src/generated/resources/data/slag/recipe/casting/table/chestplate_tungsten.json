@@ -12,14 +12,13 @@
   "cast": "slag:cast/chestplates",
   "ingredient": {
     "amount": 432,
-    "tag": "c:molten/tungsten"
+    "ingredient": "#c:molten/tungsten"
   },
   "result": {
     "components": {
       "slag:material_type": "slag:tungsten",
       "slag:part_type": "slag:chestplate"
     },
-    "count": 1,
     "id": "slag:dynamic_part"
   }
 }

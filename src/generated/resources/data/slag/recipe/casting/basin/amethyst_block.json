@@ -2,10 +2,9 @@
   "type": "slag:basin_casting",
   "ingredient": {
     "amount": 288,
-    "tag": "c:molten/amethyst"
+    "ingredient": "#c:molten/amethyst"
   },
   "result": {
-    "count": 1,
     "id": "minecraft:amethyst_block"
   }
 }

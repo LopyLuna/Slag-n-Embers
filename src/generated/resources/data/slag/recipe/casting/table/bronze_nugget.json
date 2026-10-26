@@ -12,7 +12,7 @@
   "cast": "slag:cast/nuggets",
   "ingredient": {
     "amount": 8,
-    "tag": "c:molten/bronze"
+    "ingredient": "#c:molten/bronze"
   },
   "result": {
     "tag": "c:nuggets/bronze"

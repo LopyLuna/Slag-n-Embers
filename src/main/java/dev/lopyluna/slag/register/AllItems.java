@@ -1,8 +1,11 @@
 package dev.lopyluna.slag.register;
 
-import com.tterrag.registrate.providers.RegistrateItemModelProvider;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+import com.tterrag.registrate.providers.generators.RegistrateItemModelGenerator;
 import com.tterrag.registrate.util.entry.ItemEntry;
 import dev.lopyluna.slag.SlagEmbers;
+import dev.lopyluna.slag.client.render.CustomRenderedItems;
 import dev.lopyluna.slag.content.AllUtils;
 import dev.lopyluna.slag.content.blocks.casting.CastItem;
 import dev.lopyluna.slag.content.blocks.melter.MelterBE;
@@ -17,27 +20,28 @@ import dev.lopyluna.slag.content.types.Incompatible;
 import dev.lopyluna.slag.content.types.MaterialType;
 import dev.lopyluna.slag.content.types.ModularType;
 import dev.lopyluna.slag.content.types.PartType;
-import net.createmod.catnip.data.Iterate;
+import net.createmod.catnip.api.data.Iterate;
 import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.RecipeOutput;
 import net.minecraft.data.recipes.ShapedRecipeBuilder;
 import net.minecraft.data.recipes.ShapelessRecipeBuilder;
+import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemDisplayContext;
+import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.item.armortrim.TrimMaterial;
-import net.minecraft.world.item.armortrim.TrimMaterials;
-import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.world.item.equipment.trim.TrimMaterial;
+import net.minecraft.world.item.equipment.trim.TrimMaterials;
 import net.neoforged.neoforge.common.Tags;
 import net.neoforged.neoforge.common.conditions.ICondition;
 
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.tterrag.registrate.providers.RegistrateRecipeProvider.has;
+import static dev.lopyluna.slag.content.AllUtils.has;
 import static dev.lopyluna.slag.SlagEmbers.REG;
 import static dev.lopyluna.slag.content.AllUtils.compressible9x;
 
@@ -50,42 +54,33 @@ public class AllItems {
     public static final List<MaterialType> MATERIAL_TYPES = AllDynamicTypes.getAllMaterialsList();
 
     public static final ItemEntry<DynamicPartItem> DYNAMIC_PART = REG.item("dynamic_part", DynamicPartItem::new)
-            .model((c, p) -> p.withExistingParent(c.getName(), "item/generated"))
+            .model(() -> (c, p) -> {
+                model(p, SlagEmbers.loc("item/" + c.getName()), "item/generated", null, false);
+                p.itemModelOutput.accept(c.get(), CustomRenderedItems.DYNAMIC_PART);
+            })
             .register();
 
     private static final List<ResourceKey<TrimMaterial>> VANILLA_TRIM_MATERIALS = List.of(TrimMaterials.QUARTZ, TrimMaterials.IRON, TrimMaterials.NETHERITE, TrimMaterials.REDSTONE, TrimMaterials.COPPER, TrimMaterials.GOLD, TrimMaterials.EMERALD, TrimMaterials.DIAMOND, TrimMaterials.LAPIS, TrimMaterials.AMETHYST);
     public static final ItemEntry<ModularEquipablesItem> MODULAR_ITEM = REG.item("modular_item", ModularEquipablesItem::new)
-            .model((c, p) -> {
-                p.withExistingParent(c.getName(), SlagEmbers.loc("item/no_transform_item"));
-                p.withExistingParent(c.getName() + "_blueprint", "item/generated").texture("layer0", SlagEmbers.loc("item/blueprint"));
-                p.withExistingParent(c.getName() + "_baked", "item/generated");
-                p.withExistingParent(c.getName() + "_baked_handheld", "item/handheld");
-                var equipableModel = p.withExistingParent(c.getName() + "_baked_equipable", "item/generated");
-                equipableModel.transforms().transform(ItemDisplayContext.HEAD).scale(0f).end();
-
-                var bakedModel = p.withExistingParent(c.getName() + "_baked_trim", "item/generated");
-                AllUtils.TRIM_MATERIALS.forEach((trim, value) -> {
-                    bakedModel.override().predicate(SlagEmbers.loc("armor_type"), 1).predicate(SlagEmbers.locMC("trim_type"), value)
-                            .model(p.withExistingParent(c.getName() + "_baked_boots_trim_" + trim.location().getPath(), "item/generated")
-                                    .texture("layer0", SlagEmbers.locMC("trims/items/boots_trim_" + trim.location().getPath()))).end();
-                    bakedModel.override().predicate(SlagEmbers.loc("armor_type"), 2).predicate(SlagEmbers.locMC("trim_type"), value)
-                            .model(p.withExistingParent(c.getName() + "_baked_chestplate_trim_" + trim.location().getPath(), "item/generated")
-                                    .texture("layer0", SlagEmbers.locMC("trims/items/chestplate_trim_" + trim.location().getPath()))).end();
-                    bakedModel.override().predicate(SlagEmbers.loc("armor_type"), 3).predicate(SlagEmbers.locMC("trim_type"), value)
-                            .model(p.withExistingParent(c.getName() + "_baked_helmet_trim_" + trim.location().getPath(), "item/generated")
-                                    .texture("layer0", SlagEmbers.locMC("trims/items/helmet_trim_" + trim.location().getPath()))).end();
-                    bakedModel.override().predicate(SlagEmbers.loc("armor_type"), 4).predicate(SlagEmbers.locMC("trim_type"), value)
-                            .model(p.withExistingParent(c.getName() + "_baked_leggings_trim_" + trim.location().getPath(), "item/generated")
-                                    .texture("layer0", SlagEmbers.locMC("trims/items/leggings_trim_" + trim.location().getPath()))).end();
-                });
+            .model(() -> (c, p) -> {
+                var name = "item/" + c.getName();
+                model(p, SlagEmbers.loc(name + "_blueprint"), "item/generated", SlagEmbers.loc("item/blueprint"), false);
+                model(p, SlagEmbers.loc(name + "_baked"), "item/generated", null, false);
+                model(p, SlagEmbers.loc(name + "_baked_handheld"), "item/handheld", null, false);
+                model(p, SlagEmbers.loc(name + "_baked_equipable"), "item/generated", null, true);
+                for (var trim : AllUtils.TRIM_MATERIALS.keySet()) for (var type : List.of("boots", "chestplate", "helmet", "leggings")) {
+                    var trimName = type + "_trim_" + trim.identifier().getPath();
+                    model(p, SlagEmbers.loc(name + "_baked_" + trimName), "item/generated", SlagEmbers.locMC("trims/items/" + trimName), false);
+                }
+                p.itemModelOutput.accept(c.get(), CustomRenderedItems.MODULAR);
             }).recipe((c, p) -> {
-                ShapelessRecipeBuilder.shapeless(RecipeCategory.TOOLS, c.get())
+                ShapelessRecipeBuilder.shapeless(AllUtils.items(), RecipeCategory.TOOLS, c.get())
                         .requires(Items.PAPER)
                         .requires(Items.PAPER)
                         .requires(Items.PAPER)
                         .requires(Items.CLAY_BALL)
                         .unlockedBy("has_paper", has(Items.PAPER))
-                        .save(p, SlagEmbers.loc("crafting/" + c.getName()));
+                        .save(p, SlagEmbers.recipe("crafting/" + c.getName()));
 
                 var materials = AllDynamicTypes.getAllMaterials();
                 var parts = AllDynamicTypes.getAllParts();
@@ -106,11 +101,11 @@ public class AllItems {
                     //noinspection StatementWithEmptyBody
                     if (matID.equals("netherite")) {
                         //SMITHING
-                    } else buildPattern(ShapedRecipeBuilder.shaped(RecipeCategory.TOOLS, stack), part)
+                    } else buildPattern(ShapedRecipeBuilder.shaped(AllUtils.items(), RecipeCategory.TOOLS, new ItemStackTemplate(stack.typeHolder(), stack.getCount(), stack.getComponentsPatch())), part)
                             .define('M', material.repairMaterials.get())
                             .define('R', Items.PAPER)
                             .unlockedBy("has_paper", has(Items.PAPER))
-                            .save(paperOutput, SlagEmbers.loc("crafting/parts/" + partID + "_" + matID));
+                            .save(paperOutput, SlagEmbers.recipe("crafting/parts/" + partID + "_" + matID));
 
                     var fluid = material.moltenFluid.get();
                     if (fluid != null) {
@@ -120,11 +115,11 @@ public class AllItems {
                         if (size > 0) {
                             if (cast != null) TableCastingRecipeBuilder.create(stack, fluid, size, cast)
                                     .unlockedBy("has_table", has(AllBlocks.TABLE.get()))
-                                    .save(output, SlagEmbers.loc("casting/table/" + partID + "_" + matID));
+                                    .save(output, SlagEmbers.recipe("casting/table/" + partID + "_" + matID));
 
                             MeltingRecipeBuilder.create(fluid, size, stack)
                                     .unlockedBy("has_melter", has(AllBlocks.MELTER.get()))
-                                    .save(output, SlagEmbers.loc("melting/" + partID + "_" + matID));
+                                    .save(output, SlagEmbers.recipe("melting/" + partID + "_" + matID));
                         }
                     }
                 }
@@ -132,67 +127,88 @@ public class AllItems {
             .register();
 
     public static final ItemEntry<DynamicMoldItem> SANDSTONE_MOLD = REG.item("sandstone_mold", DynamicMoldItem::new)
-            .recipe((c, p) -> ShapelessRecipeBuilder.shapeless(RecipeCategory.TOOLS, c.get(), 4)
-                    .requires(Tags.Items.SANDSTONE_UNCOLORED_BLOCKS).unlockedBy("has_sandstone", has(Tags.Items.SANDSTONE_UNCOLORED_BLOCKS)).save(p, SlagEmbers.loc("crafting/" + c.getName())))
-            .model((c, p) -> moldModels(c.getName(), p)).tag(AllTags.MOLDS_SINGLE)
+            .recipe((c, p) -> ShapelessRecipeBuilder.shapeless(AllUtils.items(), RecipeCategory.TOOLS, c.get(), 4)
+                    .requires(Tags.Items.SANDSTONE_UNCOLORED_BLOCKS).unlockedBy("has_sandstone", has(Tags.Items.SANDSTONE_UNCOLORED_BLOCKS)).save(p, SlagEmbers.recipe("crafting/" + c.getName())))
+            .model(() -> (c, p) -> moldModels(c.get(), c.getName(), p)).tag(AllTags.MOLDS_SINGLE)
             .register();
     public static final ItemEntry<DynamicMoldItem> TERRACOTTA_MOLD = REG.item("terracotta_mold", p -> new DynamicMoldItem(p, false, TERRACOTTA_MOLD_USES))
-            .recipe((c, p) -> ShapelessRecipeBuilder.shapeless(RecipeCategory.TOOLS, c.get(), 2)
-                    .requires(ItemTags.TERRACOTTA).unlockedBy("has_terracotta", has(ItemTags.TERRACOTTA)).save(p, SlagEmbers.loc("crafting/" + c.getName())))
-            .model((c, p) -> moldModels(c.getName(), p)).tag(AllTags.MOLDS_REUSABLE)
+            .recipe((c, p) -> ShapelessRecipeBuilder.shapeless(AllUtils.items(), RecipeCategory.TOOLS, c.get(), 2)
+                    .requires(ItemTags.TERRACOTTA).unlockedBy("has_terracotta", has(ItemTags.TERRACOTTA)).save(p, SlagEmbers.recipe("crafting/" + c.getName())))
+            .model(() -> (c, p) -> moldModels(c.get(), c.getName(), p)).tag(AllTags.MOLDS_REUSABLE)
             .register();
     public static final ItemEntry<DynamicMoldItem> CAST_IRON_MOLD = REG.item("cast_iron_mold", p -> new DynamicMoldItem(p, true, 0))
             .recipe((c, p) -> {
                 TableCastingRecipeBuilder.create(c.get(), AllFluids.MOLTEN_CAST_IRON.getSource(), MelterBE.INGOT_SIZE)
-                        .castItem(CastItem.imprint(Ingredient.of(AllTags.IMPRINTABLE)))
-                        .unlockedBy("has_cast_iron", has(AllTags.itemC("ingots/cast_iron"))).save(p, SlagEmbers.loc("casting/table/cast_iron_mold"));
+                        .castItem(CastItem.imprint(AllUtils.tag(AllTags.IMPRINTABLE)))
+                        .unlockedBy("has_cast_iron", has(AllTags.itemC("ingots/cast_iron"))).save(p, SlagEmbers.recipe("casting/table/cast_iron_mold"));
 
                 MeltingRecipeBuilder.create(AllFluids.MOLTEN_CAST_IRON.getSource(), MelterBE.INGOT_SIZE, c.get())
-                        .unlockedBy("has_mold", has(c.get())).save(p, SlagEmbers.loc("melting/cast_iron_mold"));
+                        .unlockedBy("has_mold", has(c.get())).save(p, SlagEmbers.recipe("melting/cast_iron_mold"));
             })
-            .model((c, p) -> moldModels(c.getName(), p)).tag(AllTags.MOLDS_REUSABLE)
+            .model(() -> (c, p) -> moldModels(c.get(), c.getName(), p)).tag(AllTags.MOLDS_REUSABLE)
             .register();
 
     public static final List<ItemEntry<DynamicMoldItem>> MOLDS = List.of(SANDSTONE_MOLD, TERRACOTTA_MOLD, CAST_IRON_MOLD);
 
-    private static void moldModels(String name, RegistrateItemModelProvider p) {
+    private static void moldModels(Item item, String name, RegistrateItemModelGenerator p) {
         var castTypes = new ArrayList<>(List.of("axe_heads", "balls", "dusts", "gems", "guards", "hoe_heads", "ingots", "nuggets", "pickaxe_heads", "rods", "shovel_heads", "sword_blades", "plates", "helmets", "chestplates", "leggings", "boots"));
         for (var cast : castTypes) for (var cutout : Iterate.trueAndFalse) {
             var loc = SlagEmbers.loc("item/" + (cutout ? "cutout/" : "") + name + "/" + cast);
-            p.withExistingParent(loc.getPath(), "item/generated").texture("layer0", loc);
+            model(p, loc, "item/generated", loc, false);
         }
-        p.withExistingParent("item/cutout/" + name, "item/generated").texture("layer0", SlagEmbers.loc("item/cutout/" + name));
-        p.withExistingParent(name, "item/generated").texture("layer0", SlagEmbers.loc("item/" + name));
+        model(p, SlagEmbers.loc("item/cutout/" + name), "item/generated", SlagEmbers.loc("item/cutout/" + name), false);
+        model(p, SlagEmbers.loc("item/" + name), "item/generated", SlagEmbers.loc("item/" + name), false);
+        p.itemModelOutput.accept(item, CustomRenderedItems.MOLD);
+    }
+
+    private static void model(RegistrateItemModelGenerator p, Identifier id, String parent, @Nullable Identifier layer0, boolean hideHead) {
+        var json = new JsonObject();
+        json.addProperty("parent", parent);
+        if (layer0 != null) {
+            var textures = new JsonObject();
+            textures.addProperty("layer0", layer0.toString());
+            json.add("textures", textures);
+        }
+        if (hideHead) {
+            var scale = new JsonArray();
+            for (var i = 0; i < 3; i++) scale.add(0);
+            var head = new JsonObject();
+            head.add("scale", scale);
+            var display = new JsonObject();
+            display.add("head", head);
+            json.add("display", display);
+        }
+        p.modelOutput.accept(id, () -> json);
     }
 
     public static final ItemEntry<Item> CAST_IRON_INGOT = REG.item("cast_iron_ingot", Item::new)
             .recipe((c, p) -> {
-                compressible9x(c, p, Ingredient.of(AllTags.itemC("ingots/cast_iron")), Ingredient.of(AllTags.itemC("storage_blocks/cast_iron")), c.get(), AllBlocks.CAST_IRON_BLOCK);
+                compressible9x(c, p, AllUtils.tag(AllTags.itemC("ingots/cast_iron")), AllUtils.tag(AllTags.itemC("storage_blocks/cast_iron")), c.get(), AllBlocks.CAST_IRON_BLOCK);
                 DualCookingRecipeBuilder.create(RecipeCategory.MISC, c.get(), AllTags.itemC("ingots/iron"), Items.CHARCOAL, 1.4f)
                         .unlockedBy("has_iron", has(AllTags.itemC("ingots/iron")))
-                        .save(p, SlagEmbers.loc("double_smelting/" + c.getName()));
+                        .save(p, SlagEmbers.recipe("double_smelting/" + c.getName()));
             })
             .tag(AllTags.itemC("ingots/cast_iron"), AllTags.itemC("ingots"), ItemTags.BEACON_PAYMENT_ITEMS)
             .register();
     public static final ItemEntry<Item> CAST_IRON_NUGGET = REG.item("cast_iron_nugget", Item::new)
             .recipe((c, p) -> compressible9x(c, p,
-                    Ingredient.of(AllTags.itemC("nuggets/cast_iron")), Ingredient.of(AllTags.itemC("ingots/cast_iron")),
+                    AllUtils.tag(AllTags.itemC("nuggets/cast_iron")), AllUtils.tag(AllTags.itemC("ingots/cast_iron")),
                     c.get(), CAST_IRON_INGOT))
             .tag(AllTags.itemC("nuggets/cast_iron"), AllTags.itemC("nuggets"))
             .register();
 
     public static final ItemEntry<Item> ROSE_GOLD_INGOT = REG.item("rose_gold_ingot", Item::new)
             .recipe((c, p) -> {
-                compressible9x(c, p, Ingredient.of(AllTags.itemC("ingots/rose_gold")), Ingredient.of(AllTags.itemC("storage_blocks/rose_gold")), c.get(), AllBlocks.ROSE_GOLD_BLOCK);
+                compressible9x(c, p, AllUtils.tag(AllTags.itemC("ingots/rose_gold")), AllUtils.tag(AllTags.itemC("storage_blocks/rose_gold")), c.get(), AllBlocks.ROSE_GOLD_BLOCK);
                 DualCookingRecipeBuilder.create(RecipeCategory.MISC, c.get(), 2, AllTags.itemC("ingots/copper"), AllTags.itemC("ingots/gold"), 1.4f)
                         .unlockedBy("has_copper", has(AllTags.itemC("ingots/copper")))
-                        .save(p, SlagEmbers.loc("double_smelting/" + c.getName()));
+                        .save(p, SlagEmbers.recipe("double_smelting/" + c.getName()));
             })
             .tag(AllTags.itemC("ingots/rose_gold"), AllTags.itemC("ingots"), ItemTags.BEACON_PAYMENT_ITEMS)
             .register();
     public static final ItemEntry<Item> ROSE_GOLD_NUGGET = REG.item("rose_gold_nugget", Item::new)
             .recipe((c, p) -> compressible9x(c, p,
-                    Ingredient.of(AllTags.itemC("nuggets/rose_gold")), Ingredient.of(AllTags.itemC("ingots/rose_gold")),
+                    AllUtils.tag(AllTags.itemC("nuggets/rose_gold")), AllUtils.tag(AllTags.itemC("ingots/rose_gold")),
                     c.get(), ROSE_GOLD_INGOT))
             .tag(AllTags.itemC("nuggets/rose_gold"), AllTags.itemC("nuggets"))
             .register();
@@ -200,10 +216,10 @@ public class AllItems {
 
     public static final ItemEntry<Item> DEEP_ALLOY = REG.item("deep_alloy", Item::new)
             .recipe((c, p) -> {
-                compressible9x(c, p, Ingredient.of(AllTags.itemC("ingots/deep_alloy")), Ingredient.of(AllTags.itemC("storage_blocks/deep_alloy")), c.get(), AllBlocks.DEEP_ALLOY_BLOCK);
+                compressible9x(c, p, AllUtils.tag(AllTags.itemC("ingots/deep_alloy")), AllUtils.tag(AllTags.itemC("storage_blocks/deep_alloy")), c.get(), AllBlocks.DEEP_ALLOY_BLOCK);
                 DualCookingRecipeBuilder.create(RecipeCategory.MISC, c.get(), AllTags.itemC("ingots/iron"), Items.POLISHED_DEEPSLATE, 1.4f)
                         .unlockedBy("has_iron", has(AllTags.itemC("ingots/iron")))
-                        .save(p, SlagEmbers.loc("double_smelting/" + c.getName()));
+                        .save(p, SlagEmbers.recipe("double_smelting/" + c.getName()));
             }).tag(AllTags.itemC("ingots/deep_alloy"), AllTags.itemC("ingots"), ItemTags.BEACON_PAYMENT_ITEMS)
             .register();
 

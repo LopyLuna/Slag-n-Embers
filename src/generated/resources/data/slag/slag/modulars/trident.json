@@ -1,11 +1,9 @@
 {
   "final_segment_stacks": [
     {
-      "count": 1,
       "id": "minecraft:quartz"
     },
     {
-      "count": 1,
       "id": "minecraft:prismarine_crystals"
     },
     {
@@ -15,7 +13,6 @@
   ],
   "id": "slag:trident",
   "result_stack": {
-    "count": 1,
     "id": "minecraft:trident"
   },
   "sort_order": 100

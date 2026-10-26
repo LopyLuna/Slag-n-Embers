@@ -1,6 +1,7 @@
 package dev.lopyluna.slag.content.jei;
 
 import dev.lopyluna.slag.SlagEmbers;
+import dev.lopyluna.slag.content.AllUtils;
 import dev.lopyluna.slag.content.blocks.basin.BasinCastingRecipe;
 import dev.lopyluna.slag.content.blocks.crucible.AlloyingRecipe;
 import dev.lopyluna.slag.content.blocks.crucible_interface.client.InterfaceScreen;
@@ -24,6 +25,7 @@ import mezz.jei.api.IModPlugin;
 import mezz.jei.api.JeiPlugin;
 import mezz.jei.api.constants.RecipeTypes;
 import mezz.jei.api.constants.VanillaTypes;
+import mezz.jei.api.gui.builder.IClickableIngredientFactory;
 import mezz.jei.api.helpers.IModIdHelper;
 import mezz.jei.api.gui.handlers.IGuiContainerHandler;
 import mezz.jei.api.neoforge.NeoForgeTypes;
@@ -33,9 +35,10 @@ import mezz.jei.api.runtime.IClickableIngredient;
 import mezz.jei.api.runtime.IIngredientManager;
 import mezz.jei.api.runtime.IJeiRuntime;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.Rect2i;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ItemStackLinkedSet;
 import net.minecraft.world.item.Items;
@@ -53,7 +56,7 @@ import java.util.Optional;
 @JeiPlugin
 public class EmbersJEI implements IModPlugin {
     @Override
-    public @Nonnull ResourceLocation getPluginUid() {
+    public @Nonnull Identifier getPluginUid() {
         return SlagEmbers.loc("main");
     }
 
@@ -84,14 +87,11 @@ public class EmbersJEI implements IModPlugin {
 
     @Override
     public void registerRecipes(@Nonnull IRecipeRegistration registration) {
-        var level = Minecraft.getInstance().level;
-        if (level == null) return;
-
-        safely("double smelting", () -> registration.addRecipes(EmbersRecipesJEI.DOUBLE_SMELTING.get(), handled(level, AllRecipes.DOUBLE_SMELTING.get(), forgeCategory)));
-        safely("melting", () -> registration.addRecipes(EmbersRecipesJEI.MELTING.get(), handled(level, AllRecipes.MELTING.get(), melterCategory)));
-        safely("table casting", () -> registration.addRecipes(EmbersRecipesJEI.TABLE_CASTING.get(), getTableCastingRecipes(tableCastingCategory, level)));
-        safely("basin casting", () -> registration.addRecipes(EmbersRecipesJEI.BASIN_CASTING.get(), handled(level, AllRecipes.BASIN_CASTING.get(), basinCastingCategory)));
-        safely("alloying", () -> registration.addRecipes(EmbersRecipesJEI.ALLOYING.get(), handled(level, AllRecipes.ALLOYING.get(), alloyingCategory)));
+        safely("double smelting", () -> registration.addRecipes(EmbersRecipesJEI.DOUBLE_SMELTING.get(), handled(AllRecipes.DOUBLE_SMELTING.get(), forgeCategory)));
+        safely("melting", () -> registration.addRecipes(EmbersRecipesJEI.MELTING.get(), handled(AllRecipes.MELTING.get(), melterCategory)));
+        safely("table casting", () -> registration.addRecipes(EmbersRecipesJEI.TABLE_CASTING.get(), getTableCastingRecipes(tableCastingCategory)));
+        safely("basin casting", () -> registration.addRecipes(EmbersRecipesJEI.BASIN_CASTING.get(), handled(AllRecipes.BASIN_CASTING.get(), basinCastingCategory)));
+        safely("alloying", () -> registration.addRecipes(EmbersRecipesJEI.ALLOYING.get(), handled(AllRecipes.ALLOYING.get(), alloyingCategory)));
         safely("modular", () -> registration.addRecipes(EmbersRecipesJEI.MODULAR, getModularRecipes()));
         heaters = HeatingCategory.heaters();
         heaterVersion = Temperatures.version;
@@ -100,20 +100,20 @@ public class EmbersJEI implements IModPlugin {
 
     @Override
     public void registerGuiHandlers(IGuiHandlerRegistration registration) {
-        registration.addRecipeClickArea(ForgeScreen.class, 78, 32, 28, 23, EmbersRecipesJEI.DOUBLE_SMELTING.get(), RecipeTypes.FUELING);
+        registration.addRecipeClickArea(ForgeScreen.class, 78, 32, 28, 23, EmbersRecipesJEI.DOUBLE_SMELTING.get(), RecipeTypes.SMELTING_FUEL);
         registration.addRecipeClickArea(MelterScreen.class, 78, 32, 28, 23, EmbersRecipesJEI.MELTING.get());
 
         var im = registration.getJeiHelpers().getIngredientManager();
         registration.addGuiContainerHandler(MelterScreen.class, new IGuiContainerHandler<>() {
             @Override
-            public @Nonnull Optional<IClickableIngredient<?>> getClickableIngredientUnderMouse(MelterScreen screen, double mouseX, double mouseY) {
-                return clickable(im, screen.ingredient, screen.ingredientArea);
+            public @Nonnull Optional<? extends IClickableIngredient<?>> getClickableIngredientUnderMouse(IClickableIngredientFactory factory, MelterScreen screen, double mouseX, double mouseY) {
+                return clickable(im, factory, screen.ingredient, screen.ingredientArea);
             }
         });
         registration.addGuiContainerHandler(InterfaceScreen.class, new IGuiContainerHandler<>() {
             @Override
-            public @Nonnull Optional<IClickableIngredient<?>> getClickableIngredientUnderMouse(InterfaceScreen screen, double mouseX, double mouseY) {
-                return clickable(im, screen.ingredient, screen.ingredientArea);
+            public @Nonnull Optional<? extends IClickableIngredient<?>> getClickableIngredientUnderMouse(IClickableIngredientFactory factory, InterfaceScreen screen, double mouseX, double mouseY) {
+                return clickable(im, factory, screen.ingredient, screen.ingredientArea);
             }
         });
         registration.addGuiContainerHandler(ModularSmithingScreen.class, new IGuiContainerHandler<>() {
@@ -124,9 +124,9 @@ public class EmbersJEI implements IModPlugin {
         });
     }
 
-    private static Optional<IClickableIngredient<?>> clickable(IIngredientManager im, @Nullable Object ingredient, @Nullable Rect2i area) {
+    private static Optional<? extends IClickableIngredient<?>> clickable(IIngredientManager im, IClickableIngredientFactory factory, @Nullable Object ingredient, @Nullable Rect2i area) {
         if (ingredient == null || area == null) return Optional.empty();
-        return im.createClickableIngredient(ingredient, area, true).map(i -> i);
+        return im.getIngredientTypeChecked(ingredient).flatMap(type -> factory.createBuilder(type, ingredient).buildWithArea(area));
     }
 
     @Override
@@ -137,24 +137,24 @@ public class EmbersJEI implements IModPlugin {
 
     @Override
     public void registerAdvanced(IAdvancedRegistration registration) {
-        registration.addTypedRecipeManagerPlugin(EmbersRecipesJEI.MODULAR, new ModularRecipes());
+        registration.addSimpleRecipeManagerPlugin(EmbersRecipesJEI.MODULAR, new ModularRecipes());
     }
 
     @Override
     public void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {
-        registration.addRecipeCatalyst(AllBlocks.FORGE, RecipeTypes.FUELING);
-        registration.addRecipeCatalyst(AllBlocks.FORGE, EmbersRecipesJEI.DOUBLE_SMELTING.get());
-        registration.addRecipeCatalyst(AllBlocks.MELTER, EmbersRecipesJEI.MELTING.get());
-        registration.addRecipeCatalyst(AllBlocks.TABLE, EmbersRecipesJEI.TABLE_CASTING.get());
-        registration.addRecipeCatalyst(AllItems.SANDSTONE_MOLD, EmbersRecipesJEI.TABLE_CASTING.get());
-        registration.addRecipeCatalyst(AllItems.TERRACOTTA_MOLD, EmbersRecipesJEI.TABLE_CASTING.get());
-        registration.addRecipeCatalyst(AllItems.CAST_IRON_MOLD, EmbersRecipesJEI.TABLE_CASTING.get());
-        registration.addRecipeCatalyst(AllBlocks.BASIN, EmbersRecipesJEI.BASIN_CASTING.get());
-        registration.addRecipeCatalyst(AllBlocks.CRUCIBLE, EmbersRecipesJEI.ALLOYING.get());
-        registration.addRecipeCatalyst(new ItemStack(Items.SMITHING_TABLE), EmbersRecipesJEI.MODULAR);
-        registration.addRecipeCatalyst(AllItems.MODULAR_ITEM, EmbersRecipesJEI.MODULAR);
-        registration.addRecipeCatalyst(AllBlocks.MELTER, EmbersRecipesJEI.HEATING);
-        registration.addRecipeCatalyst(AllBlocks.CRUCIBLE, EmbersRecipesJEI.HEATING);
+        registration.addCraftingStation(RecipeTypes.SMELTING_FUEL, AllBlocks.FORGE);
+        registration.addCraftingStation(EmbersRecipesJEI.DOUBLE_SMELTING.get(), AllBlocks.FORGE);
+        registration.addCraftingStation(EmbersRecipesJEI.MELTING.get(), AllBlocks.MELTER);
+        registration.addCraftingStation(EmbersRecipesJEI.TABLE_CASTING.get(), AllBlocks.TABLE);
+        registration.addCraftingStation(EmbersRecipesJEI.TABLE_CASTING.get(), AllItems.SANDSTONE_MOLD);
+        registration.addCraftingStation(EmbersRecipesJEI.TABLE_CASTING.get(), AllItems.TERRACOTTA_MOLD);
+        registration.addCraftingStation(EmbersRecipesJEI.TABLE_CASTING.get(), AllItems.CAST_IRON_MOLD);
+        registration.addCraftingStation(EmbersRecipesJEI.BASIN_CASTING.get(), AllBlocks.BASIN);
+        registration.addCraftingStation(EmbersRecipesJEI.ALLOYING.get(), AllBlocks.CRUCIBLE);
+        registration.addCraftingStation(EmbersRecipesJEI.MODULAR, new ItemStack(Items.SMITHING_TABLE));
+        registration.addCraftingStation(EmbersRecipesJEI.MODULAR, AllItems.MODULAR_ITEM);
+        registration.addCraftingStation(EmbersRecipesJEI.HEATING, AllBlocks.MELTER);
+        registration.addCraftingStation(EmbersRecipesJEI.HEATING, AllBlocks.CRUCIBLE);
     }
 
     public List<ModularType> getModularRecipes() {
@@ -164,9 +164,9 @@ public class EmbersJEI implements IModPlugin {
                 .toList();
     }
 
-    public List<RecipeHolder<TableCastingRecipe>> getTableCastingRecipes(IRecipeCategory<RecipeHolder<TableCastingRecipe>> category, ClientLevel level) {
+    public List<RecipeHolder<TableCastingRecipe>> getTableCastingRecipes(IRecipeCategory<RecipeHolder<TableCastingRecipe>> category) {
         var recipes = new ArrayList<RecipeHolder<TableCastingRecipe>>();
-        for (var holder : handled(level, AllRecipes.TABLE_CASTING.get(), category)) {
+        for (var holder : handled(AllRecipes.TABLE_CASTING.get(), category)) {
             var recipe = holder.value();
             var item = recipe.getCastItem();
             if (item == null || !item.imprint()) {
@@ -177,15 +177,15 @@ public class EmbersJEI implements IModPlugin {
                 if (TableCastingCategory.castStacks(cast, item.input()).isEmpty()) continue;
                 var output = recipe.getOutput().copy();
                 output.set(AllDataComponents.CAST_TYPE, cast);
-                var id = holder.id().withSuffix("/" + cast.location().getPath().replace('/', '_'));
-                recipes.add(new RecipeHolder<>(id, new TableCastingRecipe(recipe.getGroup(), recipe.getCast(), recipe.getInput(), recipe.getItem(), recipe.getDuration(), recipe.getSpeed(), ItemResult.of(output))));
+                var id = ResourceKey.create(Registries.RECIPE, holder.id().identifier().withSuffix("/" + cast.location().getPath().replace('/', '_')));
+                recipes.add(new RecipeHolder<>(id, new TableCastingRecipe(recipe.group(), recipe.getCast(), recipe.getInput(), recipe.getItem(), recipe.getDuration(), recipe.getSpeed(), ItemResult.of(output))));
             }
         }
         return recipes;
     }
-    private static <C extends RecipeInput, T extends Recipe<C>> List<RecipeHolder<T>> handled(ClientLevel level, RecipeType<T> type, IRecipeCategory<RecipeHolder<T>> category) {
+    private static <C extends RecipeInput, T extends Recipe<C>> List<RecipeHolder<T>> handled(RecipeType<T> type, IRecipeCategory<RecipeHolder<T>> category) {
         var out = new ArrayList<RecipeHolder<T>>();
-        for (var holder : level.getRecipeManager().getAllRecipesFor(type)) {
+        for (var holder : AllUtils.clientRecipes.byType(type)) {
             try {
                 if (category.isHandled(holder)) out.add(holder);
             } catch (RuntimeException | LinkageError e) {
@@ -252,7 +252,7 @@ public class EmbersJEI implements IModPlugin {
                 toolParts.add(stack);
             }
 
-            for (var stack : modular.finalSegmentStacks) {
+            for (var stack : modular.finalSegmentStacks()) {
                 var copy = stack.copy();
                 copy.set(AllDataComponents.BUILT, modular.id);
                 toolParts.add(copy);

@@ -12,14 +12,13 @@
   "cast": "slag:cast/axe_heads",
   "ingredient": {
     "amount": 216,
-    "tag": "c:molten/invar"
+    "ingredient": "#c:molten/invar"
   },
   "result": {
     "components": {
       "slag:material_type": "slag:invar",
       "slag:part_type": "slag:axe_head"
     },
-    "count": 1,
     "id": "slag:dynamic_part"
   }
 }

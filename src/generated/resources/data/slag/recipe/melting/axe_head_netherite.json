@@ -3,11 +3,9 @@
   "ingredients": [
     {
       "components": {
-        "minecraft:fire_resistant": {},
         "slag:material_type": "slag:netherite",
         "slag:part_type": "slag:axe_head"
       },
-      "count": 1,
       "id": "slag:dynamic_part"
     }
   ],

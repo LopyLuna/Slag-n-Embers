@@ -1,6 +1,6 @@
 package dev.lopyluna.slag.content.utils;
 
-import net.createmod.catnip.math.VoxelShaper;
+import net.createmod.catnip.api.math.VoxelShaper;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.phys.shapes.BooleanOp;
@@ -27,11 +27,11 @@ public class ShapeUtils {
     }
 
     public static VoxelShape cuboid(double x1, double y1, double z1, double x2, double y2, double z2) {
-        return CUBOIDS.computeIfAbsent(new Cuboid(x1, y1, z1, x2, y2, z2), key -> Block.box(x1, y1, z1, x2, y2, z2));
+        return CUBOIDS.computeIfAbsent(new Cuboid(x1, y1, z1, x2, y2, z2), _ -> Block.box(x1, y1, z1, x2, y2, z2));
     }
 
     public static VoxelShape join(VoxelShape first, VoxelShape second, BooleanOp op) {
-        return JOINED.computeIfAbsent(new Joined(first, second, op), key -> Shapes.join(first, second, op));
+        return JOINED.computeIfAbsent(new Joined(first, second, op), _ -> Shapes.join(first, second, op));
     }
 
     @SuppressWarnings("unused")

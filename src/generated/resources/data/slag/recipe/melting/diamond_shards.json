@@ -1,8 +1,6 @@
 {
   "type": "slag:melting",
-  "ingredient": {
-    "tag": "c:nuggets/diamond"
-  },
+  "ingredient": "#c:nuggets/diamond",
   "ingredients": [],
   "result": [
     {

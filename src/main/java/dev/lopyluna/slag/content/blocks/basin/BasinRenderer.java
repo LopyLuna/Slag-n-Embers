@@ -4,7 +4,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import dev.lopyluna.slag.client.AlphaBufferSource;
 import dev.lopyluna.slag.content.blocks.casting.CastingBE;
 import dev.lopyluna.slag.content.blocks.casting.CastingRenderer;
-import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.world.item.ItemDisplayContext;
 
@@ -15,7 +15,7 @@ public class BasinRenderer extends CastingRenderer<BasinBE> {
     }
 
     @Override
-    protected void renderSafe(BasinBE be, float pt, PoseStack ms, MultiBufferSource buffer, int light, int overlay) {
+    protected void renderSafe(BasinBE be, float pt, PoseStack ms, SubmitNodeCollector buffer, int light, int overlay) {
         renderFluid(be, pt, ms, buffer, light);
         var stack = be.itemInventory.getItem(CastingBE.RESULT);
         var alpha = 1f;
@@ -28,7 +28,7 @@ public class BasinRenderer extends CastingRenderer<BasinBE> {
         ms.pushPose();
         ms.translate(0.5f, 0.575f, 0.5f);
         ms.scale(1.5f, 1.5f, 1.5f);
-        mc.getItemRenderer().renderStatic(stack, ItemDisplayContext.FIXED, light, overlay, ms, new AlphaBufferSource(buffer, alpha), mc.level, 0);
+        renderItem(stack, ItemDisplayContext.FIXED, ms, new AlphaBufferSource(buffer, alpha), light, overlay);
         ms.popPose();
     }
 }

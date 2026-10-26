@@ -3,24 +3,25 @@ package dev.lopyluna.slag.content.items.modular;
 import dev.lopyluna.slag.SlagEmbers;
 import dev.lopyluna.slag.content.traits.Traits;
 import net.minecraft.core.Holder;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.dispenser.BlockSource;
 import net.minecraft.core.dispenser.DefaultDispenseItemBehavior;
 import net.minecraft.core.dispenser.DispenseItemBehavior;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.core.dispenser.EquipmentDispenseItemBehavior;
+import net.minecraft.resources.Identifier;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.stats.Stats;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResultHolder;
-import net.minecraft.world.entity.Entity;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ArmorItem;
-import net.minecraft.world.item.ArmorMaterial;
-import net.minecraft.world.item.ArmorMaterials;
+import net.minecraft.world.item.equipment.ArmorMaterial;
+import net.minecraft.world.item.equipment.ArmorMaterials;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.EnchantmentEffectComponents;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
+import net.minecraft.world.item.equipment.Equippable;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.DispenserBlock;
 import javax.annotation.Nonnull;
@@ -29,7 +30,7 @@ import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
-@SuppressWarnings("unused")
+@SuppressWarnings({"unused", "NullableProblems"})
 public class ModularEquipablesItem extends ModularToolsItem {
     public ModularEquipablesItem(Properties properties) {
         super(properties);
@@ -54,7 +55,7 @@ public class ModularEquipablesItem extends ModularToolsItem {
         };
     }
 
-    public Holder<ArmorMaterial> getPotentialArmorMaterials() {
+    public ArmorMaterial getPotentialArmorMaterials() {
         return ArmorMaterials.LEATHER;
     }
 
@@ -64,14 +65,14 @@ public class ModularEquipablesItem extends ModularToolsItem {
         return slot != null ? slot : super.getEquipmentSlot(stack);
     }
 
-    public @Nonnull InteractionResultHolder<ItemStack> use(@Nonnull Level level, @Nonnull Player player, @Nonnull InteractionHand hand) {
+    public @Nonnull InteractionResult use(@Nonnull Level level, @Nonnull Player player, @Nonnull InteractionHand hand) {
         var stack = player.getItemInHand(hand);
         if (!isArmor(stack)) return super.use(level, player, hand);
         return swapWithEquipmentSlot(stack, level, player, hand);
     }
 
-    public List<ResourceLocation> getArmorTextures(ItemStack stack, Entity entity, EquipmentSlot slot, ArmorMaterial.Layer layer, boolean innerModel) {
-        var list = new ArrayList<ResourceLocation>();
+    public List<Identifier> getArmorTextures(ItemStack stack, EquipmentSlot slot, boolean innerModel) {
+        var list = new ArrayList<Identifier>();
         var num = innerModel ? 2 : 1;
 
         var parts = getDynamicParts(stack);
@@ -100,13 +101,20 @@ public class ModularEquipablesItem extends ModularToolsItem {
         @Override
         protected @Nonnull ItemStack execute(@Nonnull BlockSource source, @Nonnull ItemStack stack) {
             if (Traits.of(stack).equipmentSlot == null) return super.execute(source, stack);
-            return ArmorItem.dispenseArmor(source, stack) ? stack : super.execute(source, stack);
+            return EquipmentDispenseItemBehavior.dispenseEquipment(source, stack) ? stack : super.execute(source, stack);
         }
     };
 
-    public InteractionResultHolder<ItemStack> swapWithEquipmentSlot(ItemStack stack, Level level, Player player, InteractionHand hand) {
+    @Override
+    public void applyComponents(ItemStack stack, Traits traits) {
+        super.applyComponents(stack, traits);
+        if (traits.equipmentSlot == null) stack.remove(DataComponents.EQUIPPABLE);
+        else stack.set(DataComponents.EQUIPPABLE, Equippable.builder(traits.equipmentSlot).setEquipSound(getEquipSound(stack)).build());
+    }
+
+    public InteractionResult swapWithEquipmentSlot(ItemStack stack, Level level, Player player, InteractionHand hand) {
         var equipmentslot = player.getEquipmentSlotForItem(stack);
-        if (!player.canUseSlot(equipmentslot)) return InteractionResultHolder.pass(stack);
+        if (!player.canUseSlot(equipmentslot)) return InteractionResult.PASS;
         var slotStack = player.getItemBySlot(equipmentslot);
         if ((!EnchantmentHelper.has(slotStack, EnchantmentEffectComponents.PREVENT_ARMOR_CHANGE) || player.isCreative()) && !ItemStack.matches(stack, slotStack)) {
             if (!level.isClientSide()) player.awardStat(Stats.ITEM_USED.get(this));
@@ -114,8 +122,8 @@ public class ModularEquipablesItem extends ModularToolsItem {
             var stackA = slotStack.isEmpty() ? stack : slotStack.copyAndClear();
             var stackB = player.isCreative() ? stack.copy() : stack.copyAndClear();
             player.setItemSlot(equipmentslot, stackB);
-            return InteractionResultHolder.sidedSuccess(stackA, level.isClientSide());
+            return InteractionResult.SUCCESS.heldItemTransformedTo(stackA);
         }
-        return InteractionResultHolder.fail(stack);
+        return InteractionResult.FAIL;
     }
 }

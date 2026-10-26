@@ -1,18 +1,21 @@
 package dev.lopyluna.slag.content.blocks.crucible_interface;
 
 import com.mojang.serialization.MapCodec;
+import dev.lopyluna.slag.content.AllUtils;
 import dev.lopyluna.slag.content.blocks.BEBlock;
 import dev.lopyluna.slag.content.utils.ShapeUtils;
 import dev.lopyluna.slag.register.AllBETypes;
-import net.createmod.catnip.math.VoxelShaper;
+import net.createmod.catnip.api.math.VoxelShaper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.ScheduledTickAccess;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
@@ -20,11 +23,10 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
-import net.minecraft.world.level.block.state.properties.DirectionProperty;
+import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.neoforged.neoforge.capabilities.Capabilities;
 import javax.annotation.Nonnull;
 
 import javax.annotation.Nullable;
@@ -34,7 +36,7 @@ import javax.annotation.ParametersAreNonnullByDefault;
 public class InterfaceBlock extends BEBlock {
     public static final MapCodec<InterfaceBlock> CODEC = simpleCodec(InterfaceBlock::new);
     public static final VoxelShaper SHAPE = ShapeUtils.shape(0, 0, 0, 16, 16, 8).forHorizontal(Direction.SOUTH);
-    public static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
+    public static final EnumProperty<Direction> FACING = BlockStateProperties.HORIZONTAL_FACING;
 
     public InterfaceBlock(Properties properties) {
         super(properties);
@@ -54,9 +56,9 @@ public class InterfaceBlock extends BEBlock {
     }
 
     @Override
-    protected @Nonnull BlockState updateShape(BlockState state, Direction direction, BlockState neighborState, LevelAccessor level, BlockPos pos, BlockPos neighborPos) {
+    protected @Nonnull BlockState updateShape(BlockState state, LevelReader level, ScheduledTickAccess ticks, BlockPos pos, Direction direction, BlockPos neighborPos, BlockState neighborState, RandomSource random) {
         if (level.getBlockEntity(pos) instanceof InterfaceBE be) be.update = 4;
-        return super.updateShape(state, direction, neighborState, level, pos, neighborPos);
+        return super.updateShape(state, level, ticks, pos, direction, neighborPos, neighborState, random);
     }
 
     @Override
@@ -65,10 +67,10 @@ public class InterfaceBlock extends BEBlock {
         var facing = pState.getValue(FACING);
         var relPos = pPos.relative(facing.getOpposite());
         if (!pLevel.isLoaded(relPos)) return InteractionResult.PASS;
-        var cap = pLevel.getCapability(Capabilities.FluidHandler.BLOCK, relPos, facing);
+        var cap = AllUtils.fluids(pLevel, relPos, facing);
         if (cap == null) return InteractionResult.PASS;
         be.targetCap = cap;
-        if (!pLevel.isClientSide) {
+        if (!pLevel.isClientSide()) {
             var provider = pState.getMenuProvider(pLevel, pPos);
             if (provider != null) pPlayer.openMenu(provider);
         }
@@ -89,7 +91,7 @@ public class InterfaceBlock extends BEBlock {
 
     @Override
     public @Nullable <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
-        return (l, p, s, t) -> {
+        return (_, _, _, t) -> {
             if (t instanceof InterfaceBE be) be.tick();
         };
     }

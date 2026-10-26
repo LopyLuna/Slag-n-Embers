@@ -21,13 +21,12 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.crafting.RecipeHolder;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.ArrayList;
-import java.util.List;
 
 import static dev.lopyluna.slag.content.blocks.crucible_interface.client.InterfaceScreen.createLang;
 
@@ -45,7 +44,7 @@ public class AlloyingCategory extends AbstractRecipeCategory<RecipeHolder<Alloyi
                 guiHelper.createDrawableItemLike(AllBlocks.CRUCIBLE),
                 123, 54);
 
-        ResourceLocation backgroundTexture = SlagEmbers.loc("textures/gui/jei.png");
+        Identifier backgroundTexture = SlagEmbers.loc("textures/gui/jei.png");
         this.tankBackground = guiHelper.createDrawable(backgroundTexture, 0, 0, 32, 56);
         this.tankOverlay = guiHelper.createDrawable(backgroundTexture, 32, 0, 32, 56);
         this.validHeaterSlot = guiHelper.createDrawable(backgroundTexture, 64, 0, 20, 20);
@@ -65,28 +64,28 @@ public class AlloyingCategory extends AbstractRecipeCategory<RecipeHolder<Alloyi
 
         var totalCapacity = Math.max(totalInAmount, fluidOut.getAmount());
 
-        builder.addSlot(RecipeIngredientRole.CATALYST, 52, 36)
+        builder.addSlot(RecipeIngredientRole.CRAFTING_STATION, 52, 36)
                 .setBackground(validHeaterSlot, -2, -2)
                 .addItemStacks(AllUtils.getHeaterStacks(recipe.temperature, recipe.heatType, recipe.strict))
-                .addRichTooltipCallback((view, tooltip) -> tooltip.add(AllLangs.requires(recipe.temperature, recipe.heatType).withStyle(ChatFormatting.GRAY)));
+                .addRichTooltipCallback((_, tooltip) -> tooltip.add(AllLangs.requires(recipe.temperature, recipe.heatType).withStyle(ChatFormatting.GRAY)));
 
         builder.addOutputSlot(83, 3)
                 .setFluidRenderer(totalCapacity, false, 24, 48)
                 .setOverlay(tankOverlay, -4, -4)
                 .setBackground(tankBackground, -4, -4)
                 .addFluidStack(fluidOut.getFluid(), fluidOut.getAmount())
-                .addRichTooltipCallback((s, t) -> {
+                .addRichTooltipCallback((_, t) -> {
                     var tooltipFlag = Minecraft.getInstance().options.advancedItemTooltips ? TooltipFlag.Default.ADVANCED : TooltipFlag.Default.NORMAL;
                     t.clear();
                     var tooltips = new ArrayList<Component>();
-                    tooltips.add(fluidOut.getDisplayName());
+                    tooltips.add(fluidOut.getHoverName());
                     createLang(fluidOut, tooltips).run();
                     if (tooltipFlag.advanced()) {
                         var loc = BuiltInRegistries.FLUID.getKey(fluidOut.getFluid());
                         tooltips.add(Component.literal(loc.toString()).withStyle(ChatFormatting.DARK_GRAY));
                         var helper = EmbersJEI.modIds;
                         tooltips.add(Component.literal(getFormattedModNameForModIdWithoutDisplay(helper, loc.getNamespace())).withStyle(ChatFormatting.BLUE).withStyle(ChatFormatting.ITALIC));
-                        var name = getRegistryName(holder);
+                        var name = getIdentifier(holder);
                         if (name != null) {
                             tooltips.add(Component.translatable("jei.tooltip.recipe.id", Component.literal(name.toString())).withStyle(ChatFormatting.DARK_GRAY));
 
@@ -115,20 +114,20 @@ public class AlloyingCategory extends AbstractRecipeCategory<RecipeHolder<Alloyi
             //SlagEmbers.LOGGER.info("Fluid area size: " + ((double) fluidIn.getAmount() / totalInAmount) * 48.0);
             builder.addInputSlot(12, 51 - top)
                     .setFluidRenderer(fluidIn.amount(), false, 24, fluidAreaSize)
-                    .addIngredients(NeoForgeTypes.FLUID_STACK, List.of(fluidIn.getFluids()))
+                    .addIngredients(NeoForgeTypes.FLUID_STACK, FluidInput.stacks(fluidIn))
                     .addRichTooltipCallback((s, t) -> {
                         var fluid = s.getDisplayedIngredient(NeoForgeTypes.FLUID_STACK).orElseGet(() -> FluidInput.first(fluidIn));
                         var tooltipFlag = Minecraft.getInstance().options.advancedItemTooltips ? TooltipFlag.Default.ADVANCED : TooltipFlag.Default.NORMAL;
                         t.clear();
                         var tooltips = new ArrayList<Component>();
-                        tooltips.add(fluid.getDisplayName());
+                        tooltips.add(fluid.getHoverName());
                         createLang(fluid, tooltips).run();
                         if (tooltipFlag.advanced()) {
                             var loc = BuiltInRegistries.FLUID.getKey(fluid.getFluid());
                             tooltips.add(Component.literal(loc.toString()).withStyle(ChatFormatting.DARK_GRAY));
                             var helper = EmbersJEI.modIds;
                             tooltips.add(Component.literal(getFormattedModNameForModIdWithoutDisplay(helper, loc.getNamespace())).withStyle(ChatFormatting.BLUE).withStyle(ChatFormatting.ITALIC));
-                            var name = getRegistryName(holder);
+                            var name = getIdentifier(holder);
                             if (name != null) {
                                 tooltips.add(Component.translatable("jei.tooltip.recipe.id", Component.literal(name.toString())).withStyle(ChatFormatting.DARK_GRAY));
 
@@ -147,15 +146,15 @@ public class AlloyingCategory extends AbstractRecipeCategory<RecipeHolder<Alloyi
 
     @Override
     public void createRecipeExtras(IRecipeExtrasBuilder builder, RecipeHolder<AlloyingRecipe> holder, IFocusGroup focuses) {
-        builder.addAnimatedRecipeArrow(200).setPosition(49, 17);
+        builder.addAnimatedRecipeArrowWidget(200).setPosition(49, 17);
     }
 
     public String getFormattedModNameForModIdWithoutDisplay(IModIdHelper helper, String modId) {
-        return helper.getFormattedModNameForModId(modId);
+        return helper.getFormattedModNameComponentForModId(modId).getString();
     }
 
     public String getFormattedModNameForModId(IModIdHelper helper, String modId) {
         if (!helper.isDisplayingModNameEnabled()) return "";
-        return helper.getFormattedModNameForModId(modId);
+        return helper.getFormattedModNameComponentForModId(modId).getString();
     }
 }

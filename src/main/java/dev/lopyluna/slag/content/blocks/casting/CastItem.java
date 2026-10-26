@@ -9,14 +9,16 @@ import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.crafting.Ingredient;
 import javax.annotation.Nonnull;
+import java.util.Optional;
 
-public record CastItem(Ingredient input, Mode mode, ItemStack replacement, int damage, boolean imprint, boolean fireproof) {
+public record CastItem(Ingredient input, Mode mode, Optional<ItemStackTemplate> replacing, int damage, boolean imprint, boolean fireproof) {
     public static final Codec<CastItem> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             Ingredient.CODEC.fieldOf("ingredient").forGetter(CastItem::input),
             Mode.CODEC.optionalFieldOf("mode", Mode.CONSUME).forGetter(CastItem::mode),
-            ItemStack.OPTIONAL_CODEC.optionalFieldOf("replacement", ItemStack.EMPTY).forGetter(CastItem::replacement),
+            ItemStackTemplate.CODEC.optionalFieldOf("replacement").forGetter(CastItem::replacing),
             Codec.INT.optionalFieldOf("damage", 0).forGetter(CastItem::damage),
             Codec.BOOL.optionalFieldOf("imprint", false).forGetter(CastItem::imprint),
             Codec.BOOL.optionalFieldOf("keep_fireproof", false).forGetter(CastItem::fireproof)
@@ -25,18 +27,22 @@ public record CastItem(Ingredient input, Mode mode, ItemStack replacement, int d
     public static final StreamCodec<RegistryFriendlyByteBuf, CastItem> STREAM_CODEC = StreamCodec.composite(
             Ingredient.CONTENTS_STREAM_CODEC, CastItem::input,
             Mode.STREAM_CODEC, CastItem::mode,
-            ItemStack.OPTIONAL_STREAM_CODEC, CastItem::replacement,
+            ByteBufCodecs.optional(ItemStackTemplate.STREAM_CODEC), CastItem::replacing,
             ByteBufCodecs.VAR_INT, CastItem::damage,
             ByteBufCodecs.BOOL, CastItem::imprint,
             ByteBufCodecs.BOOL, CastItem::fireproof,
             CastItem::new);
 
     public static CastItem of(Ingredient input, Mode mode) {
-        return new CastItem(input, mode, ItemStack.EMPTY, 0, false, false);
+        return new CastItem(input, mode, Optional.empty(), 0, false, false);
     }
 
     public static CastItem imprint(Ingredient input) {
-        return new CastItem(input, Mode.CONSUME, ItemStack.EMPTY, 0, true, true);
+        return new CastItem(input, Mode.CONSUME, Optional.empty(), 0, true, true);
+    }
+
+    public ItemStack replacement() {
+        return replacing.map(ItemStackTemplate::create).orElse(ItemStack.EMPTY);
     }
 
     public Component describe() {
@@ -47,7 +53,7 @@ public record CastItem(Ingredient input, Mode mode, ItemStack replacement, int d
             case KEEP -> damage > 0
                     ? Component.translatableWithFallback("gui.slag.cast_item.keep_damage", "Reusable, loses %s durability", damage)
                     : Component.translatableWithFallback("gui.slag.cast_item.keep", "Reusable");
-            case REPLACE -> Component.translatableWithFallback("gui.slag.cast_item.replace", "Turns into %s", replacement.getHoverName());
+            case REPLACE -> Component.translatableWithFallback("gui.slag.cast_item.replace", "Turns into %s", replacement().getHoverName());
         };
     }
 
@@ -56,10 +62,10 @@ public record CastItem(Ingredient input, Mode mode, ItemStack replacement, int d
     }
 
     public ItemStack leftover(ItemStack stack) {
-        if (fireproof && stack.has(DataComponents.FIRE_RESISTANT)) return stack.copyWithCount(1);
+        if (fireproof && stack.has(DataComponents.DAMAGE_RESISTANT)) return stack.copyWithCount(1);
         return switch (mode) {
             case CONSUME -> ItemStack.EMPTY;
-            case REPLACE -> replacement.copy();
+            case REPLACE -> replacement();
             case KEEP -> {
                 var kept = stack.copyWithCount(1);
                 if (damage <= 0 || !kept.isDamageableItem()) yield kept;

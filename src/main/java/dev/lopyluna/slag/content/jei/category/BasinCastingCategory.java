@@ -22,7 +22,7 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.crafting.RecipeHolder;
@@ -45,31 +45,30 @@ public class BasinCastingCategory extends AbstractRecipeCategory<RecipeHolder<Ba
                 guiHelper.createDrawableItemLike(AllBlocks.BASIN),
                 123, 54);
 
-        ResourceLocation backgroundTexture = SlagEmbers.loc("textures/gui/jei.png");
+        Identifier backgroundTexture = SlagEmbers.loc("textures/gui/jei.png");
         this.tankBackground = guiHelper.createDrawable(backgroundTexture, 0, 0, 32, 56);
         this.tankOverlay = guiHelper.createDrawable(backgroundTexture, 32, 0, 32, 56);
     }
 
 
-    @SuppressWarnings("removal")
     @Override
     public void setRecipe(IRecipeLayoutBuilder builder, RecipeHolder<BasinCastingRecipe> holder, IFocusGroup focuses) {
         var recipe = holder.value();
 
         builder.addOutputSlot(86, 1)
                 .setStandardSlotBackground()
-                .addItemStack(recipe.getOutput());
+                .add(recipe.getOutput());
 
         var item = recipe.getCastItem();
         var basinSlot = builder.addSlot(item == null ? RecipeIngredientRole.RENDER_ONLY : RecipeIngredientRole.INPUT, 86, 38)
                 .setStandardSlotBackground();
-        if (item == null) basinSlot.addItemStack(AllBlocks.BASIN.asStack());
+        if (item == null) basinSlot.add(AllBlocks.BASIN.asStack());
         else {
             var type = item.imprint() ? recipe.getOutput().get(AllDataComponents.CAST_TYPE) : null;
             var stacks = type == null ? List.<ItemStack>of() : TableCastingCategory.castStacks(type, item.input());
-            if (stacks.isEmpty()) basinSlot.addIngredients(item.input());
+            if (stacks.isEmpty()) basinSlot.add(item.input());
             else basinSlot.addItemStacks(stacks);
-            basinSlot.addRichTooltipCallback((s, t) -> t.add(item.describe().copy().withStyle(ChatFormatting.GRAY)));
+            basinSlot.addRichTooltipCallback((_, t) -> t.add(item.describe().copy().withStyle(ChatFormatting.GRAY)));
         }
 
         var input = recipe.getInput();
@@ -78,20 +77,20 @@ public class BasinCastingCategory extends AbstractRecipeCategory<RecipeHolder<Ba
                 .setFluidRenderer(1000, false, 24, 48)
                 .setOverlay(tankOverlay, -4, -4)
                 .setBackground(tankBackground, -4, -4)
-                .addIngredients(NeoForgeTypes.FLUID_STACK, List.of(input.getFluids()))
+                .addIngredients(NeoForgeTypes.FLUID_STACK, FluidInput.stacks(input))
                 .addRichTooltipCallback((s, t) -> {
                     var fluid = s.getDisplayedIngredient(NeoForgeTypes.FLUID_STACK).orElseGet(() -> FluidInput.first(input));
                     var tooltipFlag = Minecraft.getInstance().options.advancedItemTooltips ? TooltipFlag.Default.ADVANCED : TooltipFlag.Default.NORMAL;
                     t.clear();
                     var tooltips = new ArrayList<Component>();
-                    tooltips.add(fluid.getDisplayName());
+                    tooltips.add(fluid.getHoverName());
                     createLang(fluid, tooltips).run();
                     if (tooltipFlag.advanced()) {
                         var loc = BuiltInRegistries.FLUID.getKey(fluid.getFluid());
                         tooltips.add(Component.literal(loc.toString()).withStyle(ChatFormatting.DARK_GRAY));
                         var helper = EmbersJEI.modIds;
                         tooltips.add(Component.literal(getFormattedModNameForModIdWithoutDisplay(helper, loc.getNamespace())).withStyle(ChatFormatting.BLUE).withStyle(ChatFormatting.ITALIC));
-                        var name = getRegistryName(holder);
+                        var name = getIdentifier(holder);
                         if (name != null) {
                             tooltips.add(Component.translatable("jei.tooltip.recipe.id", Component.literal(name.toString())).withStyle(ChatFormatting.DARK_GRAY));
 
@@ -110,15 +109,15 @@ public class BasinCastingCategory extends AbstractRecipeCategory<RecipeHolder<Ba
     @Override
     public void createRecipeExtras(IRecipeExtrasBuilder builder, RecipeHolder<BasinCastingRecipe> holder, IFocusGroup focuses) {
         var recipe = holder.value();
-        builder.addAnimatedRecipeArrow(CastingBE.castingTicks(recipe.getInput().amount(), BasinBE.COOLING_RATE, recipe.getDuration(), recipe.getSpeed())).setPosition(49, 17);
+        builder.addAnimatedRecipeArrowWidget(CastingBE.castingTicks(recipe.getInput().amount(), BasinBE.COOLING_RATE, recipe.getDuration(), recipe.getSpeed())).setPosition(49, 17);
     }
 
     public String getFormattedModNameForModIdWithoutDisplay(IModIdHelper helper, String modId) {
-        return helper.getFormattedModNameForModId(modId);
+        return helper.getFormattedModNameComponentForModId(modId).getString();
     }
 
     public String getFormattedModNameForModId(IModIdHelper helper, String modId) {
         if (!helper.isDisplayingModNameEnabled()) return "";
-        return helper.getFormattedModNameForModId(modId);
+        return helper.getFormattedModNameComponentForModId(modId).getString();
     }
 }

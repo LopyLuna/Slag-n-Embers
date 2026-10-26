@@ -3,10 +3,9 @@
   "cast": "slag:cast/gems",
   "ingredient": {
     "amount": 72,
-    "tag": "c:molten/amethyst"
+    "ingredient": "#c:molten/amethyst"
   },
   "result": {
-    "count": 1,
     "id": "minecraft:amethyst_shard"
   }
 }

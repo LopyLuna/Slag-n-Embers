@@ -12,7 +12,7 @@
   "cast": "slag:cast/dusts",
   "ingredient": {
     "amount": 72,
-    "tag": "c:molten/copper"
+    "ingredient": "#c:molten/copper"
   },
   "result": {
     "tag": "c:dusts/copper"

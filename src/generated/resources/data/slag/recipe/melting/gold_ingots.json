@@ -1,8 +1,6 @@
 {
   "type": "slag:melting",
-  "ingredient": {
-    "tag": "c:ingots/gold"
-  },
+  "ingredient": "#c:ingots/gold",
   "ingredients": [],
   "result": [
     {

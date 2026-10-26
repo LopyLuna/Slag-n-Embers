@@ -1,50 +1,61 @@
 package dev.lopyluna.slag.content.blocks.crucible;
 
+import dev.lopyluna.slag.content.AllUtils;
 import dev.lopyluna.slag.content.temperature.Temperatures.Heat;
 import dev.lopyluna.slag.content.utils.NBTHelper;
 import dev.lopyluna.slag.register.AllRecipes;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.Tag;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.crafting.RecipeHolder;
+import net.minecraft.world.item.crafting.RecipeMap;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.material.Fluid;
 import net.neoforged.neoforge.fluids.FluidStack;
-import net.neoforged.neoforge.fluids.capability.IFluidHandler;
-import net.neoforged.neoforge.fluids.capability.templates.FluidTank;
 import net.neoforged.neoforge.fluids.crafting.SizedFluidIngredient;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.TransferPreconditions;
+import net.neoforged.neoforge.transfer.fluid.FluidResource;
+import net.neoforged.neoforge.transfer.transaction.SnapshotJournal;
+import net.neoforged.neoforge.transfer.transaction.TransactionContext;
 import javax.annotation.Nonnull;
 
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 import java.util.function.Consumer;
 
-@SuppressWarnings("unused")
+@SuppressWarnings({"unused", "UnusedReturnValue"})
 @ParametersAreNonnullByDefault
-public class CrucibleTank extends FluidTank {
+public class CrucibleTank extends SnapshotJournal<List<FluidStack>> implements ResourceHandler<FluidResource> {
     private static final Comparator<FluidStack> BY_AMOUNT = Comparator.comparingInt(FluidStack::getAmount).reversed();
     private List<FluidStack> fluids = new ArrayList<>();
     private final Consumer<List<FluidStack>> updateCallback;
     public FluidStack first = FluidStack.EMPTY;
     public boolean sortByAmount;
     private float alloyBudget;
-    private static Collection<RecipeHolder<?>> alloySource;
+    private static RecipeMap alloySource;
     private static List<AlloyingRecipe> alloyRecipes = List.of();
     public int total;
     public boolean hot;
+    protected int capacity;
 
     public CrucibleTank(int capacity, Consumer<List<FluidStack>> updateCallback) {
-        super(capacity);
+        this.capacity = capacity;
         this.updateCallback = updateCallback;
         fluids.add(FluidStack.EMPTY);
     }
 
-    @Override
+    public int getCapacity() {
+        return capacity;
+    }
+
+    public void setCapacity(int capacity) {
+        this.capacity = capacity;
+    }
+
     protected void onContentsChanged() {
         recount();
         updateCallback.accept(getFluids());
@@ -160,7 +171,6 @@ public class CrucibleTank extends FluidTank {
         return FluidStack.EMPTY;
     }
 
-    @Override
     public @Nonnull FluidStack getFluid() {
         return fluids.isEmpty() ? FluidStack.EMPTY : fluids.getFirst();
     }
@@ -169,64 +179,71 @@ public class CrucibleTank extends FluidTank {
         return getFluid().getAmount();
     }
 
-    @Override
-    public @Nonnull FluidTank readFromNBT(HolderLookup.Provider provider, CompoundTag nbt) {
+    public CrucibleTank readFromNBT(HolderLookup.Provider provider, CompoundTag nbt) {
         fluids.clear();
-        fluids = NBTHelper.readFluidList(nbt.getList("Fluids", Tag.TAG_COMPOUND), provider);
+        fluids = NBTHelper.readFluidList(nbt.getListOrEmpty("Fluids"), provider);
         recount();
         return this;
     }
 
-    @Override
     public @Nonnull CompoundTag writeToNBT(HolderLookup.Provider provider, CompoundTag nbt) {
         nbt.put("Fluids", NBTHelper.writeFluidList(fluids, provider));
         return nbt;
     }
 
-    @SuppressWarnings("all")
-    @Override
-    public boolean isFluidValid(FluidStack stack) {
-        return this.validator != null && super.isFluidValid(stack);
-    }
-
-    public int fill(List<FluidStack> resources, IFluidHandler.FluidAction action) {
+    public int fill(List<FluidStack> resources, boolean simulate) {
         if (resources.isEmpty()) return 0;
         var i = 0;
-        for (var f : resources) i += fill(f, action);
+        for (var f : resources) i += fill(f, simulate);
         return i;
     }
 
-    @SuppressWarnings("all")
-    @Override
-    public int fill(FluidStack resource, IFluidHandler.FluidAction action) {
-        if (resource == null || resource.isEmpty() || validator == null || !isFluidValid(resource) || action == null) return 0;
+    public int fill(FluidStack resource, boolean simulate) {
+        var filled = fillRaw(resource, simulate);
+        if (!simulate && filled > 0) onContentsChanged();
+        return filled;
+    }
+
+    public @Nonnull FluidStack drain(FluidStack resource, boolean simulate) {
+        var out = drainRaw(resource, simulate);
+        if (!simulate && !out.isEmpty()) onContentsChanged();
+        return out;
+    }
+
+    public @Nonnull FluidStack drain(int maxDrain, boolean simulate) {
+        compress();
+        if (maxDrain <= 0 || fluids.isEmpty()) return FluidStack.EMPTY;
+
+        var top = fluids.getFirst();
+        if (top.isEmpty()) return FluidStack.EMPTY;
+
+        int drained = Math.min(top.getAmount(), maxDrain);
+        FluidStack out = top.copyWithAmount(drained);
+
+        if (!simulate && drained > 0) {
+            top.shrink(drained);
+            onContentsChanged();
+        }
+        return out;
+    }
+
+    private int fillRaw(FluidStack resource, boolean simulate) {
+        if (resource.isEmpty()) return 0;
 
         int match = findFirstMatch(resource);
-        int spaceTotal = getSpace();
+        int fillable = Math.min(getSpace(), resource.getAmount());
+        if (fillable <= 0 || simulate) return Math.max(0, fillable);
 
-        if (match >= 0) {
-            int fillable = Math.min(spaceTotal, resource.getAmount());
-            if (fillable <= 0) return 0;
-            if (action.simulate()) return fillable;
-
-            fluids.get(match).grow(fillable);
-            if (sortByAmount) fluids.sort(BY_AMOUNT);
-            onContentsChanged();
-            return fillable;
+        if (match >= 0) fluids.get(match).grow(fillable);
+        else {
+            fluids.add(resource.copyWithAmount(fillable));
+            if (fluids.getFirst().isEmpty() && fluids.size() > 1) moveFirstNonEmptyToFront();
         }
-        int fillable = Math.min(spaceTotal, resource.getAmount());
-        if (fillable <= 0) return 0;
-        if (action.simulate()) return fillable;
-
-        fluids.add(resource.copyWithAmount(fillable));
-        if (fluids.getFirst().isEmpty() && fluids.size() > 1) moveFirstNonEmptyToFront();
         if (sortByAmount) fluids.sort(BY_AMOUNT);
-        onContentsChanged();
         return fillable;
     }
 
-    @Override
-    public @Nonnull FluidStack drain(FluidStack resource, IFluidHandler.FluidAction action) {
+    private FluidStack drainRaw(FluidStack resource, boolean simulate) {
         if (resource.isEmpty()) return FluidStack.EMPTY;
         compress();
 
@@ -238,34 +255,88 @@ public class CrucibleTank extends FluidTank {
 
         int drained = Math.min(matched.getAmount(), resource.getAmount());
         FluidStack out = matched.copyWithAmount(drained);
-
-        if (action.execute() && drained > 0) {
-            matched.shrink(drained);
-            onContentsChanged();
-        }
-
+        if (!simulate && drained > 0) matched.shrink(drained);
         return out;
     }
 
     @Override
-    public @Nonnull FluidStack drain(int maxDrain, IFluidHandler.FluidAction action) {
-        compress();
-        if (maxDrain <= 0 || fluids.isEmpty()) return FluidStack.EMPTY;
-
-        var top = fluids.getFirst();
-        if (top.isEmpty()) return FluidStack.EMPTY;
-
-        int drained = Math.min(top.getAmount(), maxDrain);
-        FluidStack out = top.copyWithAmount(drained);
-
-        if (action.execute() && drained > 0) {
-            top.shrink(drained);
-            onContentsChanged();
-        }
-        return out;
+    public int size() {
+        return fluids.size();
     }
 
     @Override
+    public @Nonnull FluidResource getResource(int index) {
+        return index < 0 || index >= fluids.size() ? FluidResource.EMPTY : FluidResource.of(fluids.get(index));
+    }
+
+    @Override
+    public long getAmountAsLong(int index) {
+        return index < 0 || index >= fluids.size() ? 0 : fluids.get(index).getAmount();
+    }
+
+    @Override
+    public long getCapacityAsLong(int index, FluidResource resource) {
+        return capacity;
+    }
+
+    @Override
+    public boolean isValid(int index, FluidResource resource) {
+        return true;
+    }
+
+    @Override
+    public int insert(int index, FluidResource resource, int amount, TransactionContext transaction) {
+        return insert(resource, amount, transaction);
+    }
+
+    @Override
+    public int insert(FluidResource resource, int amount, TransactionContext transaction) {
+        TransferPreconditions.checkNonEmptyNonNegative(resource, amount);
+        var stack = resource.toStack(amount);
+        var filled = fillRaw(stack, true);
+        if (filled <= 0) return 0;
+        updateSnapshots(transaction);
+        fillRaw(stack, false);
+        recount();
+        return filled;
+    }
+
+    @Override
+    public int extract(int index, FluidResource resource, int amount, TransactionContext transaction) {
+        return extract(resource, amount, transaction);
+    }
+
+    @Override
+    public int extract(FluidResource resource, int amount, TransactionContext transaction) {
+        TransferPreconditions.checkNonEmptyNonNegative(resource, amount);
+        var stack = resource.toStack(amount);
+        var drained = drainRaw(stack, true).getAmount();
+        if (drained <= 0) return 0;
+        updateSnapshots(transaction);
+        drainRaw(stack, false);
+        recount();
+        return drained;
+    }
+
+    @Override
+    protected List<FluidStack> createSnapshot() {
+        var list = new ArrayList<FluidStack>(fluids.size());
+        for (var fluid : fluids) list.add(fluid.copy());
+        return list;
+    }
+
+    @Override
+    protected void revertToSnapshot(List<FluidStack> snapshot) {
+        fluids = new ArrayList<>(snapshot.size());
+        for (var fluid : snapshot) fluids.add(fluid.copy());
+        recount();
+    }
+
+    @Override
+    protected void onRootCommit(List<FluidStack> originalState) {
+        onContentsChanged();
+    }
+
     public void setFluid(FluidStack stack) {
         if (fluids.isEmpty()) fluids.add(stack);
         else fluids.set(0, stack);
@@ -274,12 +345,6 @@ public class CrucibleTank extends FluidTank {
         updateCallback.accept(fluids);
     }
 
-    @Override
-    public int getTanks() {
-        return fluids.size();
-    }
-
-    @Override
     public boolean isEmpty() {
         return total == 0;
     }
@@ -338,18 +403,19 @@ public class CrucibleTank extends FluidTank {
     public boolean tryAlloy(Level level, Heat heat) { return tryAlloy(level, 1, heat); }
 
     public boolean tryAlloy(Level level, int maxCraftsPerCall, Heat heat) {
-        if (level.isClientSide || heat.tier == null) return false;
+        if (level.isClientSide() || heat.tier == null) return false;
 
         boolean changed = false;
 
         fluids.removeIf(FluidStack::isEmpty);
         if (fluids.isEmpty()) return false;
 
-        var manager = level.getRecipeManager();
-        var source = manager.getRecipes();
+        var manager = AllUtils.recipes(level);
+        if (manager == null) return false;
+        var source = manager.recipeMap();
         if (source != alloySource) {
             alloySource = source;
-            alloyRecipes = manager.getAllRecipesFor(AllRecipes.ALLOYING.get()).stream().map(RecipeHolder::value).toList();
+            alloyRecipes = source.byType(AllRecipes.ALLOYING.get()).stream().map(RecipeHolder::value).toList();
         }
         var recipes = alloyRecipes;
         if (recipes.isEmpty()) return false;
@@ -430,12 +496,6 @@ public class CrucibleTank extends FluidTank {
             return;
         }
         fluids.add(add.copy());
-    }
-
-    @Override
-    public @Nonnull FluidStack getFluidInTank(int tank) {
-        if (tank >= fluids.size() || 0 >= tank) return super.getFluidInTank(tank);
-        return fluids.get(tank);
     }
 
     private void coalesce() {

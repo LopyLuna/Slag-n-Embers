@@ -9,9 +9,7 @@
     }
   ],
   "type": "slag:melting",
-  "ingredient": {
-    "tag": "c:ingots/zinc"
-  },
+  "ingredient": "#c:ingots/zinc",
   "ingredients": [],
   "result": [
     {

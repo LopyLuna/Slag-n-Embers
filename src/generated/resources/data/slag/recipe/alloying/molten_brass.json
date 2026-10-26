@@ -19,11 +19,11 @@
   "ingredients": [
     {
       "amount": 8,
-      "tag": "c:molten/copper"
+      "ingredient": "#c:molten/copper"
     },
     {
       "amount": 8,
-      "tag": "c:molten/zinc"
+      "ingredient": "#c:molten/zinc"
     }
   ],
   "result": {

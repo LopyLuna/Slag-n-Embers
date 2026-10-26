@@ -1,7 +1,6 @@
 {
   "final_segment_stacks": [
     {
-      "count": 1,
       "id": "minecraft:amethyst_shard"
     },
     {
@@ -11,7 +10,6 @@
   ],
   "id": "slag:spyglass",
   "result_stack": {
-    "count": 1,
     "id": "minecraft:spyglass"
   },
   "sort_order": 100

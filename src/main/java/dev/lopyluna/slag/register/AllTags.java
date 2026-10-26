@@ -6,7 +6,7 @@ import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.tags.TagBuilder;
@@ -99,9 +99,9 @@ public class AllTags {
 
     public static TagKey<Block> HARVESTABLE = block("harvestable");
     public static TagKey<Block> VEIN_MINEABLE = block("vein_mineable");
-    public static TagKey<Block> KNIFE_MINEABLE = TagKey.create(Registries.BLOCK, ResourceLocation.fromNamespaceAndPath("farmersdelight", "mineable/knife"));
+    public static TagKey<Block> KNIFE_MINEABLE = TagKey.create(Registries.BLOCK, Identifier.fromNamespaceAndPath("farmersdelight", "mineable/knife"));
     public static TagKey<Item> KNIVES = itemC("tools/knife");
-    public static TagKey<Item> FD_KNIVES = TagKey.create(Registries.ITEM, ResourceLocation.fromNamespaceAndPath("farmersdelight", "tools/knives"));
+    public static TagKey<Item> FD_KNIVES = TagKey.create(Registries.ITEM, Identifier.fromNamespaceAndPath("farmersdelight", "tools/knives"));
 
     public static void genBlockTags(RegistrateTagsProvider<Block> provIn) {
         TagsProvider<Block> prov = new TagsProvider<>(provIn, Block::builtInRegistryHolder);
@@ -187,7 +187,9 @@ public class AllTags {
 
         for (var cast : CASTS) prov.tag(IMPRINTABLE).addOptionalTag(cast.location());
 
-        for (var gem : List.of("diamond", "emerald", "lapis")) prov.tag(itemC("nuggets/" + gem));
+        for (var gem : List.of("diamond", "emerald", "lapis", "netherite")) prov.tag(itemC("nuggets/" + gem));
+        prov.tag(itemC("storage_blocks/amethyst")).add(Items.AMETHYST_BLOCK);
+        prov.tag(itemC("gems/echo")).add(Items.ECHO_SHARD);
 
         prov.tag(RECYCLING_FREE)
                 .add(Items.PAPER)
@@ -329,15 +331,15 @@ public class AllTags {
     }
 
     public static TagKey<Block> block(String name) { return TagKey.create(Registries.BLOCK, SlagEmbers.loc(name)); }
-    public static TagKey<Block> blockC(String name) { return TagKey.create(Registries.BLOCK, ResourceLocation.fromNamespaceAndPath("c", name)); }
-    public static TagKey<Block> blockMC(String name) { return TagKey.create(Registries.BLOCK, ResourceLocation.withDefaultNamespace(name)); }
+    public static TagKey<Block> blockC(String name) { return TagKey.create(Registries.BLOCK, Identifier.fromNamespaceAndPath("c", name)); }
+    public static TagKey<Block> blockMC(String name) { return TagKey.create(Registries.BLOCK, Identifier.withDefaultNamespace(name)); }
     public static TagKey<Item> item(String name) { return TagKey.create(Registries.ITEM, SlagEmbers.loc(name)); }
-    public static ICondition present(TagKey<Item> tag) { return new NotCondition(new TagEmptyCondition(tag)); }
-    public static TagKey<Item> itemC(String name) { return TagKey.create(Registries.ITEM, ResourceLocation.fromNamespaceAndPath("c", name)); }
-    public static TagKey<Item> itemMC(String name) { return TagKey.create(Registries.ITEM, ResourceLocation.withDefaultNamespace(name)); }
+    public static ICondition present(TagKey<Item> tag) { return new NotCondition(new TagEmptyCondition<>(tag)); }
+    public static TagKey<Item> itemC(String name) { return TagKey.create(Registries.ITEM, Identifier.fromNamespaceAndPath("c", name)); }
+    public static TagKey<Item> itemMC(String name) { return TagKey.create(Registries.ITEM, Identifier.withDefaultNamespace(name)); }
     public static TagKey<Fluid> fluid(String name) { return TagKey.create(Registries.FLUID, SlagEmbers.loc(name)); }
-    public static TagKey<Fluid> fluidC(String name) { return TagKey.create(Registries.FLUID, ResourceLocation.fromNamespaceAndPath("c", name)); }
-    public static TagKey<Fluid> fluidMC(String name) { return TagKey.create(Registries.FLUID, ResourceLocation.withDefaultNamespace(name)); }
+    public static TagKey<Fluid> fluidC(String name) { return TagKey.create(Registries.FLUID, Identifier.fromNamespaceAndPath("c", name)); }
+    public static TagKey<Fluid> fluidMC(String name) { return TagKey.create(Registries.FLUID, Identifier.withDefaultNamespace(name)); }
 
     public static class TagsProvider<T> {
 
@@ -355,30 +357,45 @@ public class AllTags {
         }
 
         public TagBuilder getOrCreateRawBuilder(TagKey<T> tag) {
-            return provider.addTag(tag).getInternalBuilder();
+            return provider.rawBuilder(tag);
         }
 
     }
 
-    public static class TagAppender<T> extends net.minecraft.data.tags.TagsProvider.TagAppender<T> {
+    @SuppressWarnings("UnusedReturnValue")
+    public static class TagAppender<T> {
 
+        private final TagBuilder builder;
         private final Function<T, ResourceKey<T>> keyExtractor;
 
         public TagAppender(TagBuilder pBuilder, Function<T, ResourceKey<T>> pKeyExtractor) {
-            super(pBuilder);
+            this.builder = pBuilder;
             this.keyExtractor = pKeyExtractor;
         }
 
         public TagAppender<T> add(T entry) {
-            this.add(this.keyExtractor.apply(entry));
+            builder.addElement(keyExtractor.apply(entry).identifier());
             return this;
         }
 
         @SafeVarargs
         public final TagAppender<T> add(T... entries) {
-            Stream.of(entries)
-                    .map(this.keyExtractor)
-                    .forEach(this::add);
+            Stream.of(entries).forEach(this::add);
+            return this;
+        }
+
+        public TagAppender<T> addTag(TagKey<T> tag) {
+            builder.addTag(tag.location());
+            return this;
+        }
+
+        public TagAppender<T> addOptional(Identifier id) {
+            builder.addOptionalElement(id);
+            return this;
+        }
+
+        public TagAppender<T> addOptionalTag(Identifier id) {
+            builder.addOptionalTag(id);
             return this;
         }
     }

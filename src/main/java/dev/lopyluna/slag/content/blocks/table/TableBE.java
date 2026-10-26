@@ -1,5 +1,6 @@
 package dev.lopyluna.slag.content.blocks.table;
 
+import dev.lopyluna.slag.content.AllUtils;
 import dev.lopyluna.slag.content.blocks.casting.CastingBE;
 import dev.lopyluna.slag.content.blocks.casting.CastingInventory;
 import dev.lopyluna.slag.content.items.dynamic_mold.DynamicMoldItem;
@@ -16,7 +17,7 @@ import net.minecraft.tags.TagKey;
 import net.minecraft.util.Unit;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.RecipeHolder;
+import net.minecraft.world.item.crafting.RecipeMap;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Fluid;
@@ -27,9 +28,13 @@ import java.util.*;
 public class TableBE extends CastingBE {
     public static final int MOLD = 1;
     public static final float COOLING_RATE = 0.25f;
-    private static final Map<Fluid, Map<TagKey<Item>, TableCastingRecipe>> handlers = new IdentityHashMap<>();
-    private static final List<TableCastingRecipe> itemHandlers = new ArrayList<>();
-    private static Collection<RecipeHolder<?>> handlerSource;
+    private static final Handlers SERVER = new Handlers(), CLIENT = new Handlers();
+
+    private static final class Handlers {
+        private final Map<Fluid, Map<TagKey<Item>, TableCastingRecipe>> fluids = new IdentityHashMap<>();
+        private final List<TableCastingRecipe> items = new ArrayList<>();
+        private @Nullable RecipeMap source;
+    }
 
     public ItemStack moldBase = ItemStack.EMPTY;
     public ItemStack moldCutout = ItemStack.EMPTY;
@@ -50,11 +55,11 @@ public class TableBE extends CastingBE {
     @Override
     protected @Nullable Handler findHandler(Fluid fluid) {
         if (level == null) return null;
-        refreshHandlers();
+        var cache = handlers();
         var cast = itemInventory.getItem(MOLD).get(AllDataComponents.CAST_TYPE);
         var placed = itemInventory.getItem(RESULT);
         if (!placed.isEmpty()) {
-            for (var recipe : itemHandlers) {
+            for (var recipe : cache.items) {
                 var castItem = recipe.getCastItem();
                 if (castItem == null || !FluidInput.test(recipe.getInput(), fluid) || !castItem.matches(placed)) continue;
                 if (!Objects.equals(recipe.getCastType(), cast)) continue;
@@ -62,7 +67,7 @@ public class TableBE extends CastingBE {
             }
             return null;
         }
-        var casts = handlers.get(fluid);
+        var casts = cache.fluids.get(fluid);
         var recipe = casts == null ? null : casts.get(cast);
         if (recipe == null || recipe.getOutput().isEmpty()) return null;
         return handler(recipe.getInput().amount(), recipe.getDuration(), recipe.getSpeed(), recipe.getResult(), null);
@@ -71,30 +76,30 @@ public class TableBE extends CastingBE {
     @Override
     public boolean isCastItem(ItemStack stack) {
         if (level == null || stack.isEmpty()) return false;
-        refreshHandlers();
-        for (var recipe : itemHandlers) {
+        for (var recipe : handlers().items) {
             var castItem = recipe.getCastItem();
             if (castItem != null && castItem.matches(stack)) return true;
         }
         return false;
     }
 
-    private void refreshHandlers() {
-        if (level == null) return;
-        var manager = level.getRecipeManager();
-        if (manager.getRecipes() == handlerSource) return;
-        handlerSource = manager.getRecipes();
-        handlers.clear();
-        itemHandlers.clear();
-        for (var holder : manager.getAllRecipesFor(AllRecipes.TABLE_CASTING.get())) {
+    private Handlers handlers() {
+        var cache = level != null && level.isClientSide() ? CLIENT : SERVER;
+        var map = AllUtils.recipeMap(level);
+        if (map == cache.source) return cache;
+        cache.source = map;
+        cache.fluids.clear();
+        cache.items.clear();
+        for (var holder : map.byType(AllRecipes.TABLE_CASTING.get())) {
             var recipe = holder.value();
-            if (recipe.getCastItem() != null) itemHandlers.add(recipe);
-            else for (var fluid : recipe.getInput().getFluids()) {
-                var casts = handlers.computeIfAbsent(fluid.getFluid(), f -> new HashMap<>());
+            if (recipe.getCastItem() != null) cache.items.add(recipe);
+            else for (var fluid : FluidInput.stacks(recipe.getInput())) {
+                var casts = cache.fluids.computeIfAbsent(fluid.getFluid(), _ -> new HashMap<>());
                 var known = casts.get(recipe.getCastType());
                 if (FluidInput.narrower(recipe.getInput(), known == null ? null : known.getInput())) casts.put(recipe.getCastType(), recipe);
             }
         }
+        return cache;
     }
 
     @Override
@@ -119,7 +124,7 @@ public class TableBE extends CastingBE {
             return;
         }
         itemInventory.setItem(MOLD, ItemStack.EMPTY);
-        if (level != null) level.playSound(null, worldPosition, SoundEvents.ITEM_BREAK, SoundSource.BLOCKS, 0.6f, 1f);
+        if (level != null) level.playSound(null, worldPosition, SoundEvents.ITEM_BREAK.value(), SoundSource.BLOCKS, 0.6f, 1f);
     }
 
     @Override

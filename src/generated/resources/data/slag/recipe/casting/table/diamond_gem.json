@@ -3,10 +3,9 @@
   "cast": "slag:cast/gems",
   "ingredient": {
     "amount": 72,
-    "tag": "c:molten/diamond"
+    "ingredient": "#c:molten/diamond"
   },
   "result": {
-    "count": 1,
     "id": "minecraft:diamond"
   }
 }

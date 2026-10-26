@@ -1,9 +1,7 @@
 {
   "id": "slag:diamond",
   "molten_fluid": "slag:molten_diamond",
-  "repair_ingredient": {
-    "tag": "c:gems/diamond"
-  },
+  "repair_ingredient": "#c:gems/diamond",
   "sort_order": 60,
   "texture": "shiny",
   "traits": [

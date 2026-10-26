@@ -12,7 +12,7 @@
   "cast": "slag:cast/dusts",
   "ingredient": {
     "amount": 72,
-    "tag": "c:molten/quartz"
+    "ingredient": "#c:molten/quartz"
   },
   "result": {
     "tag": "c:dusts/quartz"

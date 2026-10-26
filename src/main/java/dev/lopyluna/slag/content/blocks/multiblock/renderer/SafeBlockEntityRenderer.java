@@ -2,42 +2,65 @@ package dev.lopyluna.slag.content.blocks.multiblock.renderer;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import dev.lopyluna.slag.content.blocks.smart.CachedRenderBBBlockEntity;
-import dev.lopyluna.slag.mixin.LevelRendererAccessor;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
-import net.minecraft.client.renderer.culling.Frustum;
-import net.minecraft.world.level.Level;
+import net.minecraft.client.renderer.blockentity.state.BlockEntityRenderState;
+import net.minecraft.client.renderer.feature.ModelFeatureRenderer;
+import net.minecraft.client.renderer.item.ItemStackRenderState;
+import net.minecraft.client.renderer.state.level.CameraRenderState;
+import net.minecraft.client.renderer.texture.OverlayTexture;
+import net.minecraft.world.item.ItemDisplayContext;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import javax.annotation.Nonnull;
 
-@SuppressWarnings("unused")
-public abstract class SafeBlockEntityRenderer<T extends BlockEntity> implements BlockEntityRenderer<T> {
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
+@SuppressWarnings({"unused", "SameParameterValue"})
+public abstract class SafeBlockEntityRenderer<T extends BlockEntity> implements BlockEntityRenderer<T, SafeBlockEntityRenderer.State<T>> {
     @Override
-    public final void render(@Nonnull T be, float partialTicks, @Nonnull PoseStack ms, @Nonnull MultiBufferSource bufferSource, int light, int overlay) {
-        if (isInvalid(be)) return;
-        renderSafe(be, partialTicks, ms, bufferSource, light, overlay);
+    public @Nonnull State<T> createRenderState() {
+        return new State<>();
     }
 
-    protected abstract void renderSafe(T be, float partialTicks, PoseStack ms, MultiBufferSource bufferSource, int light, int overlay);
+    @Override
+    public void extractRenderState(@Nonnull T be, @Nonnull State<T> state, float partialTicks, @Nonnull Vec3 cameraPosition, @Nullable ModelFeatureRenderer.CrumblingOverlay breakProgress) {
+        BlockEntityRenderer.super.extractRenderState(be, state, partialTicks, cameraPosition, breakProgress);
+        state.be = isInvalid(be) ? null : be;
+        state.partialTicks = partialTicks;
+    }
+
+    @Override
+    public final void submit(@Nonnull State<T> state, @Nonnull PoseStack ms, @Nonnull SubmitNodeCollector collector, @Nonnull CameraRenderState camera) {
+        if (state.be == null) return;
+        renderSafe(state.be, state.partialTicks, ms, collector, state.lightCoords, OverlayTexture.NO_OVERLAY);
+    }
+
+    protected abstract void renderSafe(T be, float partialTicks, PoseStack ms, SubmitNodeCollector collector, int light, int overlay);
 
     public boolean isInvalid(T be) {
         return !be.hasLevel() || be.getBlockState().getBlock() == Blocks.AIR;
     }
 
-    public boolean shouldCullItem(Vec3 itemPos, Level level) {
-        LevelRendererAccessor accessor = (LevelRendererAccessor) Minecraft.getInstance().levelRenderer;
-        Frustum frustum = accessor.slag$getCapturedFrustum() != null ? accessor.slag$getCapturedFrustum() : accessor.slag$getCullingFrustum();
-        AABB itemBB = new AABB(itemPos.x - 0.25, itemPos.y - 0.25, itemPos.z - 0.25, itemPos.x + 0.25, itemPos.y + 0.25, itemPos.z + 0.25);
-        return frustum != null && !frustum.isVisible(itemBB);
+    public static void renderItem(ItemStack stack, ItemDisplayContext context, PoseStack ms, SubmitNodeCollector collector, int light, int overlay) {
+        var mc = Minecraft.getInstance();
+        var state = new ItemStackRenderState();
+        mc.getItemModelResolver().updateForTopItem(state, stack, context, mc.level, null, 0);
+        state.submit(ms, collector, light, overlay, 0);
     }
 
     @Override
     public @Nonnull AABB getRenderBoundingBox(@Nonnull T blockEntity) {
         if (blockEntity instanceof CachedRenderBBBlockEntity cbe) return cbe.getRenderBoundingBox();
         return BlockEntityRenderer.super.getRenderBoundingBox(blockEntity);
+    }
+
+    public static class State<T> extends BlockEntityRenderState {
+        public @Nullable T be;
+        public float partialTicks;
     }
 }

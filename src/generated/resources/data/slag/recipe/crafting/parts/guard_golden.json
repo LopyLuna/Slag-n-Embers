@@ -8,12 +8,8 @@
   "type": "minecraft:crafting_shaped",
   "category": "equipment",
   "key": {
-    "M": {
-      "tag": "c:ingots/gold"
-    },
-    "R": {
-      "item": "minecraft:paper"
-    }
+    "M": "#c:ingots/gold",
+    "R": "minecraft:paper"
   },
   "pattern": [
     "R",
@@ -24,7 +20,6 @@
       "slag:material_type": "slag:golden",
       "slag:part_type": "slag:guard"
     },
-    "count": 1,
     "id": "slag:dynamic_part"
   }
 }

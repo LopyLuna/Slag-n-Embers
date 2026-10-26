@@ -1,8 +1,6 @@
 {
   "type": "slag:melting",
-  "ingredient": {
-    "item": "minecraft:heavy_core"
-  },
+  "ingredient": "minecraft:heavy_core",
   "ingredients": [],
   "result": [
     {

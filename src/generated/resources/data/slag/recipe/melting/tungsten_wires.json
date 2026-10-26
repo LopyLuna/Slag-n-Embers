@@ -9,9 +9,7 @@
     }
   ],
   "type": "slag:melting",
-  "ingredient": {
-    "tag": "c:wires/tungsten"
-  },
+  "ingredient": "#c:wires/tungsten",
   "ingredients": [],
   "result": [
     {

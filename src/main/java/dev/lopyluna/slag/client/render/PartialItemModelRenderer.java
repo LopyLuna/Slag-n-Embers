@@ -1,97 +1,92 @@
 package dev.lopyluna.slag.client.render;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.VertexConsumer;
-import net.createmod.catnip.data.Iterate;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.Sheets;
-import net.minecraft.client.renderer.entity.ItemRenderer;
-import net.minecraft.client.resources.model.BakedModel;
-import net.minecraft.core.Direction;
-import net.minecraft.util.RandomSource;
+import dev.lopyluna.slag.mixin.ItemStackRenderStateAccessor;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.client.renderer.item.ItemModelResolver;
+import net.minecraft.client.renderer.item.ItemStackRenderState;
+import net.minecraft.client.resources.model.cuboid.ItemTransform;
+import net.minecraft.client.resources.model.sprite.Material;
+import net.minecraft.world.entity.ItemOwner;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.neoforge.client.extensions.common.IClientItemExtensions;
-import net.neoforged.neoforge.client.model.data.ModelData;
+import org.joml.Matrix4f;
+
+import javax.annotation.Nullable;
 
 @SuppressWarnings("unused")
 public class PartialItemModelRenderer {
-	private static final PartialItemModelRenderer INSTANCE = new PartialItemModelRenderer();
+	private final PoseStack ms = new PoseStack();
+	private final ItemStackRenderState output;
+	private final ItemStack stack;
+	private final ItemModelResolver resolver;
+	private final ItemDisplayContext ctx;
+	private final @Nullable ClientLevel level;
+	private final @Nullable ItemOwner owner;
+	private final int seed;
 
-	private final RandomSource random = RandomSource.create();
+	private ItemTransform transform = ItemTransform.NO_TRANSFORM;
+	private boolean blockLight;
+	private @Nullable Material.Baked particle;
 
-	private ItemStack stack;
-	private ItemDisplayContext transformType;
-	private PoseStack ms;
-	private MultiBufferSource buffer;
-	private int overlay;
-
-	public static PartialItemModelRenderer of(ItemStack stack, ItemDisplayContext transformType,
-		PoseStack ms, MultiBufferSource buffer, int overlay) {
-		PartialItemModelRenderer instance = INSTANCE;
-		instance.stack = stack;
-		instance.transformType = transformType;
-		instance.ms = ms;
-		instance.buffer = buffer;
-		instance.overlay = overlay;
-		return instance;
+	private PartialItemModelRenderer(ItemStackRenderState output, ItemStack stack, ItemModelResolver resolver, ItemDisplayContext ctx, @Nullable ClientLevel level, @Nullable ItemOwner owner, int seed) {
+		this.output = output;
+		this.stack = stack;
+		this.resolver = resolver;
+		this.ctx = ctx;
+		this.level = level;
+		this.owner = owner;
+		this.seed = seed;
 	}
 
-	public void render(BakedModel model, int light) {
-		render(model, Sheets.translucentCullBlockSheet(), light);
+	public static PartialItemModelRenderer of(ItemStackRenderState output, ItemStack stack, ItemModelResolver resolver, ItemDisplayContext ctx, @Nullable ClientLevel level, @Nullable ItemOwner owner, int seed) {
+		return new PartialItemModelRenderer(output, stack, resolver, ctx, level, owner, seed);
 	}
 
-	public void renderSolid(BakedModel model, int light) {
-		render(model, Sheets.solidBlockSheet(), light);
+	public PoseStack pose() {
+		return ms;
 	}
 
-	public void render(BakedModel model, ItemStack stack, int light) {
-		render(model, stack, Sheets.translucentCullBlockSheet(), light);
+	public void animated() {
+		output.setAnimated();
 	}
 
-	public void renderSolid(BakedModel model, ItemStack stack, int light) {
-		render(model, stack, Sheets.solidBlockSheet(), light);
+	public void transform(CustomRenderedItemModel model) {
+		var properties = model.properties;
+		if (properties == null) return;
+		transform = properties.transforms().getTransform(ctx);
+		blockLight = properties.usesBlockLight();
+		particle = properties.particleMaterial();
 	}
 
-	public void render(BakedModel model, ItemStack stack, RenderType type, int light) {
-		if (stack.isEmpty()) return;
-
-		ms.pushPose();
-		ms.translate(-0.5D, -0.5D, -0.5D);
-
-		if (!model.isCustomRenderer()) {
-			VertexConsumer vc = ItemRenderer.getFoilBufferDirect(buffer, type, true, stack.hasFoil());
-			for (BakedModel pass : model.getRenderPasses(stack, false)) renderBakedItemModel(pass, stack, light, ms, vc);
-		} else IClientItemExtensions.of(stack).getCustomRenderer().renderByItem(stack, transformType, ms, buffer, light, overlay);
-		ms.popPose();
-	}
-	public void render(BakedModel model, RenderType type, int light) {
-		if (stack.isEmpty()) return;
-
-		ms.pushPose();
-		ms.translate(-0.5D, -0.5D, -0.5D);
-
-		if (!model.isCustomRenderer()) {
-			VertexConsumer vc = ItemRenderer.getFoilBufferDirect(buffer, type, true, stack.hasFoil());
-			for (BakedModel pass : model.getRenderPasses(stack, false)) renderBakedItemModel(pass, stack, light, ms, vc);
-		} else IClientItemExtensions.of(stack).getCustomRenderer().renderByItem(stack, transformType, ms, buffer, light, overlay);
-		ms.popPose();
+	public void render(CustomRenderedItemModel model) {
+		if (model.quads.isEmpty()) return;
+		output.appendModelIdentityElement(model);
+		var layer = output.newLayer();
+		apply(layer);
+		layer.setExtents(model.extents);
+		layer.prepareQuadList().addAll(model.quads);
+		if (!stack.hasFoil()) return;
+		layer.setFoilType(ItemStackRenderState.FoilType.STANDARD);
+		output.setAnimated();
 	}
 
-	public void renderBakedItemModel(BakedModel model, ItemStack stack, int light, PoseStack ms, VertexConsumer buffer) {
-		ItemRenderer ir = Minecraft.getInstance().getItemRenderer();
-		ModelData data = ModelData.EMPTY;
-
-		for (RenderType renderType : model.getRenderTypes(stack, false)) {
-			for (Direction direction : Iterate.directions) {
-				random.setSeed(42L);
-				ir.renderQuadList(ms, buffer, model.getQuads(null, direction, random, data, renderType), stack, light, overlay);
-			}
-			random.setSeed(42L);
-			ir.renderQuadList(ms, buffer, model.getQuads(null, null, random, data, renderType), stack, light, overlay);
-		}
+	public void render(ItemStack part) {
+		if (part.isEmpty()) return;
+		var accessor = (ItemStackRenderStateAccessor) output;
+		var start = accessor.slag$count();
+		resolver.appendItemLayers(output, part, ctx, level, owner, seed);
+		var layers = accessor.slag$layers();
+		for (var i = start; i < accessor.slag$count(); i++) apply(layers[i]);
 	}
 
+	private void apply(ItemStackRenderState.LayerRenderState layer) {
+		var local = new Matrix4f().translation(0.5f, 0.5f, 0.5f).mul(ms.last().pose()).translate(-0.5f, -0.5f, -0.5f);
+		output.appendModelIdentityElement(transform);
+		output.appendModelIdentityElement(local);
+		layer.setItemTransform(transform);
+		layer.setLocalTransform(local);
+		layer.setUsesBlockLight(blockLight);
+		if (particle != null) layer.setParticleMaterial(particle);
+	}
 }

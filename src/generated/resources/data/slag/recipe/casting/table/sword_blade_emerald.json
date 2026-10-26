@@ -3,14 +3,13 @@
   "cast": "slag:cast/sword_blades",
   "ingredient": {
     "amount": 72,
-    "tag": "c:molten/emerald"
+    "ingredient": "#c:molten/emerald"
   },
   "result": {
     "components": {
       "slag:material_type": "slag:emerald",
       "slag:part_type": "slag:sword_blade"
     },
-    "count": 1,
     "id": "slag:dynamic_part"
   }
 }

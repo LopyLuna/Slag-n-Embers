@@ -9,9 +9,7 @@
     }
   ],
   "type": "slag:melting",
-  "ingredient": {
-    "tag": "c:rods/steel"
-  },
+  "ingredient": "#c:rods/steel",
   "ingredients": [],
   "result": [
     {

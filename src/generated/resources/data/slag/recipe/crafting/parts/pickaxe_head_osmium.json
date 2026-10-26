@@ -15,12 +15,8 @@
   "type": "minecraft:crafting_shaped",
   "category": "equipment",
   "key": {
-    "M": {
-      "tag": "c:ingots/osmium"
-    },
-    "R": {
-      "item": "minecraft:paper"
-    }
+    "M": "#c:ingots/osmium",
+    "R": "minecraft:paper"
   },
   "pattern": [
     "MMM",
@@ -32,7 +28,6 @@
       "slag:material_type": "slag:osmium",
       "slag:part_type": "slag:pickaxe_head"
     },
-    "count": 1,
     "id": "slag:dynamic_part"
   }
 }

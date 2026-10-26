@@ -1,8 +1,6 @@
 {
   "type": "slag:melting",
-  "ingredient": {
-    "item": "minecraft:bell"
-  },
+  "ingredient": "minecraft:bell",
   "ingredients": [],
   "result": [
     {

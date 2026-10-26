@@ -19,9 +19,9 @@ public class ForgeResultSlot extends FurnaceResultSlot {
     @Override
     protected void checkTakeAchievements(ItemStack stack) {
         var access = ((FurnaceResultSlotAccessor)this);
-        stack.onCraftedBy(this.player.level(), this.player, access.getRemoveCount());
+        stack.onCraftedBy(this.player, access.getRemoveCount());
         if (player instanceof ServerPlayer serverplayer && container instanceof ForgeBE be) be.awardUsedRecipesAndPopExperience(serverplayer);
         access.setRemoveCount(0);
-        EventHooks.firePlayerSmeltedEvent(this.player, stack);
+        EventHooks.firePlayerSmeltedEvent(this.player, stack, access.getRemoveCount());
     }
 }

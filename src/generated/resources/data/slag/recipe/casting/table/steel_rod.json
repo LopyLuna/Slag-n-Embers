@@ -12,7 +12,7 @@
   "cast": "slag:cast/rods",
   "ingredient": {
     "amount": 36,
-    "tag": "c:molten/steel"
+    "ingredient": "#c:molten/steel"
   },
   "result": {
     "tag": "c:rods/steel"

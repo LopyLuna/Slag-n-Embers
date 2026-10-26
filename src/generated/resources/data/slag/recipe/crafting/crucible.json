@@ -2,12 +2,8 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "B": {
-      "tag": "c:storage_blocks/deep_alloy"
-    },
-    "D": {
-      "tag": "c:ingots/deep_alloy"
-    }
+    "B": "#c:storage_blocks/deep_alloy",
+    "D": "#c:ingots/deep_alloy"
   },
   "pattern": [
     "D D",

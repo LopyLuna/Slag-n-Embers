@@ -11,7 +11,7 @@
   "type": "slag:basin_casting",
   "ingredient": {
     "amount": 648,
-    "tag": "c:molten/bronze"
+    "ingredient": "#c:molten/bronze"
   },
   "result": {
     "tag": "c:storage_blocks/bronze"

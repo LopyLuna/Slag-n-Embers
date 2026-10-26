@@ -1,5 +1,5 @@
 {
-  "conditions": [
+  "neoforge:conditions": [
     {
       "type": "neoforge:not",
       "value": {
@@ -10,9 +10,7 @@
   ],
   "id": "slag:platinum",
   "molten_fluid": "slag:molten_platinum",
-  "repair_ingredient": {
-    "tag": "c:ingots/platinum"
-  },
+  "repair_ingredient": "#c:ingots/platinum",
   "sort_order": 350,
   "texture": "shiny",
   "traits": [

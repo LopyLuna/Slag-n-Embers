@@ -9,9 +9,7 @@
     }
   ],
   "type": "slag:melting",
-  "ingredient": {
-    "tag": "c:clumps/lead"
-  },
+  "ingredient": "#c:clumps/lead",
   "ingredients": [],
   "result": [
     {

@@ -5,7 +5,6 @@ import mezz.jei.api.ingredients.subtypes.ISubtypeInterpreter;
 import mezz.jei.api.ingredients.subtypes.UidContext;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.item.ItemStack;
-import javax.annotation.Nonnull;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.ArrayList;
@@ -87,7 +86,6 @@ public class EmbersSubtypeInterpreters {
             if (result.isEmpty()) return null;
             return result;
         }
-        @Override public @Nonnull String getLegacyStringSubtypeInfo(T stack, UidContext ctx) { return interpreter.apply(stack, ctx); }
     }
     public interface IInterpreter<T> {
         String apply(T ingredient, UidContext context);

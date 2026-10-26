@@ -9,9 +9,7 @@
     }
   ],
   "type": "slag:melting",
-  "ingredient": {
-    "tag": "c:plates/zinc"
-  },
+  "ingredient": "#c:plates/zinc",
   "ingredients": [],
   "result": [
     {

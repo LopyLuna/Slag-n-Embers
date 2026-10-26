@@ -1,22 +1,7 @@
 package dev.lopyluna.slag.content.utils;
 
-import com.mojang.blaze3d.platform.GlStateManager;
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.DefaultVertexFormat;
-import com.mojang.blaze3d.vertex.VertexFormat;
-import net.minecraft.client.renderer.RenderStateShard;
-import net.minecraft.client.renderer.RenderType;
 import org.joml.Vector3d;
 import org.joml.Vector4d;
-
-import java.util.EnumMap;
-import java.util.Locale;
-import java.util.Map;
-
-import static com.mojang.blaze3d.platform.GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA;
-import static com.mojang.blaze3d.platform.GlStateManager.SourceFactor.DST_COLOR;
-import static net.minecraft.client.renderer.RenderStateShard.*;
-import static org.lwjgl.opengl.GL14.*;
 
 @SuppressWarnings("unused")
 public class ColorUtils {
@@ -1404,121 +1389,6 @@ public class ColorUtils {
             RGBA aC = this.toRGBA();
             RGBA bC = other.toRGBA();
             return Math.abs(aC.r - bC.r) < 1e-6 && Math.abs(aC.g - bC.g) < 1e-6 && Math.abs(aC.b - bC.b) < 1e-6 && Math.abs(aC.a - bC.a) < 1e-6;
-        }
-    }
-
-    public static final class ColorRenderTypes {
-        private static final Map<ColorBlendType, RenderType> TYPES = new EnumMap<>(ColorBlendType.class);
-        public static void init() {
-            TYPES.put(ColorBlendType.BLEND, rt("blend", TRANSLUCENT_TRANSPARENCY));
-
-            putCustom(ColorBlendType.ADD, () -> RenderSystem.blendFunc(GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ONE));
-            putCustom(ColorBlendType.MULTIPLY, () -> RenderSystem.blendFuncSeparate(DST_COLOR, GlStateManager.DestFactor.ZERO, GlStateManager.SourceFactor.ONE, ONE_MINUS_SRC_ALPHA));
-            putCustom(ColorBlendType.SCREEN,    () -> RenderSystem.blendFuncSeparate(GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ONE_MINUS_SRC_COLOR, GlStateManager.SourceFactor.ONE, ONE_MINUS_SRC_ALPHA));
-
-            putCustom(ColorBlendType.GLOW, () -> {
-                RenderSystem.blendEquation(GL_FUNC_ADD);
-                RenderSystem.blendFuncSeparate(
-                        GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ONE_MINUS_SRC_COLOR,
-                        GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
-
-            }, () -> RenderSystem.blendEquation(GL_FUNC_ADD));
-
-            putCustom(ColorBlendType.SUBTRACT, () -> {
-                RenderSystem.blendEquation(GL_FUNC_REVERSE_SUBTRACT);
-                RenderSystem.blendFuncSeparate(
-                        GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ONE,
-                        GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
-            }, () -> RenderSystem.blendEquation(GL_FUNC_ADD));
-
-            putCustom(ColorBlendType.DARKEN, () -> {
-                RenderSystem.blendEquation(GL_MIN);
-                RenderSystem.blendFuncSeparate(
-                        GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ONE,
-                        GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
-            }, () -> RenderSystem.blendEquation(GL_FUNC_ADD));
-
-            putCustom(ColorBlendType.LIGHTEN, () -> {
-                RenderSystem.blendEquation(GL_MAX);
-                RenderSystem.blendFuncSeparate(
-                        GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ONE,
-                        GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
-            }, () -> RenderSystem.blendEquation(GL_FUNC_ADD));
-
-            putCustom(ColorBlendType.AVERAGE, () -> {
-                RenderSystem.blendEquation(GL_FUNC_ADD);
-                glBlendColor(0f, 0f, 0f, 0.5f);
-                RenderSystem.blendFuncSeparate(
-                        GlStateManager.SourceFactor.CONSTANT_ALPHA, GlStateManager.DestFactor.ONE_MINUS_CONSTANT_ALPHA,
-                        GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
-            }, () -> {
-                glBlendColor(0f, 0f, 0f, 0f);
-                RenderSystem.blendEquation(GL_FUNC_ADD);
-            });
-
-            putCustom(ColorBlendType.XOR, () -> {
-                RenderSystem.blendEquation(GL_FUNC_ADD);
-                RenderSystem.blendFuncSeparate(GlStateManager.SourceFactor.ONE_MINUS_DST_COLOR, GlStateManager.DestFactor.ONE_MINUS_SRC_COLOR, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
-            });
-            putCustom(ColorBlendType.INVERT, () -> {
-                RenderSystem.blendEquation(GL_FUNC_ADD);
-                RenderSystem.blendFuncSeparate(GlStateManager.SourceFactor.ONE_MINUS_DST_COLOR, GlStateManager.DestFactor.ZERO, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
-            });
-        }
-
-        public static RenderType get(ColorBlendType type) {
-            return TYPES.getOrDefault(type, TYPES.get(ColorBlendType.BLEND));
-        }
-
-        private static void putCustom(ColorBlendType t, Runnable blendFunc) {
-            TYPES.put(t, rt("cm_" + t.name().toLowerCase(Locale.ROOT), rt(t.name().toLowerCase(Locale.ROOT) + "_transparency", blendFunc)));
-        }
-
-        private static void putCustom(ColorBlendType t, Runnable blendFuncPre, Runnable blendFuncPost) {
-            TYPES.put(t, rt("cm_" + t.name().toLowerCase(Locale.ROOT), rt(t.name().toLowerCase(Locale.ROOT) + "_transparency", blendFuncPre, blendFuncPost)));
-        }
-
-        private static TransparencyStateShard rt(String name, Runnable blendFuncPre, Runnable blendFuncPost) {
-            return new TransparencyStateShard(name, () -> {
-                RenderSystem.enableBlend();
-                blendFuncPre.run();
-            }, () -> {
-                blendFuncPost.run();
-                RenderSystem.disableBlend();
-                RenderSystem.defaultBlendFunc();
-            });
-        }
-
-        private static TransparencyStateShard rt(String name, Runnable blendFunc) {
-            return new TransparencyStateShard(name, () -> {
-                RenderSystem.enableBlend();
-                blendFunc.run();
-            }, () -> {
-                RenderSystem.disableBlend();
-                RenderSystem.defaultBlendFunc();
-            });
-        }
-
-        private static RenderType rt(String name, TransparencyStateShard transparency) {
-            return RenderType.create("color_" + name,
-                    DefaultVertexFormat.BLOCK,
-                    VertexFormat.Mode.QUADS,
-                    4194304,
-                    true,
-                    true,
-                    translucentState(transparency)
-            );
-        }
-
-        private static RenderType.CompositeState translucentState(TransparencyStateShard transparency) {
-            return RenderType.CompositeState.builder()
-                    .setLightmapState(LIGHTMAP)
-                    .setShaderState(RenderStateShard.RENDERTYPE_TRANSLUCENT_SHADER)
-                    .setTextureState(BLOCK_SHEET_MIPPED)
-                    .setTransparencyState(transparency)
-                    .setOutputState(TRANSLUCENT_TARGET)
-                    .setCullState(NO_CULL)
-                    .createCompositeState(true);
         }
     }
 }

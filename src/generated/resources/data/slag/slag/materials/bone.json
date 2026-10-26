@@ -9,9 +9,7 @@
       "slag:boots"
     ]
   },
-  "repair_ingredient": {
-    "tag": "c:bones"
-  },
+  "repair_ingredient": "#c:bones",
   "sort_order": 210,
   "texture": "soft",
   "traits": [

@@ -6,18 +6,21 @@ import dev.lopyluna.slag.SlagEmbers;
 import dev.lopyluna.slag.api.RecyclingSources;
 import dev.lopyluna.slag.config.SlagCommonConfigs;
 import dev.lopyluna.slag.content.temperature.Temperatures.Tiers;
-import dev.lopyluna.slag.mixin.SmithingTransformRecipeAccessor;
 import dev.lopyluna.slag.register.AllTags;
+import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.resources.ResourceManager;
+import net.minecraft.world.flag.FeatureFlags;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.*;
 import net.minecraft.world.level.block.ComposterBlock;
+import net.minecraft.world.level.block.entity.FuelValues;
 import net.minecraft.world.level.material.Fluid;
 import net.neoforged.neoforge.fluids.FluidStack;
+import net.neoforged.neoforge.fluids.FluidStackTemplate;
 
 import javax.annotation.Nullable;
 import java.util.*;
@@ -32,6 +35,7 @@ public class Recycling {
     private static final List<RecipeType<?>> TYPES = List.of(RecipeType.CRAFTING, RecipeType.SMELTING, RecipeType.BLASTING, RecipeType.STONECUTTING, RecipeType.SMITHING);
 
     private static volatile Filter pending = new Filter(Set.of(), Set.of(), Set.of());
+    private static FuelValues fuels;
 
     public static void prepare(ResourceManager manager) {
         pending = filter(manager);
@@ -40,6 +44,7 @@ public class Recycling {
     public static List<RecipeHolder<?>> generate(Collection<RecipeHolder<?>> recipes, HolderLookup.Provider registries) {
         if (SlagCommonConfigs.SPEC.isLoaded() && !SlagCommonConfigs.RECYCLING.get()) return List.of();
         var filter = pending;
+        fuels = FuelValues.vanillaBurnTimes(registries, FeatureFlags.DEFAULT_FLAGS);
         var melts = new IdentityHashMap<Item, Melt>();
         var manual = Collections.<Item>newSetFromMap(new IdentityHashMap<>());
         var sources = new ArrayList<RecipeHolder<?>>();
@@ -74,7 +79,7 @@ public class Recycling {
         }
 
         var byResult = new IdentityHashMap<Item, List<Candidate>>();
-        for (var candidate : candidates) byResult.computeIfAbsent(candidate.result, result -> new ArrayList<>()).add(candidate);
+        for (var candidate : candidates) byResult.computeIfAbsent(candidate.result, _ -> new ArrayList<>()).add(candidate);
         for (var changed = true; changed; ) {
             changed = false;
             for (var entry : byResult.entrySet()) {
@@ -107,7 +112,7 @@ public class Recycling {
         var vanilla = TYPES.contains(recipe.getType());
         if (vanilla ? recipe.isSpecial() : RecyclingSources.get(recipe.getType()) == null) return false;
         if (recipe.getType() == RecipeType.SMITHING && !(recipe instanceof SmithingTransformRecipe)) return false;
-        return !filter.recipes.contains(holder.id()) && !filter.namespaces.contains(holder.id().getNamespace());
+        return !filter.recipes.contains(holder.id().identifier()) && !filter.namespaces.contains(holder.id().identifier().getNamespace());
     }
 
     private static void index(Map<Item, Melt> melts, Set<Item> manual, MeltingRecipe recipe) {
@@ -123,7 +128,7 @@ public class Recycling {
         if (fluids.isEmpty()) return;
         var melt = new Melt(fluids, recipe.temperature, total);
         for (var stack : recipe.getInputs()) if (!stack.isEmpty()) mark(melts, manual, stack.getItem(), melt);
-        for (var stack : recipe.getInput().getItems()) if (!stack.isEmpty()) mark(melts, manual, stack.getItem(), melt);
+        recipe.getInput().ifPresent(input -> { for (var item : items(input)) mark(melts, manual, item, melt); });
     }
 
     private static void mark(Map<Item, Melt> melts, Set<Item> manual, Item item, Melt melt) {
@@ -136,7 +141,7 @@ public class Recycling {
         var recipe = holder.value();
         var adapter = RecyclingSources.get(recipe.getType());
         if (adapter == null) {
-            var candidate = candidate(recipe.getResultItem(registries), inputs(recipe), manual, filter);
+            var candidate = candidate(RecyclingSources.result(recipe, registries), RecyclingSources.inputs(recipe), manual, filter);
             if (candidate != null) out.add(candidate);
             return;
         }
@@ -144,12 +149,6 @@ public class Recycling {
             var candidate = candidate(source.result(), source.inputs(), manual, filter);
             if (candidate != null) out.add(candidate);
         }
-    }
-
-    private static List<Ingredient> inputs(Recipe<?> recipe) {
-        if (!(recipe instanceof SmithingTransformRecipe smithing)) return recipe.getIngredients();
-        var accessor = (SmithingTransformRecipeAccessor) smithing;
-        return List.of(accessor.slag$getBase(), accessor.slag$getAddition());
     }
 
     private static @Nullable Candidate candidate(ItemStack result, List<Ingredient> ingredients, Set<Item> manual, Filter filter) {
@@ -173,11 +172,7 @@ public class Recycling {
     }
 
     private static Item[] items(Ingredient ingredient) {
-        var stacks = ingredient.getItems();
-        var items = new Item[stacks.length];
-        var size = 0;
-        for (var stack : stacks) if (!stack.isEmpty()) items[size++] = stack.getItem();
-        return size == stacks.length ? items : Arrays.copyOf(items, size);
+        return ingredient.items().map(Holder::value).toArray(Item[]::new);
     }
 
     private static @Nullable Melt evaluate(Candidate candidate, Map<Item, Melt> melts, Map<Item, Boolean> free) {
@@ -254,7 +249,7 @@ public class Recycling {
 
     private static boolean free(Item item) {
         if (item.builtInRegistryHolder().is(AllTags.RECYCLING_FREE)) return true;
-        return ComposterBlock.COMPOSTABLES.containsKey(item) || item.getDefaultInstance().getBurnTime(RecipeType.SMELTING) > 0;
+        return ComposterBlock.COMPOSTABLES.containsKey(item) || item.getDefaultInstance().getBurnTime(RecipeType.SMELTING, fuels) > 0;
     }
 
     private static RecipeHolder<?> holder(Item item, Melt melt) {
@@ -263,19 +258,19 @@ public class Recycling {
                 .sorted(Comparator.comparing(entry -> BuiltInRegistries.FLUID.getKey(entry.getKey()).toString()))
                 .forEach(entry -> outputs.add(new FluidStack(entry.getKey(), entry.getValue())));
         var id = BuiltInRegistries.ITEM.getKey(item);
-        var recipe = new MeltingRecipe("", List.of(), Ingredient.of(item), outputs, melt.tier, Optional.empty(), 0, 1f);
-        return new RecipeHolder<>(SlagEmbers.loc("recycling/generated/" + id.getNamespace() + "/" + id.getPath()), recipe);
+        var recipe = new MeltingRecipe("", List.of(), Optional.of(Ingredient.of(item)), outputs.stream().map(FluidStackTemplate::fromNonEmptyStack).toList(), melt.tier, Optional.empty(), 0, 1f);
+        return new RecipeHolder<>(SlagEmbers.recipe("recycling/generated/" + id.getNamespace() + "/" + id.getPath()), recipe);
     }
 
     private static Filter filter(ResourceManager manager) {
         var filter = new Filter(new HashSet<>(), new HashSet<>(), new HashSet<>());
-        for (var namespace : manager.getNamespaces()) for (var resource : manager.getResourceStack(ResourceLocation.fromNamespaceAndPath(namespace, PATH))) {
+        for (var namespace : manager.getNamespaces()) for (var resource : manager.getResourceStack(Identifier.fromNamespaceAndPath(namespace, PATH))) {
             try (var reader = resource.openAsReader()) {
                 var root = JsonParser.parseReader(reader).getAsJsonObject();
                 strings(root.get("namespaces"), filter.namespaces::add);
                 strings(root.get("item_namespaces"), filter.items::add);
                 strings(root.get("recipes"), id -> {
-                    var parsed = ResourceLocation.tryParse(id);
+                    var parsed = Identifier.tryParse(id);
                     if (parsed == null) SlagEmbers.LOGGER.error("{} isn't a valid recipe id! is it a typo or something?", id);
                     else filter.recipes.add(parsed);
                 });
@@ -295,5 +290,5 @@ public class Recycling {
 
     private record Melt(Map<Fluid, Integer> fluids, Tiers tier, int total) {}
 
-    private record Filter(Set<String> namespaces, Set<String> items, Set<ResourceLocation> recipes) {}
+    private record Filter(Set<String> namespaces, Set<String> items, Set<Identifier> recipes) {}
 }

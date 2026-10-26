@@ -9,9 +9,7 @@
     }
   ],
   "type": "slag:melting",
-  "ingredient": {
-    "tag": "c:plates/diamond"
-  },
+  "ingredient": "#c:plates/diamond",
   "ingredients": [],
   "result": [
     {

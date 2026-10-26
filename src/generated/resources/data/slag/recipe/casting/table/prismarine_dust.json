@@ -12,7 +12,7 @@
   "cast": "slag:cast/dusts",
   "ingredient": {
     "amount": 72,
-    "tag": "c:molten/prismarine"
+    "ingredient": "#c:molten/prismarine"
   },
   "result": {
     "tag": "c:dusts/prismarine"

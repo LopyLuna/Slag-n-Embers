@@ -11,7 +11,7 @@
   "type": "slag:table_casting",
   "ingredient": {
     "amount": 18,
-    "tag": "c:molten/brass"
+    "ingredient": "#c:molten/brass"
   },
   "result": {
     "tag": "c:bars/brass"

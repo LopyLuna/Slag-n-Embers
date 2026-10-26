@@ -1,13 +1,14 @@
 package dev.lopyluna.slag.content.blocks.forge;
 
+import com.mojang.serialization.Codec;
+import dev.lopyluna.slag.content.AllUtils;
 import dev.lopyluna.slag.content.blocks.forge.client.ForgeMenu;
 import dev.lopyluna.slag.register.AllRecipes;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import net.minecraft.core.*;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
@@ -17,12 +18,13 @@ import net.minecraft.world.WorldlyContainer;
 import net.minecraft.world.entity.ExperienceOrb;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.entity.player.StackedContents;
+import net.minecraft.world.entity.player.StackedItemContents;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.inventory.RecipeCraftingHolder;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraft.world.item.crafting.RecipeType;
@@ -31,6 +33,8 @@ import net.minecraft.world.level.block.entity.BaseContainerBlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.phys.Vec3;
 import javax.annotation.Nonnull;
 
@@ -38,12 +42,14 @@ import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @SuppressWarnings({"unused", "NullableProblems"})
 @ParametersAreNonnullByDefault
 public class ForgeBE extends BaseContainerBlockEntity implements RecipeCraftingHolder, WorldlyContainer {
     private NonNullList<ItemStack> items = NonNullList.withSize(4, ItemStack.EMPTY);
-    private final Object2IntOpenHashMap<ResourceLocation> recipesUsed;
+    private static final Codec<Map<ResourceKey<Recipe<?>>, Integer>> RECIPES_USED = Codec.unboundedMap(Recipe.KEY_CODEC, Codec.INT);
+    private final Object2IntOpenHashMap<ResourceKey<Recipe<?>>> recipesUsed;
     private final RecipeManager.CachedCheck<DoubleSmeltingRecipe.DoubleRecipeInput, DoubleSmeltingRecipe> quickCheck;
     private int litTime;
     private int litDuration;
@@ -111,28 +117,27 @@ public class ForgeBE extends BaseContainerBlockEntity implements RecipeCraftingH
     }
 
     @Override
-    protected void loadAdditional(CompoundTag nbt, HolderLookup.Provider provider) {
-        super.loadAdditional(nbt, provider);
+    protected void loadAdditional(ValueInput input) {
+        super.loadAdditional(input);
         this.items = NonNullList.withSize(this.getContainerSize(), ItemStack.EMPTY);
-        ContainerHelper.loadAllItems(nbt, items, provider);
-        litTime = nbt.getInt("LitTime");
-        cookingProgress = nbt.getInt("CookingProgress");
-        cookingTotalTime = nbt.getInt("CookingTotalTime");
-        litDuration = this.getBurnDuration(this.items.get(2));
-        var tag = nbt.getCompound("RecipesUsed");
-        for (var s : tag.getAllKeys()) this.recipesUsed.put(ResourceLocation.parse(s), tag.getInt(s));
+        ContainerHelper.loadAllItems(input, items);
+        litTime = input.getIntOr("LitTime", 0);
+        cookingProgress = input.getIntOr("CookingProgress", 0);
+        cookingTotalTime = input.getIntOr("CookingTotalTime", 0);
+        litDuration = input.getIntOr("LitDuration", 0);
+        recipesUsed.clear();
+        recipesUsed.putAll(input.read("RecipesUsed", RECIPES_USED).orElse(Map.of()));
     }
 
     @Override
-    protected void saveAdditional(CompoundTag nbt, HolderLookup.Provider provider) {
-        super.saveAdditional(nbt, provider);
-        nbt.putInt("LitTime", litTime);
-        nbt.putInt("CookingProgress", cookingProgress);
-        nbt.putInt("CookingTotalTime", cookingTotalTime);
-        ContainerHelper.saveAllItems(nbt, items, provider);
-        var tag = new CompoundTag();
-        this.recipesUsed.forEach((loc, i) -> tag.putInt(loc.toString(), i));
-        nbt.put("RecipesUsed", tag);
+    protected void saveAdditional(ValueOutput output) {
+        super.saveAdditional(output);
+        output.putInt("LitTime", litTime);
+        output.putInt("LitDuration", litDuration);
+        output.putInt("CookingProgress", cookingProgress);
+        output.putInt("CookingTotalTime", cookingTotalTime);
+        ContainerHelper.saveAllItems(output, items);
+        output.store("RecipesUsed", RECIPES_USED, recipesUsed);
     }
 
     @Override
@@ -156,7 +161,7 @@ public class ForgeBE extends BaseContainerBlockEntity implements RecipeCraftingH
         return getBurnTime(stack) > 0 || stack.is(Items.BUCKET) && !this.items.get(2).is(Items.BUCKET);
     }
 
-    public void fillStackedContents(StackedContents helper) {
+    public void fillStackedContents(StackedItemContents helper) {
         for (var stack : this.items) helper.accountStack(stack);
     }
 
@@ -170,7 +175,7 @@ public class ForgeBE extends BaseContainerBlockEntity implements RecipeCraftingH
     }
 
     protected int getBurnDuration(ItemStack fuel) {
-        return fuel.isEmpty() ? 0 : fuel.getBurnTime(AllRecipes.DOUBLE_SMELTING.get());
+        return fuel.isEmpty() || level == null ? 0 : fuel.getBurnTime(AllRecipes.DOUBLE_SMELTING.get(), level.fuelValues());
     }
 
     public static void serverTick(Level level, BlockPos pos, BlockState state, ForgeBE be) {
@@ -189,7 +194,7 @@ public class ForgeBE extends BaseContainerBlockEntity implements RecipeCraftingH
 
         if (be.isLit() || flag3 && flag2) {
             RecipeHolder<?> recipeholder = null;
-            if (flag2) recipeholder = be.quickCheck.getRecipeFor(new DoubleSmeltingRecipe.DoubleRecipeInput(stackA, stackB), level).orElse(null);
+            if (flag2) recipeholder = AllUtils.recipeFor(be.quickCheck, AllRecipes.DOUBLE_SMELTING.get(), new DoubleSmeltingRecipe.DoubleRecipeInput(stackA, stackB), level).orElse(null);
 
             int i = be.getMaxStackSize();
             if (!be.isLit() && canBurn(access, recipeholder, be.items, i, be)) {
@@ -197,11 +202,10 @@ public class ForgeBE extends BaseContainerBlockEntity implements RecipeCraftingH
                 be.litDuration = be.litTime;
                 if (be.isLit()) {
                     flag1 = true;
-                    if (fuel.hasCraftingRemainingItem()) be.items.set(2, fuel.getCraftingRemainingItem());
-                    else if (flag3) {
-                        var fuelItem = fuel.getItem();
+                    if (flag3) {
+                        var remainder = fuel.getCraftingRemainder();
                         fuel.shrink(1);
-                        if (fuel.isEmpty()) be.items.set(2, fuel.getCraftingRemainingItem());
+                        if (fuel.isEmpty()) be.items.set(2, remainder == null ? ItemStack.EMPTY : remainder.create());
                     }
                 }
             }
@@ -237,18 +241,18 @@ public class ForgeBE extends BaseContainerBlockEntity implements RecipeCraftingH
         ExperienceOrb.award(level, popVec, i);
     }
 
-    private static int getBurnTime(ItemStack stack) {
-        return stack.getBurnTime(RecipeType.SMELTING);
+    private int getBurnTime(ItemStack stack) {
+        return level == null ? 0 : stack.getBurnTime(RecipeType.SMELTING, level.fuelValues());
     }
 
     private static int getTotalCookTime(Level level, ForgeBE be) {
         var input = new DoubleSmeltingRecipe.DoubleRecipeInput(be.getItem(0), be.getItem(1));
-        return be.quickCheck.getRecipeFor(input, level).map((holder) -> holder.value().getCookingTime()).orElse(200);
+        return AllUtils.recipeFor(be.quickCheck, AllRecipes.DOUBLE_SMELTING.get(), input, level).map((holder) -> holder.value().getCookingTime()).orElse(200);
     }
 
     private static boolean canBurn(RegistryAccess access, @Nullable RecipeHolder<?> holder, NonNullList<ItemStack> inventory, int maxStackSize, ForgeBE be) {
         if (!(inventory.get(0).isEmpty() || inventory.get(1).isEmpty()) && holder != null && holder.value() instanceof DoubleSmeltingRecipe recipe) {
-            var assembled = recipe.assemble(new DoubleSmeltingRecipe.DoubleRecipeInput(be.getItem(0), be.getItem(1)), access);
+            var assembled = recipe.assemble(new DoubleSmeltingRecipe.DoubleRecipeInput(be.getItem(0), be.getItem(1)));
             if (assembled.isEmpty()) return false;
 
             var result = inventory.get(3);
@@ -264,7 +268,7 @@ public class ForgeBE extends BaseContainerBlockEntity implements RecipeCraftingH
         if (holder != null && holder.value() instanceof DoubleSmeltingRecipe recipe && canBurn(access, holder, inventory, maxStackSize, be)) {
             var stackA = inventory.get(0);
             var stackB = inventory.get(1);
-            var assembled = recipe.assemble(new DoubleSmeltingRecipe.DoubleRecipeInput(be.getItem(0), be.getItem(1)), access);
+            var assembled = recipe.assemble(new DoubleSmeltingRecipe.DoubleRecipeInput(be.getItem(0), be.getItem(1)));
             var result = inventory.get(3);
             if (result.isEmpty()) {inventory.set(3, assembled.copy());
             } else if (ItemStack.isSameItemSameComponents(result, assembled)) result.grow(assembled.getCount());
@@ -289,8 +293,14 @@ public class ForgeBE extends BaseContainerBlockEntity implements RecipeCraftingH
         if (recipe != null) this.recipesUsed.addTo(recipe.id(), 1);
     }
 
+    @Override
+    public void preRemoveSideEffects(BlockPos pos, BlockState state) {
+        super.preRemoveSideEffects(pos, state);
+        if (level instanceof ServerLevel server) getRecipesToAwardAndPopExperience(server, Vec3.atCenterOf(pos));
+    }
+
     public void awardUsedRecipesAndPopExperience(ServerPlayer player) {
-        var list = this.getRecipesToAwardAndPopExperience(player.serverLevel(), player.position());
+        var list = this.getRecipesToAwardAndPopExperience(player.level(), player.position());
         player.awardRecipes(list);
         for(var holder : list) if (holder != null) player.triggerRecipeCrafted(holder, this.items);
         this.recipesUsed.clear();
@@ -298,7 +308,7 @@ public class ForgeBE extends BaseContainerBlockEntity implements RecipeCraftingH
 
     public List<RecipeHolder<?>> getRecipesToAwardAndPopExperience(ServerLevel level, Vec3 popVec) {
         List<RecipeHolder<?>> list = new ArrayList<>();
-        for (Object2IntMap.Entry<ResourceLocation> resourceLocationEntry : this.recipesUsed.object2IntEntrySet()) level.getRecipeManager().byKey(resourceLocationEntry.getKey()).ifPresent((holder) -> {
+        for (Object2IntMap.Entry<ResourceKey<Recipe<?>>> resourceLocationEntry : this.recipesUsed.object2IntEntrySet()) level.recipeAccess().byKey(resourceLocationEntry.getKey()).ifPresent((holder) -> {
             if (holder.value() instanceof DoubleSmeltingRecipe recipe) {
                 list.add(holder);
                 createExperience(level, popVec, resourceLocationEntry.getIntValue(), recipe.getExperience());

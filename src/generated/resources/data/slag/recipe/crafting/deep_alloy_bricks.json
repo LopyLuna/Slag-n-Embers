@@ -2,9 +2,7 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "D": {
-      "tag": "c:ingots/deep_alloy"
-    }
+    "D": "#c:ingots/deep_alloy"
   },
   "pattern": [
     "DD",

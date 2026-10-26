@@ -3,14 +3,13 @@
   "cast": "slag:cast/hoe_heads",
   "ingredient": {
     "amount": 1296,
-    "tag": "c:molten/obsidian"
+    "ingredient": "#c:molten/obsidian"
   },
   "result": {
     "components": {
       "slag:material_type": "slag:obsidian",
       "slag:part_type": "slag:hoe_head"
     },
-    "count": 1,
     "id": "slag:dynamic_part"
   }
 }

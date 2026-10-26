@@ -9,9 +9,7 @@
     }
   ],
   "type": "slag:melting",
-  "ingredient": {
-    "tag": "c:storage_blocks/electrum"
-  },
+  "ingredient": "#c:storage_blocks/electrum",
   "ingredients": [],
   "result": [
     {

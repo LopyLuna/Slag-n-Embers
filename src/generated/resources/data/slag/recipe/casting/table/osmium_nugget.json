@@ -12,7 +12,7 @@
   "cast": "slag:cast/nuggets",
   "ingredient": {
     "amount": 8,
-    "tag": "c:molten/osmium"
+    "ingredient": "#c:molten/osmium"
   },
   "result": {
     "tag": "c:nuggets/osmium"

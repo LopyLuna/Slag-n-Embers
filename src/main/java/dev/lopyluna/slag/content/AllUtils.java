@@ -1,8 +1,10 @@
 package dev.lopyluna.slag.content;
 
+import com.mojang.datafixers.util.Either;
+import com.mojang.serialization.Codec;
 import com.tterrag.registrate.builders.BlockEntityBuilder;
 import com.tterrag.registrate.providers.DataGenContext;
-import com.tterrag.registrate.providers.RegistrateRecipeProvider;
+import com.tterrag.registrate.providers.generators.RegistrateRecipeProvider;
 import com.tterrag.registrate.util.entry.BlockEntityEntry;
 import com.tterrag.registrate.util.entry.BlockEntry;
 import com.tterrag.registrate.util.nullness.NonNullFunction;
@@ -17,11 +19,20 @@ import dev.lopyluna.slag.register.AllDataComponents;
 import dev.lopyluna.slag.register.AllLangs;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.ChatFormatting;
+import net.minecraft.advancements.Criterion;
+import net.minecraft.advancements.criterion.InventoryChangeTrigger;
+import net.minecraft.advancements.criterion.ItemPredicate;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
+import net.minecraft.core.HolderGetter;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.core.HolderSet;
 import net.minecraft.core.Registry;
+import net.minecraft.core.RegistryCodecs;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
@@ -30,33 +41,153 @@ import net.minecraft.data.recipes.ShapedRecipeBuilder;
 import net.minecraft.data.recipes.ShapelessRecipeBuilder;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.TagKey;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.item.armortrim.TrimMaterial;
-import net.minecraft.world.item.armortrim.TrimMaterials;
+import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.item.crafting.RecipeHolder;
+import net.minecraft.world.item.crafting.RecipeInput;
+import net.minecraft.world.item.crafting.RecipeManager;
+import net.minecraft.world.item.crafting.RecipeMap;
+import net.minecraft.world.item.crafting.RecipeType;
+import net.minecraft.world.item.equipment.trim.TrimMaterial;
+import net.minecraft.world.item.equipment.trim.TrimMaterials;
 import net.minecraft.world.item.component.ItemLore;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.ItemLike;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BaseFireBlock;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.neoforged.fml.loading.FMLEnvironment;
+import net.neoforged.neoforge.capabilities.Capabilities;
+import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.server.ServerLifecycleHooks;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.ResourceHandlerUtil;
+import net.neoforged.neoforge.transfer.access.ItemAccess;
+import net.neoforged.neoforge.transfer.fluid.FluidResource;
+import net.neoforged.neoforge.transfer.fluid.FluidUtil;
+import net.neoforged.neoforge.transfer.transaction.Transaction;
 
 import javax.annotation.Nullable;
 import java.util.*;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Supplier;
 
-import static com.tterrag.registrate.providers.RegistrateRecipeProvider.has;
 import static dev.lopyluna.slag.SlagEmbers.REG;
 
 @SuppressWarnings("unused")
 public class AllUtils {
+    public static @Nullable HolderLookup.Provider datagen;
+
+    public static <T> HolderGetter<T> getter(Registry<T> registry) {
+        return datagen == null ? registry : datagen.lookupOrThrow(registry.key());
+    }
+
+    public static HolderGetter<Item> items() {
+        return getter(BuiltInRegistries.ITEM);
+    }
+
+    public static Ingredient tag(TagKey<Item> tag) {
+        return Ingredient.of(items().getOrThrow(tag));
+    }
+
+    public static @Nullable ResourceHandler<FluidResource> heldFluids(Player player, InteractionHand hand) {
+        return ItemAccess.forPlayerInteraction(player, hand).oneByOne().getCapability(Capabilities.Fluid.ITEM);
+    }
+
+    public static FluidStack firstFluid(@Nullable ResourceHandler<FluidResource> handler) {
+        if (handler == null) return FluidStack.EMPTY;
+        for (var i = 0; i < handler.size(); i++) if (!handler.getResource(i).isEmpty() && handler.getAmountAsInt(i) > 0) return FluidUtil.getStack(handler, i);
+        return FluidStack.EMPTY;
+    }
+
+    public static int fill(@Nullable ResourceHandler<FluidResource> handler, FluidStack fluid, boolean simulate) {
+        if (handler == null || fluid.isEmpty()) return 0;
+        try (var tx = Transaction.openRoot()) {
+            var filled = handler.insert(FluidResource.of(fluid), fluid.getAmount(), tx);
+            if (!simulate) tx.commit();
+            return filled;
+        }
+    }
+
+    public static FluidStack drain(@Nullable ResourceHandler<FluidResource> handler, int amount, boolean simulate) {
+        if (handler == null || amount <= 0) return FluidStack.EMPTY;
+        try (var tx = Transaction.openRoot()) {
+            var drained = ResourceHandlerUtil.extractFirst(handler, r -> true, amount, tx);
+            if (drained == null) return FluidStack.EMPTY;
+            if (!simulate) tx.commit();
+            return drained.resource().toStack(drained.amount());
+        }
+    }
+
+    public static boolean moveExact(@Nullable ResourceHandler<FluidResource> from, @Nullable ResourceHandler<FluidResource> to, FluidStack fluid, boolean simulate) {
+        if (from == null || to == null || fluid.isEmpty()) return false;
+        var resource = FluidResource.of(fluid);
+        var amount = fluid.getAmount();
+        try (var tx = Transaction.openRoot()) {
+            if (from.extract(resource, amount, tx) != amount || to.insert(resource, amount, tx) != amount) return false;
+            if (!simulate) tx.commit();
+            return true;
+        }
+    }
+
+    public static <T> Codec<Supplier<HolderSet<T>>> lazySetCodec(Registry<T> registry) {
+        return Codec.either(TagKey.hashedCodec(registry.key()), RegistryCodecs.homogeneousList(registry.key())).xmap(
+                either -> either.map(tag -> lazyTag(registry, tag), set -> () -> set),
+                supplier -> {
+                    var set = supplier.get();
+                    return set.unwrapKey().<Either<TagKey<T>, HolderSet<T>>>map(Either::left).orElseGet(() -> Either.right(set));
+                });
+    }
+
+    public static <T> Supplier<HolderSet<T>> lazyTag(Registry<T> registry, TagKey<T> tag) {
+        return () -> datagen != null ? getter(registry).getOrThrow(tag) : registry.get(tag).<HolderSet<T>>map(set -> set).orElse(HolderSet.empty());
+    }
+
+    public static RecipeMap clientRecipes = RecipeMap.EMPTY;
+
+    public static void give(Player player, ItemStack stack) {
+        if (stack.isEmpty()) return;
+        var level = player.level();
+        player.getInventory().placeItemBackInInventory(stack);
+        level.playSound(null, player.getX(), player.getY() + 0.5, player.getZ(), SoundEvents.ITEM_PICKUP, SoundSource.PLAYERS, 0.2F, ((level.getRandom().nextFloat() - level.getRandom().nextFloat()) * 0.7F + 1.0F) * 2.0F);
+    }
+
+    public static <I extends RecipeInput, R extends Recipe<I>> Optional<RecipeHolder<R>> recipeFor(RecipeManager.CachedCheck<I, R> check, RecipeType<R> type, I input, Level level) {
+        return level instanceof ServerLevel server ? check.getRecipeFor(input, server) : clientRecipes.getRecipesFor(type, input, level).findFirst();
+    }
+
+    public static RecipeMap recipeMap(@Nullable Level level) {
+        return level instanceof ServerLevel server ? server.recipeAccess().recipeMap() : clientRecipes;
+    }
+
+    public static @Nullable RecipeManager recipes(@Nullable Level level) {
+        return level instanceof ServerLevel server ? server.recipeAccess() : null;
+    }
+
+    public static @Nullable ResourceHandler<FluidResource> fluids(Level level, BlockPos pos, @Nullable Direction side) {
+        return level.getCapability(Capabilities.Fluid.BLOCK, pos, side);
+    }
+
+    public static Criterion<InventoryChangeTrigger.TriggerInstance> has(ItemLike item) {
+        return InventoryChangeTrigger.TriggerInstance.hasItems(ItemPredicate.Builder.item().of(items(), item));
+    }
+
+    public static Criterion<InventoryChangeTrigger.TriggerInstance> has(TagKey<Item> tag) {
+        return InventoryChangeTrigger.TriggerInstance.hasItems(ItemPredicate.Builder.item().of(items(), tag));
+    }
+
     public static final LinkedHashMap<ResourceKey<TrimMaterial>, Float> TRIM_MATERIALS = new LinkedHashMap<>();
     static {
         TRIM_MATERIALS.put(TrimMaterials.QUARTZ, 0.1F);
@@ -74,16 +205,16 @@ public class AllUtils {
     public static <T extends BlockEntity> BlockEntityEntry<T> simpleBE(String name, BlockEntry<?> entry, BlockEntityBuilder.BlockEntityFactory<T> factory) {
         return REG.blockEntity(name, factory).validBlock(entry).register();
     }
-    public static <T extends BlockEntity> BlockEntityEntry<T> simpleBE(String name, BlockEntry<?> entry, NonNullFunction<BlockEntityRendererProvider.Context, BlockEntityRenderer<? super T>> renderer, BlockEntityBuilder.BlockEntityFactory<T> factory) {
+    public static <T extends BlockEntity> BlockEntityEntry<T> simpleBE(String name, BlockEntry<?> entry, NonNullFunction<BlockEntityRendererProvider.Context, BlockEntityRenderer<? super T, ?>> renderer, BlockEntityBuilder.BlockEntityFactory<T> factory) {
         return REG.blockEntity(name, factory).renderer(() -> renderer).validBlock(entry).register();
     }
 
     public static <T> StreamCodec<ByteBuf, TagKey<T>> tagKeyStreamCodec(ResourceKey<? extends Registry<T>> registry) {
-        return ResourceLocation.STREAM_CODEC.map((loc) -> TagKey.create(registry, loc), TagKey::location);
+        return Identifier.STREAM_CODEC.map((loc) -> TagKey.create(registry, loc), TagKey::location);
     }
 
     public static @Nullable TagKey<Item> castType(ItemStack stack) {
-        for (var tag : stack.getTags().toList()) if (tag.location().getPath().startsWith("cast/")) return tag;
+        for (var tag : stack.typeHolder().tags().toList()) if (tag.location().getPath().startsWith("cast/")) return tag;
         return null;
     }
 
@@ -94,7 +225,7 @@ public class AllUtils {
     }
 
     public static List<ItemStack> getStacksFromTag(TagKey<Block> tag) {
-        var opt = BuiltInRegistries.BLOCK.getTag(tag);
+        var opt = BuiltInRegistries.BLOCK.get(tag);
         if (opt.isEmpty()) return List.of();
 
         var out = new ArrayList<ItemStack>();
@@ -153,17 +284,17 @@ public class AllUtils {
     }
 
     public static void compressible9x(DataGenContext<Item, Item> c, RegistrateRecipeProvider p, Ingredient decompact, Ingredient compact, ItemLike decompactResult, ItemLike compactResult) {
-        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, compactResult, 1)
+        ShapedRecipeBuilder.shaped(AllUtils.items(), RecipeCategory.MISC, compactResult, 1)
                 .pattern("###")
                 .pattern("###")
                 .pattern("###")
                 .define('#', decompact)
                 .unlockedBy("has_decompact", has(decompactResult))
-                .save(p, SlagEmbers.loc("crafting/ingot_to_block_" + c.getName()));
-        ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, decompactResult, 9)
+                .save(p, SlagEmbers.recipe("crafting/ingot_to_block_" + c.getName()));
+        ShapelessRecipeBuilder.shapeless(AllUtils.items(), RecipeCategory.MISC, decompactResult, 9)
                 .requires(compact)
                 .unlockedBy("has_compact", has(compactResult))
-                .save(p, SlagEmbers.loc("crafting/ingot_from_block_" + c.getName()));
+                .save(p, SlagEmbers.recipe("crafting/ingot_from_block_" + c.getName()));
     }
 
 
@@ -213,8 +344,8 @@ public class AllUtils {
     }
 
     private static boolean superset(Registry<Item> reg, TagKey<Item> tag, TagKey<Item> child) {
-        var parentSet = reg.getTag(tag).orElse(null);
-        var childSet  = reg.getTag(child).orElse(null);
+        var parentSet = reg.get(tag).orElse(null);
+        var childSet  = reg.get(child).orElse(null);
         if (parentSet == null || childSet == null) return false;
 
         HashSet<Holder<Item>> parent = new HashSet<>();
@@ -224,11 +355,15 @@ public class AllUtils {
     }
 
     private static Optional<Registry<Item>> itemRegistry() {
+        return registry(Registries.ITEM);
+    }
+
+    public static <T> Optional<Registry<T>> registry(ResourceKey<? extends Registry<? extends T>> key) {
         var srv = ServerLifecycleHooks.getCurrentServer();
-        if (srv != null) return Optional.of(srv.registryAccess().registryOrThrow(Registries.ITEM));
-        if (!FMLEnvironment.dist.isClient()) return Optional.empty();
+        if (srv != null) return Optional.of(srv.registryAccess().lookupOrThrow(key));
+        if (!FMLEnvironment.getDist().isClient()) return Optional.empty();
         var mc = Minecraft.getInstance();
-        if (mc.level != null) return Optional.of(mc.level.registryAccess().registryOrThrow(Registries.ITEM));
+        if (mc.level != null) return Optional.of(mc.level.registryAccess().lookupOrThrow(key));
         return Optional.empty();
     }
 }

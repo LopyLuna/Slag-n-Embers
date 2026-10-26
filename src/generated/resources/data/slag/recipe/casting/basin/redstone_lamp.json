@@ -1,16 +1,13 @@
 {
   "type": "slag:basin_casting",
   "cast_item": {
-    "ingredient": {
-      "item": "minecraft:glowstone"
-    }
+    "ingredient": "minecraft:glowstone"
   },
   "ingredient": {
     "amount": 288,
-    "tag": "c:molten/redstone"
+    "ingredient": "#c:molten/redstone"
   },
   "result": {
-    "count": 1,
     "id": "minecraft:redstone_lamp"
   }
 }

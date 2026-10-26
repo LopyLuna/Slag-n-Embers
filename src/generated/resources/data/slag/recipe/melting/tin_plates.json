@@ -9,9 +9,7 @@
     }
   ],
   "type": "slag:melting",
-  "ingredient": {
-    "tag": "c:plates/tin"
-  },
+  "ingredient": "#c:plates/tin",
   "ingredients": [],
   "result": [
     {

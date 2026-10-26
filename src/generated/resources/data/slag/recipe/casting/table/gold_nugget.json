@@ -3,10 +3,9 @@
   "cast": "slag:cast/nuggets",
   "ingredient": {
     "amount": 8,
-    "tag": "c:molten/gold"
+    "ingredient": "#c:molten/gold"
   },
   "result": {
-    "count": 1,
     "id": "minecraft:gold_nugget"
   }
 }

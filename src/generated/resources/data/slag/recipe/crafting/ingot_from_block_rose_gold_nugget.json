@@ -2,9 +2,7 @@
   "type": "minecraft:crafting_shapeless",
   "category": "misc",
   "ingredients": [
-    {
-      "tag": "c:ingots/rose_gold"
-    }
+    "#c:ingots/rose_gold"
   ],
   "result": {
     "count": 9,

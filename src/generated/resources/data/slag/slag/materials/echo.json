@@ -1,9 +1,7 @@
 {
   "id": "slag:echo",
   "molten_fluid": "slag:molten_echo",
-  "repair_ingredient": {
-    "item": "minecraft:echo_shard"
-  },
+  "repair_ingredient": "minecraft:echo_shard",
   "sort_order": 80,
   "texture": "metal",
   "traits": [

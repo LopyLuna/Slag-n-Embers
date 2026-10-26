@@ -1,25 +1,24 @@
 package dev.lopyluna.slag.client.render;
 
-import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
-import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.world.item.Item;
-import net.neoforged.neoforge.client.extensions.common.IClientItemExtensions;
+import dev.lopyluna.slag.SlagEmbers;
+import dev.lopyluna.slag.content.items.dynamic_mold.DynamicMoldRenderer;
+import dev.lopyluna.slag.content.items.dynamic_part.DynamicPartRenderer;
+import dev.lopyluna.slag.content.items.modular.ModularItemRenderer;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.client.event.RegisterItemModelsEvent;
 
-import java.util.Set;
-import java.util.function.Consumer;
-
+@EventBusSubscriber(modid = SlagEmbers.MOD_ID, value = Dist.CLIENT)
 public class CustomRenderedItems {
-	private static final Set<Item> ITEMS = new ReferenceOpenHashSet<>();
-	private static boolean itemsFiltered = false;
+	public static final SimpleCustomRenderer DYNAMIC_PART = SimpleCustomRenderer.create(DynamicPartRenderer::new);
+	public static final SimpleCustomRenderer MODULAR = SimpleCustomRenderer.create(ModularItemRenderer::new);
+	public static final SimpleCustomRenderer MOLD = SimpleCustomRenderer.create(DynamicMoldRenderer::new);
 
-	public static void register(Item item) {
-		ITEMS.add(item);
-	}
-	public static void forEach(Consumer<Item> consumer) {
-		if (!itemsFiltered) {
-            ITEMS.removeIf(item -> !BuiltInRegistries.ITEM.containsValue(item) || !(IClientItemExtensions.of(item).getCustomRenderer() instanceof CustomRenderedItemModelRenderer));
-			itemsFiltered = true;
-		}
-		ITEMS.forEach(consumer);
+	@SubscribeEvent
+	public static void registerItemModels(RegisterItemModelsEvent event) {
+		event.register(SlagEmbers.loc("dynamic_part"), DYNAMIC_PART.type());
+		event.register(SlagEmbers.loc("modular"), MODULAR.type());
+		event.register(SlagEmbers.loc("mold"), MOLD.type());
 	}
 }

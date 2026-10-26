@@ -2,9 +2,7 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "#": {
-      "tag": "c:nuggets/rose_gold"
-    }
+    "#": "#c:nuggets/rose_gold"
   },
   "pattern": [
     "###",
@@ -12,7 +10,6 @@
     "###"
   ],
   "result": {
-    "count": 1,
     "id": "slag:rose_gold_ingot"
   }
 }

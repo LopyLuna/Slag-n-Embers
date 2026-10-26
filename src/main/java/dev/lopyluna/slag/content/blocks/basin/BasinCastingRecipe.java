@@ -7,7 +7,10 @@ import dev.lopyluna.slag.content.utils.ItemResult;
 import dev.lopyluna.slag.register.AllRecipes;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.PlacementInfo;
 import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.item.crafting.RecipeBookCategories;
+import net.minecraft.world.item.crafting.RecipeBookCategory;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
@@ -73,6 +76,11 @@ public class BasinCastingRecipe implements Recipe<CastingInput> {
     }
 
     @Override
+    public @Nonnull String group() {
+        return group;
+    }
+
+    @Override
     public boolean matches(CastingInput fluidInput, Level level) {
         return FluidInput.test(input, fluidInput.fluid());
     }
@@ -82,28 +90,38 @@ public class BasinCastingRecipe implements Recipe<CastingInput> {
     }
 
     @Override
-    public @Nonnull ItemStack assemble(CastingInput fluidInput, HolderLookup.Provider provider) {
+    public @Nonnull ItemStack assemble(CastingInput fluidInput) {
         return output.stack().copy();
     }
 
-    @Override
-    public boolean canCraftInDimensions(int i, int i1) {
-        return false;
-    }
 
-    @Override
     public @Nonnull ItemStack getResultItem(HolderLookup.Provider provider) {
         return output.stack().copy();
     }
 
     @Override
-    public @Nonnull RecipeSerializer<?> getSerializer() {
+    public @Nonnull RecipeSerializer<? extends Recipe<CastingInput>> getSerializer() {
         return AllRecipes.BASIN_CASTING_SER.get();
     }
 
     @Override
-    public @Nonnull RecipeType<?> getType() {
-        return type;
+    public @Nonnull RecipeType<? extends Recipe<CastingInput>> getType() {
+        return (RecipeType<? extends Recipe<CastingInput>>) type;
+    }
+
+    @Override
+    public boolean showNotification() {
+        return false;
+    }
+
+    @Override
+    public @Nonnull PlacementInfo placementInfo() {
+        return PlacementInfo.NOT_PLACEABLE;
+    }
+
+    @Override
+    public @Nonnull RecipeBookCategory recipeBookCategory() {
+        return RecipeBookCategories.CRAFTING_MISC;
     }
 
     public static class Type implements RecipeType<BasinCastingRecipe> {

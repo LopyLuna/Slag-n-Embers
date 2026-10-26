@@ -9,9 +9,7 @@
     }
   ],
   "type": "slag:melting",
-  "ingredient": {
-    "tag": "c:wires/platinum"
-  },
+  "ingredient": "#c:wires/platinum",
   "ingredients": [],
   "result": [
     {

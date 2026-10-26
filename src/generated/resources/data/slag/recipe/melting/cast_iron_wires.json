@@ -9,9 +9,7 @@
     }
   ],
   "type": "slag:melting",
-  "ingredient": {
-    "tag": "c:wires/cast_iron"
-  },
+  "ingredient": "#c:wires/cast_iron",
   "ingredients": [],
   "result": [
     {

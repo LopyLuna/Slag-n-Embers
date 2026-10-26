@@ -9,9 +9,7 @@
     }
   ],
   "type": "slag:melting",
-  "ingredient": {
-    "tag": "c:rods/platinum"
-  },
+  "ingredient": "#c:rods/platinum",
   "ingredients": [],
   "result": [
     {

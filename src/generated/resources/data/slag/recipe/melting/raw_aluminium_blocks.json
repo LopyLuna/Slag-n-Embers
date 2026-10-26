@@ -9,9 +9,7 @@
     }
   ],
   "type": "slag:melting",
-  "ingredient": {
-    "tag": "c:storage_blocks/raw_aluminium"
-  },
+  "ingredient": "#c:storage_blocks/raw_aluminium",
   "ingredients": [],
   "result": [
     {

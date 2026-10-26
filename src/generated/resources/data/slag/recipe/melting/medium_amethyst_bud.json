@@ -1,8 +1,6 @@
 {
   "type": "slag:melting",
-  "ingredient": {
-    "item": "minecraft:medium_amethyst_bud"
-  },
+  "ingredient": "minecraft:medium_amethyst_bud",
   "ingredients": [],
   "result": [
     {

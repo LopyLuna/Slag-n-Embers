@@ -9,9 +9,7 @@
     }
   ],
   "type": "slag:melting",
-  "ingredient": {
-    "tag": "c:nuggets/tungsten"
-  },
+  "ingredient": "#c:nuggets/tungsten",
   "ingredients": [],
   "result": [
     {

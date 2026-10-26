@@ -11,7 +11,7 @@
   "type": "slag:basin_casting",
   "ingredient": {
     "amount": 648,
-    "tag": "c:molten/invar"
+    "ingredient": "#c:molten/invar"
   },
   "result": {
     "tag": "c:storage_blocks/invar"

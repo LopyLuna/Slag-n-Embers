@@ -12,7 +12,7 @@
   "cast": "slag:cast/dusts",
   "ingredient": {
     "amount": 72,
-    "tag": "c:molten/brass"
+    "ingredient": "#c:molten/brass"
   },
   "result": {
     "tag": "c:dusts/brass"

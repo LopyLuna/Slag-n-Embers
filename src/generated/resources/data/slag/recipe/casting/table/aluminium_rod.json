@@ -12,7 +12,7 @@
   "cast": "slag:cast/rods",
   "ingredient": {
     "amount": 36,
-    "tag": "c:molten/aluminium"
+    "ingredient": "#c:molten/aluminium"
   },
   "result": {
     "tag": "c:rods/aluminium"

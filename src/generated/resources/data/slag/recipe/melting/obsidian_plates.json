@@ -9,9 +9,7 @@
     }
   ],
   "type": "slag:melting",
-  "ingredient": {
-    "tag": "c:plates/obsidian"
-  },
+  "ingredient": "#c:plates/obsidian",
   "ingredients": [],
   "result": [
     {

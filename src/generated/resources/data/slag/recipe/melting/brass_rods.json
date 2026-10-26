@@ -9,9 +9,7 @@
     }
   ],
   "type": "slag:melting",
-  "ingredient": {
-    "tag": "c:rods/brass"
-  },
+  "ingredient": "#c:rods/brass",
   "ingredients": [],
   "result": [
     {

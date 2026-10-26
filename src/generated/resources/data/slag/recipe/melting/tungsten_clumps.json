@@ -9,9 +9,7 @@
     }
   ],
   "type": "slag:melting",
-  "ingredient": {
-    "tag": "c:clumps/tungsten"
-  },
+  "ingredient": "#c:clumps/tungsten",
   "ingredients": [],
   "result": [
     {

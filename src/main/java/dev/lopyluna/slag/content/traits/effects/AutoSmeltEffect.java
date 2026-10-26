@@ -31,15 +31,15 @@ public record AutoSmeltEffect() implements TraitEffect {
         var experience = 0f;
         for (var drop : event.getDrops()) {
             var item = drop.getItem();
-            var recipe = level.getRecipeManager().getRecipeFor(RecipeType.SMELTING, new SingleRecipeInput(item), level).orElse(null);
+            var recipe = level.recipeAccess().getRecipeFor(RecipeType.SMELTING, new SingleRecipeInput(item), level).orElse(null);
             if (recipe == null) continue;
-            var result = recipe.value().getResultItem(level.registryAccess());
+            var result = recipe.value().assemble(new SingleRecipeInput(item));
             if (result.isEmpty()) continue;
             drop.setItem(result.copyWithCount(result.getCount() * item.getCount()));
-            experience += recipe.value().getExperience() * item.getCount();
+            experience += recipe.value().experience() * item.getCount();
         }
         var whole = Mth.floor(experience);
-        if (level.random.nextFloat() < experience - whole) whole++;
+        if (level.getRandom().nextFloat() < experience - whole) whole++;
         if (whole > 0) event.setDroppedExperience(event.getDroppedExperience() + whole);
     }
 }

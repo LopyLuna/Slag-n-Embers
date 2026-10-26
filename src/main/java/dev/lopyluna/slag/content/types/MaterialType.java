@@ -11,11 +11,12 @@ import dev.lopyluna.slag.content.traits.TraitType;
 import dev.lopyluna.slag.register.AllTags;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.material.Fluid;
+import net.neoforged.neoforge.common.conditions.ConditionalOps;
 import net.neoforged.neoforge.common.conditions.ICondition;
 import net.neoforged.neoforge.common.conditions.ModLoadedCondition;
 
@@ -29,7 +30,7 @@ import java.util.function.Supplier;
 
 @SuppressWarnings("unused")
 public class MaterialType {
-    public final ResourceLocation id;
+    public final Identifier id;
     public int sortOrder;
 
     public final List<TraitEntry> traits;
@@ -52,14 +53,14 @@ public class MaterialType {
     }}, color -> String.format("0x%06X", color)), Codec.INT).xmap(either -> either.map(i -> i, i -> i), Either::right);
 
     public static final Codec<MaterialType> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-            ResourceLocation.CODEC.fieldOf("id").forGetter(m -> m.id),
+            Identifier.CODEC.fieldOf("id").forGetter(m -> m.id),
             Codec.INT.optionalFieldOf("sort_order", 0).forGetter(m -> m.sortOrder),
             TraitEntry.CODEC.listOf().optionalFieldOf("traits", List.of()).forGetter(m -> m.traits),
             Incompatible.CODEC.optionalFieldOf("incompatible", Incompatible.EMPTY).forGetter(m -> m.incompatible),
-            ICondition.LIST_CODEC.optionalFieldOf("conditions", List.of()).forGetter(m -> m.conditions),
+            ICondition.LIST_CODEC.optionalFieldOf(ConditionalOps.DEFAULT_CONDITIONS_KEY, List.of()).forGetter(m -> m.conditions),
             Codec.STRING.optionalFieldOf("texture", "base").forGetter(m -> m.texture),
-            Ingredient.CODEC.optionalFieldOf("repair_ingredient", Ingredient.EMPTY).forGetter(m -> m.repairMaterials.get()),
-            ResourceLocation.CODEC.optionalFieldOf("molten_fluid").forGetter(m -> {
+            Ingredient.CODEC.optionalFieldOf("repair_ingredient").forGetter(m -> Optional.ofNullable(m.repairMaterials.get())),
+            Identifier.CODEC.optionalFieldOf("molten_fluid").forGetter(m -> {
                 Fluid fluid = m.moltenFluid.get();
                 if (fluid == null) return Optional.empty();
                 return Optional.of(BuiltInRegistries.FLUID.getKey(fluid));
@@ -73,7 +74,7 @@ public class MaterialType {
         var fluidHash = 0;
         if (moltenFluid != null && moltenFluid.get() != null) fluidHash = moltenFluid.get().hashCode();
         var repairHash = 0;
-        if (repairMaterials != null && !repairMaterials.get().isEmpty() && repairMaterials.get() != null) repairHash = repairMaterials.get().hashCode();
+        if (repairMaterials != null && repairMaterials.get() != null) repairHash = repairMaterials.get().hashCode();
         return id.hashCode() + texture.hashCode() + repairHash + fluidHash + palette.hashCode() + traits.hashCode() + incompatible.hashCode() + conditions.hashCode() + Objects.hash(sortOrder);
     }
 
@@ -92,7 +93,7 @@ public class MaterialType {
     }
 
     @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
-    public MaterialType(ResourceLocation id, int sortOrder, List<TraitEntry> traits, Incompatible incompatible, List<ICondition> conditions, String texture, Ingredient repairIngredient, Optional<ResourceLocation> moltenFluidId, List<Integer> palette) {
+    public MaterialType(Identifier id, int sortOrder, List<TraitEntry> traits, Incompatible incompatible, List<ICondition> conditions, String texture, Optional<Ingredient> repairIngredient, Optional<Identifier> moltenFluidId, List<Integer> palette) {
         dontRegister = id == null || id.getNamespace().isEmpty() || id.getPath().isEmpty() || id.getPath().equals("null") || id.getPath().equals("empty");
         this.id = id;
         this.sortOrder = sortOrder;
@@ -102,12 +103,12 @@ public class MaterialType {
         this.conditions = conditions;
 
         this.texture = texture;
-        this.repairMaterials = () -> repairIngredient;
-        this.moltenFluid = () -> moltenFluidId.map(BuiltInRegistries.FLUID::get).orElse(null);
+        this.repairMaterials = () -> repairIngredient.orElse(null);
+        this.moltenFluid = () -> moltenFluidId.flatMap(BuiltInRegistries.FLUID::getOptional).orElse(null);
         this.palette = palette;
     }
 
-    public MaterialType(ResourceLocation id, int sortOrder, List<TraitEntry> traits, Incompatible incompatible, List<ICondition> conditions, String texture, Supplier<Ingredient> repairIngredient, Supplier<Fluid> moltenFluid, List<Integer> palette) {
+    public MaterialType(Identifier id, int sortOrder, List<TraitEntry> traits, Incompatible incompatible, List<ICondition> conditions, String texture, Supplier<Ingredient> repairIngredient, Supplier<Fluid> moltenFluid, List<Integer> palette) {
         dontRegister = id == null || id.getNamespace().isEmpty() || id.getPath().isEmpty() || id.getPath().equals("null") || id.getPath().equals("empty");
         this.id = id;
         this.sortOrder = sortOrder;
@@ -142,10 +143,10 @@ public class MaterialType {
         private List<Integer> palette = new ArrayList<>();
 
         private String texture = "base";
-        private final ResourceLocation id;
+        private final Identifier id;
         private int sortOrder = 0;
 
-        public Builder(ResourceLocation id, Supplier<Ingredient> repairMaterial) {
+        public Builder(Identifier id, Supplier<Ingredient> repairMaterial) {
             this.id = id;
             repair = repairMaterial;
         }

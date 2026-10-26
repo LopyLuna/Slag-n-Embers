@@ -1,5 +1,6 @@
 package dev.lopyluna.slag.content.blocks.crucible;
 
+import com.google.common.base.Suppliers;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -13,12 +14,16 @@ import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.PlacementInfo;
 import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.item.crafting.RecipeBookCategories;
+import net.minecraft.world.item.crafting.RecipeBookCategory;
 import net.minecraft.world.item.crafting.RecipeInput;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
 import net.neoforged.neoforge.fluids.FluidStack;
+import net.neoforged.neoforge.fluids.FluidStackTemplate;
 import net.neoforged.neoforge.fluids.crafting.SizedFluidIngredient;
 import javax.annotation.Nonnull;
 
@@ -27,6 +32,7 @@ import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.function.Supplier;
 
 @SuppressWarnings({"OptionalUsedAsFieldOrParameterType", "unused"})
 @ParametersAreNonnullByDefault
@@ -36,21 +42,23 @@ public class AlloyingRecipe implements Recipe<AlloyingRecipe.AlloyRecipeInput> {
     protected final String group;
 
     private final List<SizedFluidIngredient> inputs;
-    private final FluidStack output;
+    private final FluidStackTemplate output;
+    private final Supplier<FluidStack> outputStack;
     public final Tiers temperature;
     public final @Nullable Temperatures.Type heatType;
     public final boolean strict;
     public final int duration;
     public final float speed;
 
-    public AlloyingRecipe(String group, List<SizedFluidIngredient> inputs, FluidStack output, Tiers temperature, Optional<Temperatures.Type> heatType, boolean strict, int duration, float speed) {
+    public AlloyingRecipe(String group, List<SizedFluidIngredient> inputs, FluidStackTemplate output, Tiers temperature, Optional<Temperatures.Type> heatType, boolean strict, int duration, float speed) {
         this(AllRecipes.ALLOYING.get(), group, inputs, output, temperature, heatType, strict, duration, speed);
     }
-    public AlloyingRecipe(RecipeType<?> type, String group, List<SizedFluidIngredient> inputs, FluidStack output, Tiers temperature, Optional<Temperatures.Type> heatType, boolean strict, int duration, float speed) {
+    public AlloyingRecipe(RecipeType<?> type, String group, List<SizedFluidIngredient> inputs, FluidStackTemplate output, Tiers temperature, Optional<Temperatures.Type> heatType, boolean strict, int duration, float speed) {
         this.type = type;
         this.group = group;
         this.inputs = inputs;
         this.output = output;
+        this.outputStack = Suppliers.memoize(output::create);
         this.temperature = temperature;
         this.heatType = heatType.orElse(null);
         this.strict = strict;
@@ -75,44 +83,57 @@ public class AlloyingRecipe implements Recipe<AlloyingRecipe.AlloyRecipeInput> {
     }
 
     public FluidStack assembleWithFluid(AlloyRecipeInput alloyRecipeInput, HolderLookup.Provider provider) {
-        return output.copy();
+        return getOutput().copy();
     }
     public FluidStack getResultFluid(HolderLookup.Provider provider) {
-        return output.copy();
+        return getOutput().copy();
     }
 
     @Override
-    public @Nonnull String getGroup() {
+    public @Nonnull String group() {
         return group;
     }
     public List<SizedFluidIngredient> getInputs() {
         return inputs;
     }
     public FluidStack getOutput() {
+        return outputStack.get();
+    }
+    public FluidStackTemplate getOutputTemplate() {
         return output;
     }
 
     @Override
-    public boolean canCraftInDimensions(int i, int i1) {
-        return false;
-    }
-    @Override
-    public @Nonnull ItemStack assemble(AlloyRecipeInput alloyRecipeInput, HolderLookup.Provider provider) {
+    public @Nonnull ItemStack assemble(AlloyRecipeInput alloyRecipeInput) {
         return ItemStack.EMPTY;
     }
-    @Override
     public @Nonnull ItemStack getResultItem(HolderLookup.Provider provider) {
         return ItemStack.EMPTY;
     }
 
     @Override
-    public @Nonnull RecipeSerializer<?> getSerializer() {
+    public @Nonnull RecipeSerializer<? extends Recipe<AlloyRecipeInput>> getSerializer() {
         return AllRecipes.ALLOYING_SER.get();
     }
 
     @Override
-    public @Nonnull RecipeType<?> getType() {
-        return type;
+    public @Nonnull RecipeType<? extends Recipe<AlloyRecipeInput>> getType() {
+        return (RecipeType<? extends Recipe<AlloyRecipeInput>>) type;
+    }
+
+    @Override
+    public boolean showNotification() {
+        return false;
+    }
+
+    @Override
+    public @Nonnull PlacementInfo placementInfo() {
+        return PlacementInfo.NOT_PLACEABLE;
+    }
+
+    @Override
+    public @Nonnull RecipeBookCategory recipeBookCategory() {
+        return RecipeBookCategories.CRAFTING_MISC;
     }
 
     public static class Type implements RecipeType<AlloyingRecipe> {
@@ -126,7 +147,7 @@ public class AlloyingRecipe implements Recipe<AlloyingRecipe.AlloyRecipeInput> {
     }
 
     public interface Factory {
-        AlloyingRecipe create(String var1, List<SizedFluidIngredient> var2, FluidStack var3, Tiers var4, Optional<Temperatures.Type> var5, boolean var6, int var7, float var8);
+        AlloyingRecipe create(String var1, List<SizedFluidIngredient> var2, FluidStackTemplate var3, Tiers var4, Optional<Temperatures.Type> var5, boolean var6, int var7, float var8);
     }
 
     public record AlloyRecipeInput(List<FluidStack> fluids) implements RecipeInput {
@@ -157,7 +178,7 @@ public class AlloyingRecipe implements Recipe<AlloyingRecipe.AlloyRecipeInput> {
         }
     }
 
-    public static class Serializer implements RecipeSerializer<AlloyingRecipe> {
+    public static class Serializer {
         private final AlloyingRecipe.Factory factory;
         private final MapCodec<AlloyingRecipe> codec;
         private final StreamCodec<RegistryFriendlyByteBuf, AlloyingRecipe> streamCodec;
@@ -166,9 +187,9 @@ public class AlloyingRecipe implements Recipe<AlloyingRecipe.AlloyRecipeInput> {
             this.factory = factory;
             this.codec = RecordCodecBuilder.mapCodec((instance) -> {
                 var recipe = instance.group(
-                        Codec.STRING.optionalFieldOf("group", "").forGetter(Recipe::getGroup),
+                        Codec.STRING.optionalFieldOf("group", "").forGetter(Recipe::group),
                         FluidInput.LIST_CODEC.fieldOf("ingredients").forGetter(AlloyingRecipe::getInputs),
-                        FluidStack.CODEC.fieldOf("result").forGetter(AlloyingRecipe::getOutput),
+                        FluidStackTemplate.CODEC.fieldOf("result").forGetter(AlloyingRecipe::getOutputTemplate),
                         Temperatures.TIER_CODEC.optionalFieldOf("temperature", Tiers.HEATED).forGetter(r -> r.temperature),
                         Temperatures.TYPE_CODEC.optionalFieldOf("heat_type").forGetter(r -> Optional.ofNullable(r.heatType)),
                         Codec.BOOL.optionalFieldOf("strict_temperature", false).forGetter(r -> r.strict),
@@ -180,13 +201,14 @@ public class AlloyingRecipe implements Recipe<AlloyingRecipe.AlloyRecipeInput> {
             this.streamCodec = StreamCodec.of(this::toNetwork, this::fromNetwork);
         }
 
-        @Override
         public @Nonnull MapCodec<AlloyingRecipe> codec() {
             return this.codec;
         }
-        @Override
         public @Nonnull StreamCodec<RegistryFriendlyByteBuf, AlloyingRecipe> streamCodec() {
             return this.streamCodec;
+        }
+        public RecipeSerializer<AlloyingRecipe> serializer() {
+            return new RecipeSerializer<>(codec, streamCodec);
         }
 
         @Override
@@ -197,7 +219,7 @@ public class AlloyingRecipe implements Recipe<AlloyingRecipe.AlloyRecipeInput> {
         private AlloyingRecipe fromNetwork(RegistryFriendlyByteBuf buffer) {
             String s = buffer.readUtf();
             var inputs = SizedFluidIngredient.STREAM_CODEC.apply(ByteBufCodecs.list()).decode(buffer);
-            FluidStack fluidStack = FluidStack.STREAM_CODEC.decode(buffer);
+            var fluidStack = FluidStackTemplate.STREAM_CODEC.decode(buffer);
             var temperature = buffer.readEnum(Tiers.class);
             var heatType = buffer.readOptional(buf -> buf.readEnum(Temperatures.Type.class));
             var strict = buffer.readBoolean();
@@ -207,9 +229,9 @@ public class AlloyingRecipe implements Recipe<AlloyingRecipe.AlloyRecipeInput> {
         }
 
         private void toNetwork(RegistryFriendlyByteBuf buffer, AlloyingRecipe recipe) {
-            buffer.writeUtf(recipe.getGroup());
+            buffer.writeUtf(recipe.group());
             SizedFluidIngredient.STREAM_CODEC.apply(ByteBufCodecs.list()).encode(buffer, recipe.getInputs());
-            FluidStack.STREAM_CODEC.encode(buffer, recipe.getOutput());
+            FluidStackTemplate.STREAM_CODEC.encode(buffer, recipe.getOutputTemplate());
             buffer.writeEnum(recipe.temperature);
             buffer.writeOptional(Optional.ofNullable(recipe.heatType), FriendlyByteBuf::writeEnum);
             buffer.writeBoolean(recipe.strict);
@@ -217,7 +239,7 @@ public class AlloyingRecipe implements Recipe<AlloyingRecipe.AlloyRecipeInput> {
             buffer.writeFloat(recipe.speed);
         }
 
-        public AlloyingRecipe create(String group, List<SizedFluidIngredient> inputs, FluidStack result, Tiers temperature, Optional<Temperatures.Type> heatType, boolean strict, int duration, float speed) {
+        public AlloyingRecipe create(String group, List<SizedFluidIngredient> inputs, FluidStackTemplate result, Tiers temperature, Optional<Temperatures.Type> heatType, boolean strict, int duration, float speed) {
             return this.factory.create(group, inputs, result, temperature, heatType, strict, duration, speed);
         }
     }

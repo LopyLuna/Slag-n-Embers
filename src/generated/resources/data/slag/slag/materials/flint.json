@@ -9,9 +9,7 @@
       "slag:boots"
     ]
   },
-  "repair_ingredient": {
-    "item": "minecraft:flint"
-  },
+  "repair_ingredient": "minecraft:flint",
   "sort_order": 230,
   "texture": "shiny",
   "traits": [

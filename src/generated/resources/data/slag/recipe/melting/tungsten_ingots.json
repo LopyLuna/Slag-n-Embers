@@ -9,9 +9,7 @@
     }
   ],
   "type": "slag:melting",
-  "ingredient": {
-    "tag": "c:ingots/tungsten"
-  },
+  "ingredient": "#c:ingots/tungsten",
   "ingredients": [],
   "result": [
     {

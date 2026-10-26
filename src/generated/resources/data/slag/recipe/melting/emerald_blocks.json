@@ -1,8 +1,6 @@
 {
   "type": "slag:melting",
-  "ingredient": {
-    "tag": "c:storage_blocks/emerald"
-  },
+  "ingredient": "#c:storage_blocks/emerald",
   "ingredients": [],
   "result": [
     {

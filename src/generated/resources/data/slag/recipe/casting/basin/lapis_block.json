@@ -2,10 +2,9 @@
   "type": "slag:basin_casting",
   "ingredient": {
     "amount": 648,
-    "tag": "c:molten/lapis"
+    "ingredient": "#c:molten/lapis"
   },
   "result": {
-    "count": 1,
     "id": "minecraft:lapis_block"
   }
 }

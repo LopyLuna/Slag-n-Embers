@@ -12,7 +12,7 @@
   "cast": "slag:cast/dusts",
   "ingredient": {
     "amount": 72,
-    "tag": "c:molten/platinum"
+    "ingredient": "#c:molten/platinum"
   },
   "result": {
     "tag": "c:dusts/platinum"

@@ -9,9 +9,7 @@
     }
   ],
   "type": "slag:melting",
-  "ingredient": {
-    "tag": "c:ingots/bronze"
-  },
+  "ingredient": "#c:ingots/bronze",
   "ingredients": [],
   "result": [
     {

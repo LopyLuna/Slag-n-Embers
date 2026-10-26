@@ -15,12 +15,8 @@
   "type": "minecraft:crafting_shaped",
   "category": "equipment",
   "key": {
-    "M": {
-      "tag": "c:ingots/lead"
-    },
-    "R": {
-      "item": "minecraft:paper"
-    }
+    "M": "#c:ingots/lead",
+    "R": "minecraft:paper"
   },
   "pattern": [
     "MR",
@@ -31,7 +27,6 @@
       "slag:material_type": "slag:lead",
       "slag:part_type": "slag:plate"
     },
-    "count": 1,
     "id": "slag:dynamic_part"
   }
 }

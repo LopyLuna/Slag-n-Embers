@@ -12,14 +12,13 @@
   "cast": "slag:cast/leggings",
   "ingredient": {
     "amount": 360,
-    "tag": "c:molten/tin"
+    "ingredient": "#c:molten/tin"
   },
   "result": {
     "components": {
       "slag:material_type": "slag:tin",
       "slag:part_type": "slag:leggings"
     },
-    "count": 1,
     "id": "slag:dynamic_part"
   }
 }

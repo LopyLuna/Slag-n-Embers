@@ -69,7 +69,7 @@ public class ModularCategory extends AbstractRecipeCategory<ModularType> {
             if (material == null || !Incompatible.compatible(material, part)) return ItemStack.EMPTY;
             stacks.add(partStack(material, part, modular));
         }
-        for (var stack : modular.finalSegmentStacks) {
+        for (var stack : modular.finalSegmentStacks()) {
             var copy = stack.copy();
             copy.set(AllDataComponents.BUILT, modular.id);
             stacks.add(copy);
@@ -106,7 +106,7 @@ public class ModularCategory extends AbstractRecipeCategory<ModularType> {
             }
             inputs.add(stacks);
         }
-        for (var stack : modular.finalSegmentStacks) inputs.add(List.of(stack.copy()));
+        for (var stack : modular.finalSegmentStacks()) inputs.add(List.of(stack.copy()));
 
         var count = inputs.size();
         var scrolls = scrolls(count);
@@ -125,7 +125,7 @@ public class ModularCategory extends AbstractRecipeCategory<ModularType> {
         var inputs = builder.getRecipeSlots().getSlots(RecipeIngredientRole.INPUT);
         var count = inputs.size();
         if (scrolls(count)) builder.addScrollGridWidget(inputs, columns(count), ROWS).setPosition(originX(count), originY(count));
-        builder.addRecipeArrow().setPosition(arrowX(count), (HEIGHT - ARROW_H) / 2);
+        builder.addRecipeArrowWidget().setPosition(arrowX(count), (HEIGHT - ARROW_H) / 2);
     }
 
     private static int columns(int count) {

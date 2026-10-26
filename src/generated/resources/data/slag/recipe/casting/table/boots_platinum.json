@@ -12,14 +12,13 @@
   "cast": "slag:cast/boots",
   "ingredient": {
     "amount": 144,
-    "tag": "c:molten/platinum"
+    "ingredient": "#c:molten/platinum"
   },
   "result": {
     "components": {
       "slag:material_type": "slag:platinum",
       "slag:part_type": "slag:boots"
     },
-    "count": 1,
     "id": "slag:dynamic_part"
   }
 }

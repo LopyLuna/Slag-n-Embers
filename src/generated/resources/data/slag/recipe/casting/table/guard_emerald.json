@@ -3,14 +3,13 @@
   "cast": "slag:cast/guards",
   "ingredient": {
     "amount": 72,
-    "tag": "c:molten/emerald"
+    "ingredient": "#c:molten/emerald"
   },
   "result": {
     "components": {
       "slag:material_type": "slag:emerald",
       "slag:part_type": "slag:guard"
     },
-    "count": 1,
     "id": "slag:dynamic_part"
   }
 }

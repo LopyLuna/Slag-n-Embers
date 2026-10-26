@@ -12,14 +12,13 @@
   "cast": "slag:cast/shovel_heads",
   "ingredient": {
     "amount": 72,
-    "tag": "c:molten/tin"
+    "ingredient": "#c:molten/tin"
   },
   "result": {
     "components": {
       "slag:material_type": "slag:tin",
       "slag:part_type": "slag:shovel_head"
     },
-    "count": 1,
     "id": "slag:dynamic_part"
   }
 }

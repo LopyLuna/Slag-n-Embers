@@ -9,9 +9,7 @@
     }
   ],
   "type": "slag:melting",
-  "ingredient": {
-    "tag": "c:clumps/nickel"
-  },
+  "ingredient": "#c:clumps/nickel",
   "ingredients": [],
   "result": [
     {

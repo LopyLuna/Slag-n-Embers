@@ -11,7 +11,7 @@
   "type": "slag:basin_casting",
   "ingredient": {
     "amount": 648,
-    "tag": "c:molten/tin"
+    "ingredient": "#c:molten/tin"
   },
   "result": {
     "tag": "c:storage_blocks/tin"

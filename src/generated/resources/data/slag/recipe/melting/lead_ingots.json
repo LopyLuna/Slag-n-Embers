@@ -9,9 +9,7 @@
     }
   ],
   "type": "slag:melting",
-  "ingredient": {
-    "tag": "c:ingots/lead"
-  },
+  "ingredient": "#c:ingots/lead",
   "ingredients": [],
   "result": [
     {

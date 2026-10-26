@@ -12,14 +12,13 @@
   "cast": "slag:cast/leggings",
   "ingredient": {
     "amount": 360,
-    "tag": "c:molten/silver"
+    "ingredient": "#c:molten/silver"
   },
   "result": {
     "components": {
       "slag:material_type": "slag:silver",
       "slag:part_type": "slag:leggings"
     },
-    "count": 1,
     "id": "slag:dynamic_part"
   }
 }

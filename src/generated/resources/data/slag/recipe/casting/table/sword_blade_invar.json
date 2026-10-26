@@ -12,14 +12,13 @@
   "cast": "slag:cast/sword_blades",
   "ingredient": {
     "amount": 72,
-    "tag": "c:molten/invar"
+    "ingredient": "#c:molten/invar"
   },
   "result": {
     "components": {
       "slag:material_type": "slag:invar",
       "slag:part_type": "slag:sword_blade"
     },
-    "count": 1,
     "id": "slag:dynamic_part"
   }
 }

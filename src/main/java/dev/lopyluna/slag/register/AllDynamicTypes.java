@@ -8,7 +8,7 @@ import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.tags.TagKey;
 import net.neoforged.neoforge.common.conditions.ICondition;
 import net.neoforged.neoforge.data.loading.DatagenModLoader;
@@ -20,10 +20,10 @@ import java.util.function.Predicate;
 
 @SuppressWarnings({"UnusedReturnValue", "unused", "NullableProblems", "NonAtomicOperationOnVolatileField"})
 public class AllDynamicTypes {
-    private static final Map<ResourceLocation, MaterialType> MATERIAL_TYPES = new ConcurrentHashMap<>();
-    private static final Map<ResourceLocation, PartType> PART_TYPES = new ConcurrentHashMap<>();
-    private static final Map<ResourceLocation, ModularType> MODULAR_TYPES = new ConcurrentHashMap<>();
-    private static final Map<ResourceLocation, TraitType> TRAIT_TYPES = new ConcurrentHashMap<>();
+    private static final Map<Identifier, MaterialType> MATERIAL_TYPES = new ConcurrentHashMap<>();
+    private static final Map<Identifier, PartType> PART_TYPES = new ConcurrentHashMap<>();
+    private static final Map<Identifier, ModularType> MODULAR_TYPES = new ConcurrentHashMap<>();
+    private static final Map<Identifier, TraitType> TRAIT_TYPES = new ConcurrentHashMap<>();
     public static volatile int version;
 
     public static MaterialType registerMaterial(MaterialType materialType) {
@@ -59,22 +59,21 @@ public class AllDynamicTypes {
     public static ICondition.IContext context(RegistryAccess access) {
         return new ICondition.IContext() {
             @Override
-            public <T> Map<ResourceLocation, Collection<Holder<T>>> getAllTags(ResourceKey<? extends Registry<T>> key) {
-                var tags = new HashMap<ResourceLocation, Collection<Holder<T>>>();
-                access.registry(key).ifPresent(registry -> registry.getTags().forEach(pair -> tags.put(pair.getFirst().location(), pair.getSecond().stream().toList())));
-                return tags;
+            public <T> boolean isTagLoaded(TagKey<T> key) {
+                var registry = access.lookup(key.registry()).orElse(null);
+                return registry != null && registry.get(key).isPresent();
             }
 
             @Override
             public <T> Collection<Holder<T>> getTag(TagKey<T> key) {
-                var registry = access.registry(key.registry()).orElse(null);
+                var registry = access.lookup(key.registry()).orElse(null);
                 if (registry == null) return List.of();
-                return registry.getTag(key).<Collection<Holder<T>>>map(set -> set.stream().toList()).orElse(List.of());
+                return registry.get(key).<Collection<Holder<T>>>map(set -> set.stream().toList()).orElse(List.of());
             }
         };
     }
 
-    public static Optional<TraitType> getTrait(ResourceLocation id) {
+    public static Optional<TraitType> getTrait(Identifier id) {
         return id == null ? Optional.empty() : Optional.ofNullable(TRAIT_TYPES.get(id));
     }
 
@@ -82,15 +81,15 @@ public class AllDynamicTypes {
         return TRAIT_TYPES.values();
     }
 
-    public static Optional<MaterialType> getMaterial(ResourceLocation id) {
+    public static Optional<MaterialType> getMaterial(Identifier id) {
         return id == null ? Optional.empty() : Optional.ofNullable(MATERIAL_TYPES.get(id));
     }
 
-    public static Optional<PartType> getPart(ResourceLocation id) {
+    public static Optional<PartType> getPart(Identifier id) {
         return id == null ? Optional.empty() : Optional.ofNullable(PART_TYPES.get(id));
     }
 
-    public static Optional<ModularType> getModular(ResourceLocation id) {
+    public static Optional<ModularType> getModular(Identifier id) {
         return id == null ? Optional.empty() : Optional.ofNullable(MODULAR_TYPES.get(id));
     }
 
@@ -131,10 +130,10 @@ public class AllDynamicTypes {
         if (changed) version++;
     }
 
-    private static <T> boolean load(Map<ResourceLocation, T> types, RegistryAccess access, ResourceKey<Registry<T>> key, Function<T, ResourceLocation> id, Predicate<T> skip) {
-        var registry = access.registry(key).orElse(null);
+    private static <T> boolean load(Map<Identifier, T> types, RegistryAccess access, ResourceKey<Registry<T>> key, Function<T, Identifier> id, Predicate<T> skip) {
+        var registry = access.lookup(key).orElse(null);
         if (registry == null) return false;
-        var loaded = new HashMap<ResourceLocation, T>();
+        var loaded = new HashMap<Identifier, T>();
         for (var type : registry) if (!skip.test(type)) loaded.put(id.apply(type), type);
         if (types.equals(loaded)) return false;
         types.putAll(loaded);

@@ -12,7 +12,7 @@
   "cast": "slag:cast/dusts",
   "ingredient": {
     "amount": 72,
-    "tag": "c:molten/electrum"
+    "ingredient": "#c:molten/electrum"
   },
   "result": {
     "tag": "c:dusts/electrum"

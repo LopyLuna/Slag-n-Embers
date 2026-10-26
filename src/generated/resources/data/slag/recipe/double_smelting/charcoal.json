@@ -2,12 +2,8 @@
   "type": "slag:double_smelting",
   "cookingTime": 200,
   "experience": 0.3,
-  "ingredientA": {
-    "tag": "minecraft:logs_that_burn"
-  },
-  "ingredientB": {
-    "tag": "minecraft:logs_that_burn"
-  },
+  "ingredientA": "#minecraft:logs_that_burn",
+  "ingredientB": "#minecraft:logs_that_burn",
   "result": {
     "count": 2,
     "id": "minecraft:charcoal"

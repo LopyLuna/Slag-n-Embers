@@ -1,8 +1,6 @@
 {
   "type": "slag:melting",
-  "ingredient": {
-    "item": "minecraft:ice"
-  },
+  "ingredient": "minecraft:ice",
   "ingredients": [],
   "result": [
     {

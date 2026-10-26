@@ -3,14 +3,13 @@
   "cast": "slag:cast/guards",
   "ingredient": {
     "amount": 72,
-    "tag": "c:molten/copper"
+    "ingredient": "#c:molten/copper"
   },
   "result": {
     "components": {
       "slag:material_type": "slag:copper",
       "slag:part_type": "slag:guard"
     },
-    "count": 1,
     "id": "slag:dynamic_part"
   }
 }

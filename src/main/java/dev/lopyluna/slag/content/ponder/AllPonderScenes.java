@@ -14,18 +14,18 @@ import dev.lopyluna.slag.content.temperature.Temperatures.Heat;
 import dev.lopyluna.slag.content.temperature.Temperatures.Tiers;
 import dev.lopyluna.slag.content.temperature.Temperatures.Type;
 import dev.lopyluna.slag.register.*;
-import net.createmod.catnip.math.Pointing;
-import net.createmod.ponder.api.PonderPalette;
-import net.createmod.ponder.api.element.ElementLink;
-import net.createmod.ponder.api.element.WorldSectionElement;
-import net.createmod.ponder.api.registration.PonderSceneRegistrationHelper;
-import net.createmod.ponder.api.scene.SceneBuilder;
-import net.createmod.ponder.api.scene.SceneBuildingUtil;
-import net.createmod.ponder.api.scene.Selection;
-import net.createmod.ponder.foundation.instruction.FadeOutOfSceneInstruction;
+import net.createmod.catnip.api.math.Pointing;
+import net.createmod.ponder.api.client.PonderPalette;
+import net.createmod.ponder.api.client.element.ElementLink;
+import net.createmod.ponder.api.client.element.WorldSectionElement;
+import net.createmod.ponder.api.client.registration.PonderSceneRegistrationHelper;
+import net.createmod.ponder.api.client.scene.SceneBuilder;
+import net.createmod.ponder.api.client.scene.SceneBuildingUtil;
+import net.createmod.ponder.api.client.scene.Selection;
+import net.createmod.ponder.impl.client.instruction.FadeOutOfSceneInstruction;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -40,7 +40,7 @@ import java.util.List;
 
 @SuppressWarnings("SameParameterValue")
 public class AllPonderScenes {
-    public static void register(PonderSceneRegistrationHelper<ResourceLocation> helper) {
+    public static void register(PonderSceneRegistrationHelper<Identifier> helper) {
         PonderSceneRegistrationHelper<ItemProviderEntry<?, ?>> HELPER = helper.withKeyFunction(RegistryEntry::getId);
 
         HELPER.forComponents(AllBlocks.CRUCIBLE)

@@ -1,5 +1,6 @@
 package dev.lopyluna.slag.content.blocks.crucible_interface;
 
+import dev.lopyluna.slag.content.AllUtils;
 import dev.lopyluna.slag.content.blocks.crucible_interface.client.InterfaceMenu;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
@@ -16,8 +17,9 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
-import net.neoforged.neoforge.capabilities.Capabilities;
-import net.neoforged.neoforge.fluids.capability.IFluidHandler;
+import net.minecraft.world.level.storage.ValueInput;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.fluid.FluidResource;
 import javax.annotation.Nonnull;
 
 import javax.annotation.Nullable;
@@ -26,7 +28,7 @@ import static dev.lopyluna.slag.content.blocks.crucible_interface.InterfaceBlock
 @SuppressWarnings("NullableProblems")
 public class InterfaceBE extends BlockEntity implements MenuProvider {
     public int update = 0;
-    public IFluidHandler targetCap = null;
+    public @Nullable ResourceHandler<FluidResource> targetCap = null;
 
     public InterfaceBE(BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
         super(type, pos, blockState);
@@ -64,10 +66,10 @@ public class InterfaceBE extends BlockEntity implements MenuProvider {
             targetCap = null;
             return;
         }
-        targetCap = level.getCapability(Capabilities.FluidHandler.BLOCK, relPos, facing);
+        targetCap = AllUtils.fluids(level, relPos, facing);
     }
 
-    public IFluidHandler getTarget() {
+    public @Nullable ResourceHandler<FluidResource> getTarget() {
         update();
         return targetCap;
     }
@@ -88,8 +90,8 @@ public class InterfaceBE extends BlockEntity implements MenuProvider {
     }
 
     @Override
-    protected void loadAdditional(@Nonnull CompoundTag tag, HolderLookup.Provider registries) {
-        super.loadAdditional(tag, registries);
+    protected void loadAdditional(@Nonnull ValueInput input) {
+        super.loadAdditional(input);
         update = 8;
     }
 

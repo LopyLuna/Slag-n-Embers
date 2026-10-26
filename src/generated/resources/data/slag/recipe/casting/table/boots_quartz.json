@@ -3,14 +3,13 @@
   "cast": "slag:cast/boots",
   "ingredient": {
     "amount": 144,
-    "tag": "c:molten/quartz"
+    "ingredient": "#c:molten/quartz"
   },
   "result": {
     "components": {
       "slag:material_type": "slag:quartz",
       "slag:part_type": "slag:boots"
     },
-    "count": 1,
     "id": "slag:dynamic_part"
   }
 }

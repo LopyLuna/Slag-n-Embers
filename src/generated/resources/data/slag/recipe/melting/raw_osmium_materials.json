@@ -9,9 +9,7 @@
     }
   ],
   "type": "slag:melting",
-  "ingredient": {
-    "tag": "c:raw_materials/osmium"
-  },
+  "ingredient": "#c:raw_materials/osmium",
   "ingredients": [],
   "result": [
     {

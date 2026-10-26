@@ -2,10 +2,9 @@
   "type": "slag:basin_casting",
   "ingredient": {
     "amount": 648,
-    "tag": "c:molten/redstone"
+    "ingredient": "#c:molten/redstone"
   },
   "result": {
-    "count": 1,
     "id": "minecraft:redstone_block"
   }
 }

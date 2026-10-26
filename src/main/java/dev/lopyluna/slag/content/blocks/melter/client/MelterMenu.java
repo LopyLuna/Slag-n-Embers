@@ -6,7 +6,6 @@ import dev.lopyluna.slag.register.AllMenuTypes;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.util.Unit;
 import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Inventory;
@@ -16,6 +15,7 @@ import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.inventory.SimpleContainerData;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.component.TooltipDisplay;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.fluids.FluidStack;
@@ -23,6 +23,7 @@ import javax.annotation.Nonnull;
 
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
+import java.util.LinkedHashSet;
 import java.util.List;
 
 @ParametersAreNonnullByDefault
@@ -93,8 +94,7 @@ public class MelterMenu extends AbstractContainerMenu {
         belowState = state;
         belowStack = state.isAir() ? ItemStack.EMPTY : AllUtils.getStackFromBlock(state.getBlock(), false);
         if (belowStack.isEmpty()) return belowStack;
-        belowStack.set(DataComponents.HIDE_TOOLTIP, Unit.INSTANCE);
-        belowStack.set(DataComponents.HIDE_ADDITIONAL_TOOLTIP, Unit.INSTANCE);
+        belowStack.set(DataComponents.TOOLTIP_DISPLAY, new TooltipDisplay(true, new LinkedHashSet<>()));
         return belowStack;
     }
 

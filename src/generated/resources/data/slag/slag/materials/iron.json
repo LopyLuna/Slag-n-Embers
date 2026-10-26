@@ -1,9 +1,7 @@
 {
   "id": "slag:iron",
   "molten_fluid": "slag:molten_iron",
-  "repair_ingredient": {
-    "tag": "c:ingots/iron"
-  },
+  "repair_ingredient": "#c:ingots/iron",
   "sort_order": 40,
   "traits": [
     {

@@ -9,9 +9,7 @@
     }
   ],
   "type": "slag:melting",
-  "ingredient": {
-    "tag": "c:ores/zinc"
-  },
+  "ingredient": "#c:ores/zinc",
   "ingredients": [],
   "result": [
     {

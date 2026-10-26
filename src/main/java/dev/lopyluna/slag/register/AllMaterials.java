@@ -1,5 +1,6 @@
 package dev.lopyluna.slag.register;
 
+import dev.lopyluna.slag.content.AllUtils;
 import dev.lopyluna.slag.content.types.Incompatible;
 import dev.lopyluna.slag.content.types.MaterialType;
 import net.minecraft.tags.ItemTags;
@@ -10,7 +11,7 @@ import net.neoforged.neoforge.common.Tags;
 @SuppressWarnings("unused")
 public class AllMaterials {
 
-    public static final MaterialType WOOD = register(new MaterialType.Builder("wooden", () -> Ingredient.of(ItemTags.PLANKS)).setSortOrder(10)
+    public static final MaterialType WOOD = register(new MaterialType.Builder("wooden", () -> AllUtils.tag(ItemTags.PLANKS)).setSortOrder(10)
             .trait(AllTraits.ATTACK_DAMAGE, 3f)
             .trait(AllTraits.DURABILITY, 64)
             .trait(AllTraits.MINING_TIER, 1)
@@ -32,7 +33,7 @@ public class AllMaterials {
     //        .setTexture("shiny")
     //        .register());
             
-    public static final MaterialType STONE = register(new MaterialType.Builder("stone", () -> Ingredient.of(ItemTags.STONE_TOOL_MATERIALS)).setSortOrder(20)
+    public static final MaterialType STONE = register(new MaterialType.Builder("stone", () -> AllUtils.tag(ItemTags.STONE_TOOL_MATERIALS)).setSortOrder(20)
             .trait(AllTraits.ATTACK_DAMAGE, 4f)
             .trait(AllTraits.DURABILITY, 128)
             .trait(AllTraits.MINING_TIER, 3)
@@ -56,7 +57,7 @@ public class AllMaterials {
     //        .moltenFluid(AllFluids.MOLTEN_REDSTONE::getSource)
     //        .register());
             
-    public static final MaterialType LAPIS = register(new MaterialType.Builder("lapis", () -> Ingredient.of(Tags.Items.GEMS_LAPIS)).setSortOrder(170)
+    public static final MaterialType LAPIS = register(new MaterialType.Builder("lapis", () -> AllUtils.tag(Tags.Items.GEMS_LAPIS)).setSortOrder(170)
             .trait(AllTraits.ATTACK_DAMAGE, 4.5f)
             .trait(AllTraits.DURABILITY, 384)
             .trait(AllTraits.MINING_TIER, 3)
@@ -67,7 +68,7 @@ public class AllMaterials {
             .moltenFluid(AllFluids.MOLTEN_LAPIS::getSource)
             .register());
             
-    public static final MaterialType COPPER = register(new MaterialType.Builder("copper", () -> Ingredient.of(Tags.Items.INGOTS_COPPER)).setSortOrder(30)
+    public static final MaterialType COPPER = register(new MaterialType.Builder("copper", () -> AllUtils.tag(Tags.Items.INGOTS_COPPER)).setSortOrder(30)
             .trait(AllTraits.ATTACK_DAMAGE, 4.5f)
             .trait(AllTraits.DURABILITY, 192)
             .trait(AllTraits.MINING_TIER, 3)
@@ -77,7 +78,7 @@ public class AllMaterials {
             .moltenFluid(AllFluids.MOLTEN_COPPER::getSource)
             .register());
             
-    public static final MaterialType AMETHYST = register(new MaterialType.Builder("amethyst", () -> Ingredient.of(Tags.Items.GEMS_AMETHYST)).setSortOrder(180)
+    public static final MaterialType AMETHYST = register(new MaterialType.Builder("amethyst", () -> AllUtils.tag(Tags.Items.GEMS_AMETHYST)).setSortOrder(180)
             .trait(AllTraits.ATTACK_DAMAGE, 5.5f)
             .trait(AllTraits.DURABILITY, 224)
             .trait(AllTraits.MINING_TIER, 3)
@@ -88,7 +89,7 @@ public class AllMaterials {
             .moltenFluid(AllFluids.MOLTEN_AMETHYST::getSource)
             .register());
             
-    public static final MaterialType GOLD = register(new MaterialType.Builder("golden", () -> Ingredient.of(Tags.Items.INGOTS_GOLD)).setSortOrder(50)
+    public static final MaterialType GOLD = register(new MaterialType.Builder("golden", () -> AllUtils.tag(Tags.Items.INGOTS_GOLD)).setSortOrder(50)
             .trait(AllTraits.PIGLIN_LOVED)
             .trait(AllTraits.ATTACK_DAMAGE, 3f)
             .trait(AllTraits.DURABILITY, 32)
@@ -100,7 +101,7 @@ public class AllMaterials {
             .moltenFluid(AllFluids.MOLTEN_GOLD::getSource)
             .register());
             
-    public static final MaterialType IRON = register(new MaterialType.Builder("iron", () -> Ingredient.of(Tags.Items.INGOTS_IRON)).setSortOrder(40)
+    public static final MaterialType IRON = register(new MaterialType.Builder("iron", () -> AllUtils.tag(Tags.Items.INGOTS_IRON)).setSortOrder(40)
             .trait(AllTraits.ATTACK_DAMAGE, 5f)
             .trait(AllTraits.DURABILITY, 256)
             .trait(AllTraits.MINING_TIER, 4)
@@ -110,7 +111,7 @@ public class AllMaterials {
             .moltenFluid(AllFluids.MOLTEN_IRON::getSource)
             .register());
             
-    public static final MaterialType ROSE_GOLD = register(new MaterialType.Builder("rose_gold", () -> Ingredient.of(AllTags.itemC("ingots/rose_gold"))).setSortOrder(110)
+    public static final MaterialType ROSE_GOLD = register(new MaterialType.Builder("rose_gold", () -> AllUtils.tag(AllTags.itemC("ingots/rose_gold"))).setSortOrder(110)
             .trait(AllTraits.ATTACK_DAMAGE, 6f)
             .trait(AllTraits.DURABILITY, 480)
             .trait(AllTraits.MINING_TIER, 4)
@@ -121,7 +122,7 @@ public class AllMaterials {
             .moltenFluid(AllFluids.MOLTEN_ROSE_GOLD::getSource)
             .register());
             
-    public static final MaterialType QUARTZ = register(new MaterialType.Builder("quartz", () -> Ingredient.of(Tags.Items.GEMS_QUARTZ)).setSortOrder(150)
+    public static final MaterialType QUARTZ = register(new MaterialType.Builder("quartz", () -> AllUtils.tag(Tags.Items.GEMS_QUARTZ)).setSortOrder(150)
             .trait(AllTraits.ATTACK_DAMAGE, 6.5f)
             .trait(AllTraits.DURABILITY, 288)
             .trait(AllTraits.MINING_TIER, 4)
@@ -132,7 +133,7 @@ public class AllMaterials {
             .moltenFluid(AllFluids.MOLTEN_QUARTZ::getSource)
             .register());
             
-    public static final MaterialType EMERALD = register(new MaterialType.Builder("emerald", () -> Ingredient.of(Tags.Items.GEMS_EMERALD)).setSortOrder(100)
+    public static final MaterialType EMERALD = register(new MaterialType.Builder("emerald", () -> AllUtils.tag(Tags.Items.GEMS_EMERALD)).setSortOrder(100)
             .trait(AllTraits.ATTACK_DAMAGE, 5.5f)
             .trait(AllTraits.DURABILITY, 512)
             .trait(AllTraits.MINING_TIER, 5)
@@ -144,7 +145,7 @@ public class AllMaterials {
             .moltenFluid(AllFluids.MOLTEN_EMERALD::getSource)
             .register());
             
-    public static final MaterialType DEEP_ALLOY_MATERIAL = register(new MaterialType.Builder("deep_alloy", () -> Ingredient.of(AllTags.itemC("ingots/deep_alloy"))).setSortOrder(140)
+    public static final MaterialType DEEP_ALLOY_MATERIAL = register(new MaterialType.Builder("deep_alloy", () -> AllUtils.tag(AllTags.itemC("ingots/deep_alloy"))).setSortOrder(140)
             .trait(AllTraits.ATTACK_DAMAGE, 5f)
             .trait(AllTraits.DURABILITY, 704)
             .trait(AllTraits.MINING_TIER, 4)
@@ -177,7 +178,7 @@ public class AllMaterials {
     //        .setTexture("shiny")
     //        .register());
             
-    public static final MaterialType DIAMOND = register(new MaterialType.Builder("diamond", () -> Ingredient.of(Tags.Items.GEMS_DIAMOND)).setSortOrder(60)
+    public static final MaterialType DIAMOND = register(new MaterialType.Builder("diamond", () -> AllUtils.tag(Tags.Items.GEMS_DIAMOND)).setSortOrder(60)
             .trait(AllTraits.ATTACK_DAMAGE, 6f)
             .trait(AllTraits.DURABILITY, 1024)
             .trait(AllTraits.MINING_TIER, 5)
@@ -189,7 +190,7 @@ public class AllMaterials {
             .moltenFluid(AllFluids.MOLTEN_DIAMOND::getSource)
             .register());
             
-    public static final MaterialType OBSIDIAN = register(new MaterialType.Builder("obsidian", () -> Ingredient.of(Tags.Items.OBSIDIANS)).setSortOrder(90)
+    public static final MaterialType OBSIDIAN = register(new MaterialType.Builder("obsidian", () -> AllUtils.tag(Tags.Items.OBSIDIANS)).setSortOrder(90)
             .trait(AllTraits.ATTACK_DAMAGE, 6.5f)
             .trait(AllTraits.DURABILITY, 2560)
             .trait(AllTraits.MINING_TIER, 5)
@@ -216,7 +217,7 @@ public class AllMaterials {
             .setTexture("metal")
             .register());
             
-    public static final MaterialType NETHERITE = register(new MaterialType.Builder("netherite", () -> Ingredient.of(Tags.Items.INGOTS_NETHERITE)).setSortOrder(70)
+    public static final MaterialType NETHERITE = register(new MaterialType.Builder("netherite", () -> AllUtils.tag(Tags.Items.INGOTS_NETHERITE)).setSortOrder(70)
             .trait(AllTraits.ATTACK_DAMAGE, 7f)
             .trait(AllTraits.DURABILITY, 2048)
             .trait(AllTraits.MINING_TIER, 6)
@@ -253,7 +254,7 @@ public class AllMaterials {
     //        .setTexture("soft")
     //        .register());
             
-    public static final MaterialType BONE = register(new MaterialType.Builder("bone", () -> Ingredient.of(Tags.Items.BONES)).setSortOrder(210)
+    public static final MaterialType BONE = register(new MaterialType.Builder("bone", () -> AllUtils.tag(Tags.Items.BONES)).setSortOrder(210)
             .trait(AllTraits.ATTACK_DAMAGE, 5.5f)
             .trait(AllTraits.DURABILITY, 144)
             .trait(AllTraits.MINING_TIER, 3)
@@ -455,7 +456,7 @@ public class AllMaterials {
 
     private static MaterialType.Builder compat(String name, int sortOrder) {
         var ingots = AllTags.itemC("ingots/" + name);
-        return new MaterialType.Builder(name, () -> Ingredient.of(ingots)).setSortOrder(sortOrder).requiresTag(ingots);
+        return new MaterialType.Builder(name, () -> AllUtils.tag(ingots)).setSortOrder(sortOrder).requiresTag(ingots);
     }
 
     private static void noArmor(Incompatible.Builder incompatible) {

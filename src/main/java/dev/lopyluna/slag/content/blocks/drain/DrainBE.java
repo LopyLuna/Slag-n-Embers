@@ -2,6 +2,7 @@ package dev.lopyluna.slag.content.blocks.drain;
 
 import dev.lopyluna.slag.compat.sable.SableCompat;
 import dev.lopyluna.slag.config.SlagServerConfigs;
+import dev.lopyluna.slag.content.AllUtils;
 import dev.lopyluna.slag.content.blocks.crucible.CrucibleBlock;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -10,24 +11,28 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.BlockGetter;
-import net.minecraft.world.level.GameRules;
+import net.minecraft.world.level.gamerules.GameRules;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.common.NeoForgeMod;
 import net.neoforged.neoforge.fluids.FluidStack;
-import net.neoforged.neoforge.fluids.capability.IFluidHandler;
-import org.checkerframework.checker.nullness.qual.NonNull;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.fluid.FluidResource;
+import net.neoforged.neoforge.transfer.fluid.FluidUtil;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.Objects;
@@ -49,30 +54,30 @@ public class DrainBE extends BlockEntity {
     public DrainBE(BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
         super(type, pos, blockState);
     }
-    private IFluidHandler getFluidHandlerDir(Direction dir) {
+    private @Nullable ResourceHandler<FluidResource> getFluidHandlerDir(Direction dir) {
         assert level != null;
         var pos = worldPosition.relative(dir);
         if (!level.isLoaded(pos)) return null;
         var be = level.getBlockEntity(pos);
         if (be == null) return null;
-        return level.getCapability(Capabilities.FluidHandler.BLOCK, pos, dir.getOpposite());
+        return AllUtils.fluids(level, pos, dir.getOpposite());
     }
 
-    public IFluidHandler getInputHandler() {
+    public @Nullable ResourceHandler<FluidResource> getInputHandler() {
         return getFluidHandlerDir(getBlockState().getValue(DrainBlock.FACING).getOpposite());
     }
-    public @Nullable IFluidHandler getOutputHandler() {
+    public @Nullable ResourceHandler<FluidResource> getOutputHandler() {
         if (level == null || target == null || !level.isLoaded(target)) return null;
-        return level.getCapability(Capabilities.FluidHandler.BLOCK, target, Direction.UP);
+        return AllUtils.fluids(level, target, Direction.UP);
     }
 
-    private void scan(IFluidHandler input) {
+    private void scan(ResourceHandler<FluidResource> input) {
         if (level == null) return;
         scanCooldown = SCAN_RATE;
         target = null;
         var hit = trace(level, worldPosition, SlagServerConfigs.DRAIN_RANGE.get());
         if (hit == null) return;
-        var output = level.getCapability(Capabilities.FluidHandler.BLOCK, hit.pos(), Direction.UP);
+        var output = AllUtils.fluids(level, hit.pos(), Direction.UP);
         if (output == null || output == input) return;
         var behind = worldPosition.relative(getBlockState().getValue(DrainBlock.FACING).getOpposite());
         if (hit.pos().equals(behind)) return;
@@ -114,7 +119,7 @@ public class DrainBE extends BlockEntity {
             if (state.getBlock() instanceof DrainBlock) return null;
             var shape = state.getCollisionShape(l, p);
             return shape.isEmpty() ? null : shape.clip(from, to, p.immutable());
-        }, l -> null);
+        }, _ -> null);
     }
 
     private void affect() {
@@ -133,7 +138,9 @@ public class DrainBE extends BlockEntity {
     }
 
     public void cycleDrain() {
-        if (drainState != DrainState.POWERED) drainState = drainState == DrainState.OFF ? DrainState.POURING : DrainState.OFF;
+        if (drainState == DrainState.POWERED) return;
+        drainState = drainState == DrainState.OFF ? DrainState.POURING : DrainState.OFF;
+        if (level != null && !level.isClientSide()) update();
     }
 
     public void update() {
@@ -145,10 +152,10 @@ public class DrainBE extends BlockEntity {
 
     int random = 0;
     public void tick() {
-        if (level == null || level.isClientSide) return;
+        if (level == null || level.isClientSide()) return;
         if (drainState == DrainState.OFF) {
-            if (level.random.nextInt(6) == 0) random = Mth.clamp(level.getGameRules().getRule(GameRules.RULE_RANDOMTICKING).getCommandResult() * 2, 0, 128);
-            if (random != 0 && level.random.nextInt(129 - random) == 0) checkPowered();
+            if (level.getRandom().nextInt(6) == 0) random = Mth.clamp((level instanceof ServerLevel server ? server.getGameRules().get(GameRules.RANDOM_TICK_SPEED) : 3) * 2, 0, 128);
+            if (random != 0 && level.getRandom().nextInt(129 - random) == 0) checkPowered();
         }
 
         var prevFluid = drainingFluid.copy();
@@ -169,43 +176,40 @@ public class DrainBE extends BlockEntity {
         if (moving || --scanCooldown <= 0 || target == null) scan(inputInv);
         var outputInv = getOutputHandler();
         if (outputInv == null) return null;
-        if (inputInv.getTanks() <= 0 || outputInv.getTanks() <= 0) return null;
+        if (inputInv.size() <= 0 || outputInv.size() <= 0) return null;
 
-        var inputFluid = inputInv.getFluidInTank(0);
+        var inputFluid = FluidUtil.getStack(inputInv, 0);
         if (inputFluid.isEmpty()) return DrainState.OFF;
-        var outputFluid = outputInv.getFluidInTank(0);
+        var outputFluid = FluidUtil.getStack(outputInv, 0);
         var outputAmount = outputFluid.getAmount();
-        var outputCapacity = outputInv.getTankCapacity(0);
+        var outputCapacity = outputInv.getCapacityAsInt(0, FluidResource.of(inputFluid));
         if (outputAmount >= outputCapacity) return cur == DrainState.POWERED ? cur : DrainState.OFF;
         var targetDrain = Mth.clamp(outputFluid.isEmpty() ? 1 : SlagServerConfigs.DRAIN_MB_SPEED.get(), 0, outputCapacity - outputAmount);
         if (targetDrain == 0) return cur == DrainState.POWERED ? cur : DrainState.OFF;
 
 
-        var drained = inputInv.drain(targetDrain, IFluidHandler.FluidAction.SIMULATE);
-        if (drained.getAmount() != outputInv.fill(drained, IFluidHandler.FluidAction.SIMULATE)) return cur == DrainState.POWERED ? cur : DrainState.OFF;
+        if (!AllUtils.moveExact(inputInv, outputInv, inputFluid.copyWithAmount(Math.min(targetDrain, inputFluid.getAmount())), false)) return cur == DrainState.POWERED ? cur : DrainState.OFF;
 
         drainingFluid = inputFluid.copy();
-        inputInv.drain(targetDrain, IFluidHandler.FluidAction.EXECUTE);
-        outputInv.fill(drained, IFluidHandler.FluidAction.EXECUTE);
         return cur;
     }
 
     @Override
-    protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-        super.loadAdditional(tag, registries);
-        drainState = DrainState.fromString(tag.getString("state"));
-        this.drainingFluid = FluidStack.parseOptional(registries, tag.getCompound("Fluid"));
-        target = tag.contains("Target") ? BlockPos.of(tag.getLong("Target")) : null;
-        landing = tag.getDouble("Landing");
+    protected void loadAdditional(ValueInput input) {
+        super.loadAdditional(input);
+        drainState = DrainState.fromString(input.getStringOr("state", ""));
+        drainingFluid = input.read("Fluid", FluidStack.OPTIONAL_CODEC).orElse(FluidStack.EMPTY);
+        target = input.getLong("Target").map(BlockPos::of).orElse(null);
+        landing = input.getDoubleOr("Landing", 0);
     }
 
     @Override
-    protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-        super.saveAdditional(tag, registries);
-        if (drainState != null) tag.putString("state", "" + drainState);
-        if (!this.drainingFluid.isEmpty()) tag.put("Fluid", this.drainingFluid.save(registries));
-        if (target != null) tag.putLong("Target", target.asLong());
-        if (target != null) tag.putDouble("Landing", landing);
+    protected void saveAdditional(ValueOutput output) {
+        super.saveAdditional(output);
+        if (drainState != null) output.putString("state", "" + drainState);
+        if (!drainingFluid.isEmpty()) output.store("Fluid", FluidStack.OPTIONAL_CODEC, drainingFluid);
+        if (target != null) output.putLong("Target", target.asLong());
+        if (target != null) output.putDouble("Landing", landing);
     }
 
     @Override
@@ -214,7 +218,7 @@ public class DrainBE extends BlockEntity {
     }
 
     @Override
-    public @NonNull CompoundTag getUpdateTag(HolderLookup.Provider registries) {
+    public @Nonnull CompoundTag getUpdateTag(HolderLookup.Provider registries) {
         return saveWithoutMetadata(registries);
     }
 }

@@ -9,9 +9,10 @@ import dev.lopyluna.slag.content.traits.TraitType;
 import dev.lopyluna.slag.register.AllTags;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
+import net.neoforged.neoforge.common.conditions.ConditionalOps;
 import net.neoforged.neoforge.common.conditions.ICondition;
 import net.neoforged.neoforge.common.conditions.ModLoadedCondition;
 
@@ -22,7 +23,7 @@ import java.util.function.Consumer;
 
 @SuppressWarnings("unused")
 public class PartType {
-    public final ResourceLocation id;
+    public final Identifier id;
     public int sortOrder;
 
     public final List<TraitEntry> traits;
@@ -35,11 +36,11 @@ public class PartType {
     public boolean dontRegister;
 
     public static final Codec<PartType> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-            ResourceLocation.CODEC.fieldOf("id").forGetter(m -> m.id),
+            Identifier.CODEC.fieldOf("id").forGetter(m -> m.id),
             Codec.INT.optionalFieldOf("sort_order", 0).forGetter(m -> m.sortOrder),
             TraitEntry.CODEC.listOf().optionalFieldOf("traits", List.of()).forGetter(m -> m.traits),
             Incompatible.CODEC.optionalFieldOf("incompatible", Incompatible.EMPTY).forGetter(m -> m.incompatible),
-            ICondition.LIST_CODEC.optionalFieldOf("conditions", List.of()).forGetter(m -> m.conditions),
+            ICondition.LIST_CODEC.optionalFieldOf(ConditionalOps.DEFAULT_CONDITIONS_KEY, List.of()).forGetter(m -> m.conditions),
             TagKey.codec(Registries.ITEM).fieldOf("segment_part").forGetter(m -> m.segmentPart),
             TagKey.codec(Registries.ITEM).listOf().optionalFieldOf("item_tags", new ArrayList<>()).forGetter(m -> m.itemTags)
     ).apply(instance, PartType::new));
@@ -67,7 +68,7 @@ public class PartType {
         return Component.translatableWithFallback("part." + id.getNamespace() + "." + id.getPath(), RegistrateLangProvider.toEnglishName(id.getPath()));
     }
 
-    private PartType(ResourceLocation id, int sortOrder, List<TraitEntry> traits, Incompatible incompatible, List<ICondition> conditions, TagKey<Item> segmentPart, List<TagKey<Item>> itemTags) {
+    private PartType(Identifier id, int sortOrder, List<TraitEntry> traits, Incompatible incompatible, List<ICondition> conditions, TagKey<Item> segmentPart, List<TagKey<Item>> itemTags) {
         dontRegister = id == null || id.getNamespace().isEmpty() || id.getPath().isEmpty() || id.getPath().equals("null") || id.getPath().equals("empty");
         this.id = id;
         this.sortOrder = sortOrder;
@@ -82,12 +83,12 @@ public class PartType {
         private final List<TraitEntry> traits = new ArrayList<>();
         private final List<ICondition> conditions = new ArrayList<>();
         private final Incompatible.Builder incompatible = new Incompatible.Builder();
-        private final ResourceLocation id;
+        private final Identifier id;
         private int sortOrder = 0;
         private TagKey<Item> segmentPart;
         private List<TagKey<Item>> itemTags = new ArrayList<>();
 
-        public Builder(ResourceLocation id) {
+        public Builder(Identifier id) {
             this.id = id;
         }
         public Builder(String id) {

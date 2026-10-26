@@ -1,8 +1,6 @@
 {
   "type": "slag:melting",
-  "ingredient": {
-    "tag": "c:gravels"
-  },
+  "ingredient": "#c:gravels",
   "ingredients": [],
   "result": [
     {

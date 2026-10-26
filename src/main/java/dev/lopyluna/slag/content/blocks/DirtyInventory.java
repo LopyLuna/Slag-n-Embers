@@ -1,21 +1,28 @@
 package dev.lopyluna.slag.content.blocks;
 
 import dev.lopyluna.slag.content.blocks.smart.SyncedBlockEntity;
+import dev.lopyluna.slag.content.utils.NBTHelper;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
 import net.minecraft.world.Container;
 import net.minecraft.world.ContainerHelper;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.neoforge.items.IItemHandlerModifiable;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.TransferPreconditions;
+import net.neoforged.neoforge.transfer.item.ItemResource;
+import net.neoforged.neoforge.transfer.transaction.SnapshotJournal;
+import net.neoforged.neoforge.transfer.transaction.TransactionContext;
 
 import javax.annotation.Nonnull;
 import java.util.Collections;
 import java.util.function.Consumer;
 
-public abstract class DirtyInventory<BE extends SyncedBlockEntity> implements Container, IItemHandlerModifiable {
+@SuppressWarnings("unused")
+public abstract class DirtyInventory<BE extends SyncedBlockEntity> extends SnapshotJournal<NonNullList<ItemStack>> implements Container, ResourceHandler<ItemResource> {
     public NonNullList<ItemStack> stacks;
     public BE be;
     public boolean extractionAllowed;
@@ -34,11 +41,22 @@ public abstract class DirtyInventory<BE extends SyncedBlockEntity> implements Co
 
     public void load(CompoundTag tag, HolderLookup.Provider registries) {
         Collections.fill(stacks, ItemStack.EMPTY);
-        ContainerHelper.loadAllItems(tag, stacks, registries);
+        for (var entry : tag.getListOrEmpty("Items")) {
+            if (!(entry instanceof CompoundTag item)) continue;
+            var slot = item.getByteOr("Slot", (byte) 0) & 255;
+            if (slot < stacks.size()) stacks.set(slot, NBTHelper.readItem(item, registries));
+        }
     }
 
     public void save(CompoundTag tag, HolderLookup.Provider registries) {
-        ContainerHelper.saveAllItems(tag, stacks, registries);
+        var list = new ListTag();
+        for (var i = 0; i < stacks.size(); i++) {
+            var stack = stacks.get(i);
+            if (stack.isEmpty() || !(NBTHelper.writeItem(stack, registries) instanceof CompoundTag item)) continue;
+            item.putByte("Slot", (byte) i);
+            list.add(item);
+        }
+        tag.put("Items", list);
     }
 
     @Override
@@ -95,24 +113,86 @@ public abstract class DirtyInventory<BE extends SyncedBlockEntity> implements Co
         stacks.clear();
     }
 
-    @Override
     public void setStackInSlot(int slot, @Nonnull ItemStack stack) {
         validateSlotIndex(slot);
         setItem(slot, stack);
     }
 
-    @Override
     public int getSlots() {
         return getContainerSize();
     }
 
-    @Override
     public @Nonnull ItemStack getStackInSlot(int slot) {
         validateSlotIndex(slot);
         return getItem(slot);
     }
 
     @Override
+    public int size() {
+        return stacks.size();
+    }
+
+    @Override
+    public @Nonnull ItemResource getResource(int index) {
+        return ItemResource.of(getStackInSlot(index));
+    }
+
+    @Override
+    public long getAmountAsLong(int index) {
+        return getStackInSlot(index).getCount();
+    }
+
+    @Override
+    public long getCapacityAsLong(int index, @Nonnull ItemResource resource) {
+        return resource.isEmpty() ? getSlotLimit(index) : getStackLimit(index, resource.toStack());
+    }
+
+    @Override
+    public boolean isValid(int index, @Nonnull ItemResource resource) {
+        return !resource.isEmpty() && isItemValid(index, resource.toStack());
+    }
+
+    @Override
+    public int insert(int index, @Nonnull ItemResource resource, int amount, @Nonnull TransactionContext transaction) {
+        TransferPreconditions.checkNonEmptyNonNegative(resource, amount);
+        var inserted = amount - insertItem(index, resource.toStack(amount), true).getCount();
+        if (inserted <= 0) return 0;
+        updateSnapshots(transaction);
+        var existing = stacks.get(index);
+        stacks.set(index, existing.isEmpty() ? resource.toStack(inserted) : existing.copyWithCount(existing.getCount() + inserted));
+        return inserted;
+    }
+
+    @Override
+    public int extract(int index, @Nonnull ItemResource resource, int amount, @Nonnull TransactionContext transaction) {
+        TransferPreconditions.checkNonEmptyNonNegative(resource, amount);
+        var existing = getStackInSlot(index);
+        if (!resource.matches(existing)) return 0;
+        var extracted = extractItem(index, amount, true).getCount();
+        if (extracted <= 0) return 0;
+        updateSnapshots(transaction);
+        stacks.set(index, existing.getCount() <= extracted ? ItemStack.EMPTY : existing.copyWithCount(existing.getCount() - extracted));
+        return extracted;
+    }
+
+    @Override
+    protected @Nonnull NonNullList<ItemStack> createSnapshot() {
+        var copy = NonNullList.withSize(stacks.size(), ItemStack.EMPTY);
+        for (var i = 0; i < stacks.size(); i++) copy.set(i, stacks.get(i).copy());
+        return copy;
+    }
+
+    @Override
+    protected void revertToSnapshot(@Nonnull NonNullList<ItemStack> snapshot) {
+        for (var i = 0; i < snapshot.size(); i++) stacks.set(i, snapshot.get(i));
+    }
+
+    @Override
+    protected void onRootCommit(@Nonnull NonNullList<ItemStack> original) {
+        setChanged();
+        for (var i = 0; i < original.size(); i++) if (!ItemStack.matches(original.get(i), stacks.get(i))) onContentsChanged(i);
+    }
+
     public @Nonnull ItemStack insertItem(int slot, @Nonnull ItemStack stack, boolean simulate) {
         if (!insertionAllowed) return stack;
         if (stack.isEmpty()) return ItemStack.EMPTY;
@@ -139,7 +219,6 @@ public abstract class DirtyInventory<BE extends SyncedBlockEntity> implements Co
         }
     }
 
-    @Override
     public @Nonnull ItemStack extractItem(int slot, int amount, boolean simulate) {
         if (!extractionAllowed) return ItemStack.EMPTY;
         if (stackNonStackables) {
@@ -187,12 +266,10 @@ public abstract class DirtyInventory<BE extends SyncedBlockEntity> implements Co
     }
 
 
-    @Override
     public int getSlotLimit(int slot) {
         return Math.min(stackNonStackables ? 64 : 99, stackSize);
     }
 
-    @Override
     public boolean isItemValid(int slot, @Nonnull ItemStack stack) {
         return true;
     }

@@ -9,9 +9,7 @@
     }
   ],
   "type": "slag:melting",
-  "ingredient": {
-    "tag": "c:plates/invar"
-  },
+  "ingredient": "#c:plates/invar",
   "ingredients": [],
   "result": [
     {

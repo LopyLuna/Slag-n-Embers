@@ -2,12 +2,8 @@
   "type": "minecraft:crafting_shaped",
   "category": "equipment",
   "key": {
-    "M": {
-      "tag": "c:bones"
-    },
-    "R": {
-      "item": "minecraft:paper"
-    }
+    "M": "#c:bones",
+    "R": "minecraft:paper"
   },
   "pattern": [
     "M",
@@ -18,7 +14,6 @@
       "slag:material_type": "slag:bone",
       "slag:part_type": "slag:sword_blade"
     },
-    "count": 1,
     "id": "slag:dynamic_part"
   }
 }

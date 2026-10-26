@@ -3,14 +3,13 @@
   "cast": "slag:cast/plates",
   "ingredient": {
     "amount": 144,
-    "tag": "c:molten/iron"
+    "ingredient": "#c:molten/iron"
   },
   "result": {
     "components": {
       "slag:material_type": "slag:iron",
       "slag:part_type": "slag:plate"
     },
-    "count": 1,
     "id": "slag:dynamic_part"
   }
 }

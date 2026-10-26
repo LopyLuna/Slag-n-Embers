@@ -1,8 +1,6 @@
 {
   "type": "slag:melting",
-  "ingredient": {
-    "tag": "c:sands"
-  },
+  "ingredient": "#c:sands",
   "ingredients": [],
   "result": [
     {

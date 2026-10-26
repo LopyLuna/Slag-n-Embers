@@ -1,21 +1,17 @@
 {
   "final_segment_stacks": [
     {
-      "count": 1,
       "id": "minecraft:feather"
     },
     {
-      "count": 1,
       "id": "minecraft:copper_ingot"
     },
     {
-      "count": 1,
       "id": "minecraft:stick"
     }
   ],
   "id": "slag:brush",
   "result_stack": {
-    "count": 1,
     "id": "minecraft:brush"
   },
   "sort_order": 100

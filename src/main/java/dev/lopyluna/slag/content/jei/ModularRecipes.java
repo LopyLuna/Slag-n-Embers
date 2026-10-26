@@ -66,7 +66,7 @@ public class ModularRecipes implements ISimpleRecipeManagerPlugin<ModularType> {
 
     private static boolean uses(ModularType modular, ItemStack stack) {
         if (stack.getItem() instanceof IDynamicPart part) return modular.segments.contains(part.getPartSegment(stack));
-        for (var segment : modular.finalSegmentStacks) if (ItemStack.isSameItem(segment, stack)) return true;
+        for (var segment : modular.finalSegmentStacks()) if (ItemStack.isSameItem(segment, stack)) return true;
         for (var segment : modular.segments) if (stack.is(segment)) return true;
         return false;
     }

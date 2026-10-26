@@ -9,9 +9,7 @@
     }
   ],
   "type": "slag:melting",
-  "ingredient": {
-    "tag": "c:ores/tungsten"
-  },
+  "ingredient": "#c:ores/tungsten",
   "ingredients": [],
   "result": [
     {

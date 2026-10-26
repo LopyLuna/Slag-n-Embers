@@ -1,34 +1,34 @@
 package dev.lopyluna.slag.content.traits.effects;
 
 import com.mojang.serialization.MapCodec;
+import dev.lopyluna.slag.content.AllUtils;
 import dev.lopyluna.slag.content.traits.Trait;
 import dev.lopyluna.slag.content.traits.TraitEffect;
 import dev.lopyluna.slag.content.traits.Traits;
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderSet;
-import net.minecraft.core.RegistryCodecs;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.core.registries.Registries;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
-import net.neoforged.neoforge.event.level.BlockEvent;
+import net.neoforged.neoforge.event.level.block.BreakBlockEvent;
 import javax.annotation.Nonnull;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Supplier;
 
-public record ChainBreakEffect(HolderSet<Block> blocks) implements TraitEffect {
-    public static final MapCodec<ChainBreakEffect> CODEC = RegistryCodecs.homogeneousList(Registries.BLOCK).fieldOf("blocks").xmap(ChainBreakEffect::new, ChainBreakEffect::blocks);
+public record ChainBreakEffect(Supplier<HolderSet<Block>> blocks) implements TraitEffect {
+    public static final MapCodec<ChainBreakEffect> CODEC = AllUtils.lazySetCodec(BuiltInRegistries.BLOCK).fieldOf("blocks").xmap(ChainBreakEffect::new, ChainBreakEffect::blocks);
 
     private static boolean breaking;
 
     public static ChainBreakEffect of(TagKey<Block> tag) {
-        return new ChainBreakEffect(BuiltInRegistries.BLOCK.getOrCreateTag(tag));
+        return new ChainBreakEffect(AllUtils.lazyTag(BuiltInRegistries.BLOCK, tag));
     }
 
     @Override
@@ -42,10 +42,10 @@ public record ChainBreakEffect(HolderSet<Block> blocks) implements TraitEffect {
     }
 
     @Override
-    public void onBlockBreak(Trait trait, ItemStack stack, BlockEvent.BreakEvent event) {
+    public void onBlockBreak(Trait trait, ItemStack stack, BreakBlockEvent event) {
         if (breaking || !(event.getPlayer() instanceof ServerPlayer player) || player.isShiftKeyDown()) return;
         var state = event.getState();
-        if (!state.is(blocks) || !stack.isCorrectToolForDrops(state)) return;
+        if (!state.is(blocks.get()) || !stack.isCorrectToolForDrops(state)) return;
         var found = find(player.level(), event.getPos(), state.getBlock(), (int) trait.value());
         if (found.isEmpty()) return;
         breaking = true;

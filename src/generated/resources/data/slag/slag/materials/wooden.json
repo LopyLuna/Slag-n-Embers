@@ -9,9 +9,7 @@
       "slag:boots"
     ]
   },
-  "repair_ingredient": {
-    "tag": "minecraft:planks"
-  },
+  "repair_ingredient": "#minecraft:planks",
   "sort_order": 10,
   "texture": "soft",
   "traits": [

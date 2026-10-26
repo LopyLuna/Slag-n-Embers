@@ -16,7 +16,7 @@ import mezz.jei.api.recipe.RecipeIngredientRole;
 import mezz.jei.api.recipe.category.AbstractRecipeCategory;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import javax.annotation.Nonnull;
 
@@ -31,17 +31,17 @@ public class DoubleSmeltingCategory extends AbstractRecipeCategory<RecipeHolder<
 
         builder.addInputSlot(1, 1)
                 .setStandardSlotBackground()
-                .addIngredients(recipe.getInputA());
+                .add(recipe.getInputA());
 
         builder.addInputSlot(20, 1)
                 .setStandardSlotBackground()
-                .addIngredients(recipe.getInputB());
+                .add(recipe.getInputB());
 
         builder.addSlot(RecipeIngredientRole.RENDER_ONLY, 1, 37).setStandardSlotBackground();
 
         builder.addOutputSlot(61, 19)
                 .setOutputSlotBackground()
-                .addItemStack(recipe.getResultItem(RegistryAccess.EMPTY));
+                .add(recipe.getResultItem(RegistryAccess.EMPTY));
     }
 
     @Override
@@ -50,8 +50,8 @@ public class DoubleSmeltingCategory extends AbstractRecipeCategory<RecipeHolder<
         int cookTime = recipe.getCookingTime();
         if (cookTime <= 0) cookTime = 200;
 
-        builder.addAnimatedRecipeArrow(cookTime).setPosition(26, 17);
-        builder.addAnimatedRecipeFlame(300).setPosition(1, 20);
+        builder.addAnimatedRecipeArrowWidget(cookTime).setPosition(26, 17);
+        builder.addAnimatedRecipeFlameWidget(300).setPosition(1, 20);
 
         addExperience(builder, holder);
         addCookTime(builder, holder);
@@ -81,12 +81,12 @@ public class DoubleSmeltingCategory extends AbstractRecipeCategory<RecipeHolder<
     public boolean isHandled(RecipeHolder<DoubleSmeltingRecipe> holder) {
         var recipe = holder.value();
         if (recipe.isSpecial()) return false;
-        if (recipe.getInputA().hasNoItems()) return false;
-        return !recipe.getInputB().hasNoItems();
+        if (recipe.getInputA().isEmpty()) return false;
+        return !recipe.getInputB().isEmpty();
     }
     @Override
-    public ResourceLocation getRegistryName(RecipeHolder<DoubleSmeltingRecipe> recipe) {
-        return recipe.id();
+    public Identifier getIdentifier(RecipeHolder<DoubleSmeltingRecipe> recipe) {
+        return recipe.id().identifier();
     }
     @Override
     public @Nonnull Codec<RecipeHolder<DoubleSmeltingRecipe>> getCodec(ICodecHelper helper, @Nonnull IRecipeManager manager) {

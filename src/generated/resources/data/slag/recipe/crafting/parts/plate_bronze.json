@@ -15,12 +15,8 @@
   "type": "minecraft:crafting_shaped",
   "category": "equipment",
   "key": {
-    "M": {
-      "tag": "c:ingots/bronze"
-    },
-    "R": {
-      "item": "minecraft:paper"
-    }
+    "M": "#c:ingots/bronze",
+    "R": "minecraft:paper"
   },
   "pattern": [
     "MR",
@@ -31,7 +27,6 @@
       "slag:material_type": "slag:bronze",
       "slag:part_type": "slag:plate"
     },
-    "count": 1,
     "id": "slag:dynamic_part"
   }
 }

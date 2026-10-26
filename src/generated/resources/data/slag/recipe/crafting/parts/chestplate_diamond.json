@@ -8,12 +8,8 @@
   "type": "minecraft:crafting_shaped",
   "category": "equipment",
   "key": {
-    "M": {
-      "tag": "c:gems/diamond"
-    },
-    "R": {
-      "item": "minecraft:paper"
-    }
+    "M": "#c:gems/diamond",
+    "R": "minecraft:paper"
   },
   "pattern": [
     "R R",
@@ -25,7 +21,6 @@
       "slag:material_type": "slag:diamond",
       "slag:part_type": "slag:chestplate"
     },
-    "count": 1,
     "id": "slag:dynamic_part"
   }
 }

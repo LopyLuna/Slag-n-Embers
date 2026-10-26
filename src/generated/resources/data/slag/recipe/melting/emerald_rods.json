@@ -9,9 +9,7 @@
     }
   ],
   "type": "slag:melting",
-  "ingredient": {
-    "tag": "c:rods/emerald"
-  },
+  "ingredient": "#c:rods/emerald",
   "ingredients": [],
   "result": [
     {

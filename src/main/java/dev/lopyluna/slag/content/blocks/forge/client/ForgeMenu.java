@@ -1,6 +1,6 @@
 package dev.lopyluna.slag.content.blocks.forge.client;
 
-import dev.lopyluna.slag.content.blocks.forge.DoubleSmeltingRecipe;
+import dev.lopyluna.slag.content.AllUtils;
 import dev.lopyluna.slag.register.AllMenuTypes;
 import dev.lopyluna.slag.register.AllRecipes;
 import net.minecraft.util.Mth;
@@ -27,8 +27,8 @@ public class ForgeMenu extends AbstractContainerMenu {
     private final Container inventory; // input1, input2, fuel, output
     private final ContainerData data;
     protected final Level level;
-    private static final List<Ingredient> aIngredients = new ArrayList<>();
-    private static final List<Ingredient> bIngredients = new ArrayList<>();
+    private final List<Ingredient> aIngredients = new ArrayList<>();
+    private final List<Ingredient> bIngredients = new ArrayList<>();
 
     public ForgeMenu(int syncId, Inventory inventory) {
         this(syncId, inventory, new SimpleContainer(4), new SimpleContainerData(4));
@@ -39,22 +39,13 @@ public class ForgeMenu extends AbstractContainerMenu {
         super(AllMenuTypes.FORGE.get(), syncId);
         checkContainerSize(inventory, 4);
 
-        RecipeType<DoubleSmeltingRecipe> recipeType = AllRecipes.DOUBLE_SMELTING.get();
         this.inventory = inventory;
         this.data = data;
         this.level = playerInventory.player.level();
 
-        if (aIngredients.isEmpty() || bIngredients.isEmpty() || (level.random.nextInt(100) >= 90)) {
-            var recipes = this.level.getRecipeManager().getAllRecipesFor(recipeType);
-            List<Ingredient> aIngredients = new ArrayList<>();
-            List<Ingredient> bIngredients = new ArrayList<>();
-            for (var holder : recipes) {
-                var recipe = holder.value();
-                aIngredients.add(recipe.getInputA());
-                bIngredients.add(recipe.getInputB());
-            }
-            ForgeMenu.aIngredients.addAll(aIngredients);
-            ForgeMenu.bIngredients.addAll(bIngredients);
+        for (var holder : AllUtils.recipeMap(level).byType(AllRecipes.DOUBLE_SMELTING.get())) {
+            aIngredients.add(holder.value().getInputA());
+            bIngredients.add(holder.value().getInputB());
         }
 
         addSlot(new Slot(inventory, 0, 46, 17)); // Input 1
@@ -132,6 +123,6 @@ public class ForgeMenu extends AbstractContainerMenu {
         return -1;
     }
     protected boolean isFuel(ItemStack stack) {
-        return stack.getBurnTime(RecipeType.SMELTING) > 0;
+        return stack.getBurnTime(RecipeType.SMELTING, level.fuelValues()) > 0;
     }
 }

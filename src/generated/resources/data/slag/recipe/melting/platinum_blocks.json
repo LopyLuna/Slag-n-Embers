@@ -9,9 +9,7 @@
     }
   ],
   "type": "slag:melting",
-  "ingredient": {
-    "tag": "c:storage_blocks/platinum"
-  },
+  "ingredient": "#c:storage_blocks/platinum",
   "ingredients": [],
   "result": [
     {

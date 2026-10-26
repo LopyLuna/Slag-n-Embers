@@ -5,6 +5,7 @@ import net.minecraft.core.Vec3i;
 
 import java.util.List;
 
+@SuppressWarnings("unused")
 public record AABBInt(BlockPos min, BlockPos max) {
     public Vec3i sizeVec() { return new Vec3i(max.getX() - min.getX() + 1, max.getY() - min.getY() + 1, max.getZ() - min.getZ() + 1); }
     public Iterable<BlockPos> positions() { return BlockPos.betweenClosed(min, max); }

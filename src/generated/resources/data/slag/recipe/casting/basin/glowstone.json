@@ -2,10 +2,9 @@
   "type": "slag:basin_casting",
   "ingredient": {
     "amount": 288,
-    "tag": "c:molten/glowstone"
+    "ingredient": "#c:molten/glowstone"
   },
   "result": {
-    "count": 1,
     "id": "minecraft:glowstone"
   }
 }

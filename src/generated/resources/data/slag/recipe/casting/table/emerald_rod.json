@@ -12,7 +12,7 @@
   "cast": "slag:cast/rods",
   "ingredient": {
     "amount": 36,
-    "tag": "c:molten/emerald"
+    "ingredient": "#c:molten/emerald"
   },
   "result": {
     "tag": "c:rods/emerald"

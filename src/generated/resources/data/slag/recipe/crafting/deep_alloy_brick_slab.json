@@ -2,9 +2,7 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "D": {
-      "item": "slag:deep_alloy_bricks"
-    }
+    "D": "slag:deep_alloy_bricks"
   },
   "pattern": [
     "DDD"

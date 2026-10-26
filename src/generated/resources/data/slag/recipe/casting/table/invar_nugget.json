@@ -12,7 +12,7 @@
   "cast": "slag:cast/nuggets",
   "ingredient": {
     "amount": 8,
-    "tag": "c:molten/invar"
+    "ingredient": "#c:molten/invar"
   },
   "result": {
     "tag": "c:nuggets/invar"

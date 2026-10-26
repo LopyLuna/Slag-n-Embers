@@ -11,7 +11,7 @@
   "type": "slag:basin_casting",
   "ingredient": {
     "amount": 648,
-    "tag": "c:molten/platinum"
+    "ingredient": "#c:molten/platinum"
   },
   "result": {
     "tag": "c:storage_blocks/platinum"

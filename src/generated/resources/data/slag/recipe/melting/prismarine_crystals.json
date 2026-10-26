@@ -1,8 +1,6 @@
 {
   "type": "slag:melting",
-  "ingredient": {
-    "tag": "c:gems/prismarine"
-  },
+  "ingredient": "#c:gems/prismarine",
   "ingredients": [],
   "result": [
     {

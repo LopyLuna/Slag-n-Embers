@@ -1,6 +1,5 @@
 package dev.lopyluna.slag.content.items.dynamic_mold;
 
-import dev.lopyluna.slag.client.render.SimpleCustomRenderer;
 import dev.lopyluna.slag.config.SlagCommonConfigs;
 import dev.lopyluna.slag.register.AllDataComponents;
 import dev.lopyluna.slag.register.AllLangs;
@@ -9,7 +8,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.SlotAccess;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.ClickAction;
@@ -17,17 +16,15 @@ import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.component.TooltipDisplay;
 import net.minecraft.world.level.Level;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
-import net.neoforged.neoforge.client.extensions.common.IClientItemExtensions;
 import javax.annotation.Nonnull;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.function.Consumer;
 
+@SuppressWarnings("deprecation")
 @ParametersAreNonnullByDefault
 public class DynamicMoldItem extends Item {
     public final boolean cast;
@@ -87,7 +84,7 @@ public class DynamicMoldItem extends Item {
             b = false;
         } else {
             var type = stack.get(AllDataComponents.CAST_TYPE);
-            for (var tag : new ArrayList<>(other.getTags().toList())) if (tag.location().getPath().split("/")[0].equals("cast")) {
+            for (var tag : new ArrayList<>(other.typeHolder().tags().toList())) if (tag.location().getPath().split("/")[0].equals("cast")) {
                 if (type != null && type.equals(tag)) continue;
                 stack.set(AllDataComponents.CAST_TYPE, tag);
                 player.playSound(SoundEvents.DECORATED_POT_INSERT_FAIL, 0.8F, 0.8F + random.nextFloat() * 0.4F);
@@ -101,7 +98,7 @@ public class DynamicMoldItem extends Item {
     }
 
     @Override
-    public @Nonnull InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand usedHand) {
+    public @Nonnull InteractionResult use(Level level, Player player, InteractionHand usedHand) {
         var use = super.use(level, player, usedHand);
         if (!player.isShiftKeyDown() || !canImprint(player)) return use;
         var stack = player.getItemInHand(usedHand);
@@ -110,24 +107,21 @@ public class DynamicMoldItem extends Item {
         var random = level.getRandom();
         player.playSound(SoundEvents.DECORATED_POT_INSERT_FAIL, 0.8F, 0.8F + random.nextFloat() * 0.4F);
         player.playSound(SoundEvents.CRAFTER_CRAFT, 0.8F, 0.8F + random.nextFloat() * 0.4F);
-        return InteractionResultHolder.consume(stack);
+        return InteractionResult.CONSUME;
     }
 
     @Override
-    public void appendHoverText(ItemStack stack, TooltipContext ctx, List<Component> tooltip, TooltipFlag flag) {
-        super.appendHoverText(stack, ctx, tooltip, flag);
+    public void appendHoverText(ItemStack stack, TooltipContext ctx, TooltipDisplay display, Consumer<Component> builder, TooltipFlag flag) {
+        var tooltip = new ArrayList<Component>();
         var used = used(stack);
         if (uses > 0 && used > 0 && flag.isAdvanced()) tooltip.add(Component.translatable("item.durability", uses - used, uses));
-        if (!imprinting()) return;
-        var key = stack.has(AllDataComponents.CAST_TYPE) ? "clear_imprint" : "imprint";
-        tooltip.add(AllLangs.tr(key).withStyle(ChatFormatting.GRAY));
-        tooltip.add(Component.literal(" ").append(AllLangs.tr(key + ".desc")).withStyle(ChatFormatting.BLUE));
+        if (imprinting()) {
+            var key = stack.has(AllDataComponents.CAST_TYPE) ? "clear_imprint" : "imprint";
+            tooltip.add(AllLangs.tr(key).withStyle(ChatFormatting.GRAY));
+            tooltip.add(Component.literal(" ").append(AllLangs.tr(key + ".desc")).withStyle(ChatFormatting.BLUE));
+        }
+        tooltip.forEach(builder);
     }
 
-    @SuppressWarnings("removal")
-    @Override
-    @OnlyIn(Dist.CLIENT)
-    public void initializeClient(Consumer<IClientItemExtensions> consumer) {
-        consumer.accept(SimpleCustomRenderer.create(this, new DynamicMoldRenderer()));
-    }
+
 }

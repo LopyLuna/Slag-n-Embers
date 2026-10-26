@@ -12,14 +12,13 @@
   "cast": "slag:cast/chestplates",
   "ingredient": {
     "amount": 432,
-    "tag": "c:molten/platinum"
+    "ingredient": "#c:molten/platinum"
   },
   "result": {
     "components": {
       "slag:material_type": "slag:platinum",
       "slag:part_type": "slag:chestplate"
     },
-    "count": 1,
     "id": "slag:dynamic_part"
   }
 }

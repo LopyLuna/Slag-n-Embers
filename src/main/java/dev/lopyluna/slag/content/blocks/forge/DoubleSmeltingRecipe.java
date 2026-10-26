@@ -1,14 +1,22 @@
 package dev.lopyluna.slag.content.blocks.forge;
 
+import com.google.common.base.Suppliers;
 import dev.lopyluna.slag.register.AllRecipes;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.crafting.*;
+import net.minecraft.world.item.crafting.PlacementInfo;
+import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.item.crafting.RecipeBookCategories;
+import net.minecraft.world.item.crafting.RecipeBookCategory;
 import net.minecraft.world.level.Level;
 import javax.annotation.Nonnull;
 
 import javax.annotation.ParametersAreNonnullByDefault;
+import java.util.function.Supplier;
 
+@SuppressWarnings("unused")
 @ParametersAreNonnullByDefault
 public class DoubleSmeltingRecipe implements Recipe<DoubleSmeltingRecipe.DoubleRecipeInput> {
     protected final RecipeType<?> type;
@@ -18,19 +26,21 @@ public class DoubleSmeltingRecipe implements Recipe<DoubleSmeltingRecipe.DoubleR
     private final Ingredient inputA;
     private final Ingredient inputB;
 
-    private final ItemStack output;
+    private final ItemStackTemplate output;
+    private final Supplier<ItemStack> outputStack;
 
     private final int cookingTime;
     private final float experience;
 
-    public DoubleSmeltingRecipe(String group, Ingredient inputA, Ingredient inputB, ItemStack output, float experience, int cookingTime) {
+    public DoubleSmeltingRecipe(String group, Ingredient inputA, Ingredient inputB, ItemStackTemplate output, float experience, int cookingTime) {
         this(AllRecipes.DOUBLE_SMELTING.get(), group, inputA, inputB, output, cookingTime, experience);
     }
 
-    public DoubleSmeltingRecipe(RecipeType<?> type, String group, Ingredient inputA, Ingredient inputB, ItemStack output, int cookingTime, float experience) {
+    public DoubleSmeltingRecipe(RecipeType<?> type, String group, Ingredient inputA, Ingredient inputB, ItemStackTemplate output, int cookingTime, float experience) {
         this.inputA = inputA;
         this.inputB = inputB;
         this.output = output;
+        this.outputStack = Suppliers.memoize(output::create);
         this.type = type;
         this.group = group;
         this.cookingTime = cookingTime;
@@ -38,7 +48,7 @@ public class DoubleSmeltingRecipe implements Recipe<DoubleSmeltingRecipe.DoubleR
     }
 
     @Override
-    public @Nonnull String getGroup() {
+    public @Nonnull String group() {
         return group;
     }
 
@@ -50,6 +60,9 @@ public class DoubleSmeltingRecipe implements Recipe<DoubleSmeltingRecipe.DoubleR
     }
 
     public ItemStack getOutput() {
+        return outputStack.get();
+    }
+    public ItemStackTemplate getOutputTemplate() {
         return output;
     }
 
@@ -68,28 +81,38 @@ public class DoubleSmeltingRecipe implements Recipe<DoubleSmeltingRecipe.DoubleR
     }
 
     @Override
-    public @Nonnull ItemStack assemble(DoubleRecipeInput doubleRecipeInput, HolderLookup.Provider provider) {
-        return output.copy();
+    public @Nonnull ItemStack assemble(DoubleRecipeInput doubleRecipeInput) {
+        return getOutput().copy();
     }
 
-    @Override
-    public boolean canCraftInDimensions(int i, int j) {
-        return false;
-    }
 
-    @Override
     public @Nonnull ItemStack getResultItem(HolderLookup.Provider provider) {
-        return output.copy();
+        return getOutput().copy();
     }
 
     @Override
-    public @Nonnull RecipeSerializer<?> getSerializer() {
+    public @Nonnull RecipeSerializer<? extends Recipe<DoubleRecipeInput>> getSerializer() {
         return AllRecipes.DOUBLE_SMELTING_SER.get();
     }
 
     @Override
-    public @Nonnull RecipeType<?> getType() {
-        return type;
+    public @Nonnull RecipeType<? extends Recipe<DoubleRecipeInput>> getType() {
+        return (RecipeType<? extends Recipe<DoubleRecipeInput>>) type;
+    }
+
+    @Override
+    public boolean showNotification() {
+        return false;
+    }
+
+    @Override
+    public @Nonnull PlacementInfo placementInfo() {
+        return PlacementInfo.NOT_PLACEABLE;
+    }
+
+    @Override
+    public @Nonnull RecipeBookCategory recipeBookCategory() {
+        return RecipeBookCategories.CRAFTING_MISC;
     }
 
     public static class Type implements RecipeType<DoubleSmeltingRecipe> {
@@ -103,7 +126,7 @@ public class DoubleSmeltingRecipe implements Recipe<DoubleSmeltingRecipe.DoubleR
     }
 
     public interface Factory {
-        DoubleSmeltingRecipe create(String var1, Ingredient var2, Ingredient var3, ItemStack var4, float var5, int var6);
+        DoubleSmeltingRecipe create(String var1, Ingredient var2, Ingredient var3, ItemStackTemplate var4, float var5, int var6);
     }
 
     public record DoubleRecipeInput(ItemStack itemA, ItemStack itemB) implements RecipeInput {

@@ -1,5 +1,5 @@
 {
-  "conditions": [
+  "neoforge:conditions": [
     {
       "type": "neoforge:not",
       "value": {
@@ -10,9 +10,7 @@
   ],
   "id": "slag:zinc",
   "molten_fluid": "slag:molten_zinc",
-  "repair_ingredient": {
-    "tag": "c:ingots/zinc"
-  },
+  "repair_ingredient": "#c:ingots/zinc",
   "sort_order": 260,
   "texture": "shiny",
   "traits": [

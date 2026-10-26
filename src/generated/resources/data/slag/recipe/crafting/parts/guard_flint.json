@@ -2,12 +2,8 @@
   "type": "minecraft:crafting_shaped",
   "category": "equipment",
   "key": {
-    "M": {
-      "item": "minecraft:flint"
-    },
-    "R": {
-      "item": "minecraft:paper"
-    }
+    "M": "minecraft:flint",
+    "R": "minecraft:paper"
   },
   "pattern": [
     "R",
@@ -18,7 +14,6 @@
       "slag:material_type": "slag:flint",
       "slag:part_type": "slag:guard"
     },
-    "count": 1,
     "id": "slag:dynamic_part"
   }
 }

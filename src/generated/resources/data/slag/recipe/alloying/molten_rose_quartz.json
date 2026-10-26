@@ -12,11 +12,11 @@
   "ingredients": [
     {
       "amount": 8,
-      "tag": "c:molten/quartz"
+      "ingredient": "#c:molten/quartz"
     },
     {
       "amount": 32,
-      "tag": "c:molten/redstone"
+      "ingredient": "#c:molten/redstone"
     }
   ],
   "result": {

@@ -9,9 +9,7 @@
     }
   ],
   "type": "slag:melting",
-  "ingredient": {
-    "tag": "c:raw_materials/zinc"
-  },
+  "ingredient": "#c:raw_materials/zinc",
   "ingredients": [],
   "result": [
     {

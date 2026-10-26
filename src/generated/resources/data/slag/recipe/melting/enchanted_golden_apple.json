@@ -1,8 +1,6 @@
 {
   "type": "slag:melting",
-  "ingredient": {
-    "item": "minecraft:enchanted_golden_apple"
-  },
+  "ingredient": "minecraft:enchanted_golden_apple",
   "ingredients": [],
   "result": [
     {

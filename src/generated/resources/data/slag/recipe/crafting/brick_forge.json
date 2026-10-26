@@ -2,15 +2,9 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "B": {
-      "item": "minecraft:mud_bricks"
-    },
-    "F": {
-      "item": "minecraft:furnace"
-    },
-    "L": {
-      "tag": "minecraft:logs"
-    }
+    "B": "minecraft:mud_bricks",
+    "F": "minecraft:furnace",
+    "L": "#minecraft:logs"
   },
   "pattern": [
     "BLB",
@@ -18,7 +12,6 @@
     "BLB"
   ],
   "result": {
-    "count": 1,
     "id": "slag:brick_forge"
   }
 }

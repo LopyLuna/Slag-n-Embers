@@ -9,9 +9,7 @@
     }
   ],
   "type": "slag:melting",
-  "ingredient": {
-    "tag": "c:dusts/copper"
-  },
+  "ingredient": "#c:dusts/copper",
   "ingredients": [],
   "result": [
     {

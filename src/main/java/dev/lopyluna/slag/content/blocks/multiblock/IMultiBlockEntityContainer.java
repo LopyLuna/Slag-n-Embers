@@ -6,7 +6,8 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.neoforged.neoforge.fluids.FluidStack;
-import net.neoforged.neoforge.fluids.IFluidTank;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.fluid.FluidResource;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
@@ -53,7 +54,7 @@ public interface IMultiBlockEntityContainer {
 
         default void setTankSize(int blocks) {}
 
-        default IFluidTank getTank() { return null; }
+        default @Nullable ResourceHandler<FluidResource> getTank() { return null; }
 
         default List<FluidStack> getFluids() {	return new ArrayList<>(); }
 

@@ -2,7 +2,7 @@
   "effects": [
     {
       "type": "slag:attribute",
-      "attribute": "minecraft:generic.armor",
+      "attribute": "minecraft:armor",
       "id": "minecraft:armor",
       "round": true
     }

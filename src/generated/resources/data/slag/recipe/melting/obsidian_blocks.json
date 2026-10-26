@@ -1,8 +1,6 @@
 {
   "type": "slag:melting",
-  "ingredient": {
-    "tag": "c:obsidians"
-  },
+  "ingredient": "#c:obsidians",
   "ingredients": [],
   "result": [
     {

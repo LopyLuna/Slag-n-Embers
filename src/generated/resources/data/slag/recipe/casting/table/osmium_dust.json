@@ -12,7 +12,7 @@
   "cast": "slag:cast/dusts",
   "ingredient": {
     "amount": 72,
-    "tag": "c:molten/osmium"
+    "ingredient": "#c:molten/osmium"
   },
   "result": {
     "tag": "c:dusts/osmium"

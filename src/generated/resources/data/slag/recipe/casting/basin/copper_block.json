@@ -2,10 +2,9 @@
   "type": "slag:basin_casting",
   "ingredient": {
     "amount": 648,
-    "tag": "c:molten/copper"
+    "ingredient": "#c:molten/copper"
   },
   "result": {
-    "count": 1,
     "id": "minecraft:copper_block"
   }
 }

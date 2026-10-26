@@ -54,7 +54,7 @@ public final class MultiQueue {
 
     public static void settle(FluidMultiBlockEntity ctrl, List<Sweep> urgent, List<Sweep> later) {
         var level = ctrl.getLevel();
-        if (level == null || level.isClientSide) return;
+        if (level == null || level.isClientSide()) return;
         var queue = of(level);
         var job = queue.settles.get(ctrl);
         if (job == null) {
@@ -69,17 +69,17 @@ public final class MultiQueue {
     }
 
     public static void pause(Level level) {
-        if (!level.isClientSide) of(level).paused++;
+        if (!level.isClientSide()) of(level).paused++;
     }
 
     public static void resume(Level level) {
-        if (level.isClientSide) return;
+        if (level.isClientSide()) return;
         var queue = of(level);
         if (--queue.paused == 0) queue.flush();
     }
 
     public static void connect(Level level, Area area, boolean inside) {
-        if (level == null || level.isClientSide) return;
+        if (level == null || level.isClientSide()) return;
         var queue = of(level);
         queue.add(queue.new Connect(area, inside));
     }

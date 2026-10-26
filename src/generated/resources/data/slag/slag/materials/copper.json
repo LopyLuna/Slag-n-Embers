@@ -1,9 +1,7 @@
 {
   "id": "slag:copper",
   "molten_fluid": "slag:molten_copper",
-  "repair_ingredient": {
-    "tag": "c:ingots/copper"
-  },
+  "repair_ingredient": "#c:ingots/copper",
   "sort_order": 30,
   "traits": [
     {

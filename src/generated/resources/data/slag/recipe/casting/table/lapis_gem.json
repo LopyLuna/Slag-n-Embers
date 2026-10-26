@@ -3,10 +3,9 @@
   "cast": "slag:cast/gems",
   "ingredient": {
     "amount": 72,
-    "tag": "c:molten/lapis"
+    "ingredient": "#c:molten/lapis"
   },
   "result": {
-    "count": 1,
     "id": "minecraft:lapis_lazuli"
   }
 }

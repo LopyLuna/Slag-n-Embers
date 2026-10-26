@@ -26,9 +26,8 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
-import net.minecraft.world.level.block.state.properties.DirectionProperty;
+import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.phys.BlockHitResult;
-import net.minecraft.world.phys.Vec3;
 import javax.annotation.Nonnull;
 
 import javax.annotation.Nullable;
@@ -37,7 +36,7 @@ import javax.annotation.ParametersAreNonnullByDefault;
 @ParametersAreNonnullByDefault
 public class ForgeBlock extends BEBlock {
     public static final MapCodec<ForgeBlock> CODEC = simpleCodec(ForgeBlock::new);
-    public static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
+    public static final EnumProperty<Direction> FACING = BlockStateProperties.HORIZONTAL_FACING;
     public static final BooleanProperty LIT = BlockStateProperties.LIT;
 
     public ForgeBlock(Properties properties) {
@@ -61,9 +60,10 @@ public class ForgeBlock extends BEBlock {
         return defaultBlockState().setValue(FACING, blockPlaceContext.getHorizontalDirection().getOpposite());
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     public void stepOn(Level pLevel, BlockPos pPos, BlockState pState, Entity pEntity) {
-        if (pLevel.random.nextDouble() < 0.2D && pState.getValue(LIT) && !pEntity.isSteppingCarefully() && pEntity instanceof LivingEntity living && living.getHealth() > 1.0F) pEntity.hurt(pLevel.damageSources().hotFloor(), 1.0F);
+        if (pLevel.getRandom().nextDouble() < 0.2D && pState.getValue(LIT) && !pEntity.isSteppingCarefully() && pEntity instanceof LivingEntity living && living.getHealth() > 1.0F) pEntity.hurt(pLevel.damageSources().hotFloor(), 1.0F);
         super.stepOn(pLevel, pPos, pState, pEntity);
     }
 
@@ -113,7 +113,7 @@ public class ForgeBlock extends BEBlock {
 
     @Override
     protected @Nonnull InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hitResult) {
-        if (!level.isClientSide) {
+        if (!level.isClientSide()) {
             var provider = state.getMenuProvider(level, pos);
             if (provider != null) player.openMenu(provider);
         }
@@ -121,15 +121,8 @@ public class ForgeBlock extends BEBlock {
     }
 
     @Override
-    public void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean moved) {
-        if (!state.is(newState.getBlock())) {
-            if (level.getBlockEntity(pos) instanceof ForgeBE be) {
-                Containers.dropContents(level, pos, be);
-                if (level instanceof ServerLevel server) be.getRecipesToAwardAndPopExperience(server, Vec3.atCenterOf(pos));
-                super.onRemove(state, level, pos, newState, moved);
-                level.updateNeighbourForOutputSignal(pos, this);
-            } else super.onRemove(state, level, pos, newState, moved);
-        }
+    protected void affectNeighborsAfterRemoval(BlockState state, ServerLevel level, BlockPos pos, boolean movedByPiston) {
+        Containers.updateNeighboursAfterDestroy(state, level, pos);
     }
 
 
@@ -146,7 +139,7 @@ public class ForgeBlock extends BEBlock {
     }
 
     @Override
-    public int getAnalogOutputSignal(BlockState blockState, Level level, BlockPos blockPos) {
+    public int getAnalogOutputSignal(BlockState blockState, Level level, BlockPos blockPos, Direction direction) {
         return AbstractContainerMenu.getRedstoneSignalFromBlockEntity(level.getBlockEntity(blockPos));
     }
 
@@ -163,6 +156,6 @@ public class ForgeBlock extends BEBlock {
     @Nullable
     @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState blockState, BlockEntityType<T> blockEntityType) {
-        return level.isClientSide ? null : ForgeBE::serverTick;
+        return level.isClientSide() ? null : ForgeBE::serverTick;
     }
 }

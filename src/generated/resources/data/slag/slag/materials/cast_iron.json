@@ -1,5 +1,5 @@
 {
-  "conditions": [
+  "neoforge:conditions": [
     {
       "type": "neoforge:not",
       "value": {
@@ -10,9 +10,7 @@
   ],
   "id": "slag:cast_iron",
   "molten_fluid": "slag:molten_cast_iron",
-  "repair_ingredient": {
-    "tag": "c:ingots/cast_iron"
-  },
+  "repair_ingredient": "#c:ingots/cast_iron",
   "sort_order": 330,
   "texture": "metal",
   "traits": [

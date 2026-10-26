@@ -9,9 +9,7 @@
     }
   ],
   "type": "slag:melting",
-  "ingredient": {
-    "tag": "c:dusts/brass"
-  },
+  "ingredient": "#c:dusts/brass",
   "ingredients": [],
   "result": [
     {

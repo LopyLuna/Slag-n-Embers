@@ -20,16 +20,16 @@ import static dev.lopyluna.slag.SlagEmbers.REGISTER;
 
 @SuppressWarnings("unused")
 public class AllRecipes {
-    public static final DeferredHolder<RecipeSerializer<?>, DoubleSmeltingRecipeSer> DOUBLE_SMELTING_SER = REGISTER.recipeSer()
-            .register("double_smelting", () -> new DoubleSmeltingRecipeSer(DoubleSmeltingRecipe::new, 200));
-    public static final DeferredHolder<RecipeSerializer<?>, AlloyingRecipe.Serializer> ALLOYING_SER = REGISTER.recipeSer()
-            .register("alloying", () -> new AlloyingRecipe.Serializer(AlloyingRecipe::new));
-    public static final DeferredHolder<RecipeSerializer<?>, MeltingRecipeSer> MELTING_SER = REGISTER.recipeSer()
-            .register("melting", () -> new MeltingRecipeSer(MeltingRecipe::new));
-    public static final DeferredHolder<RecipeSerializer<?>, BasinCastingRecipeSer> BASIN_CASTING_SER = REGISTER.recipeSer()
-            .register("basin_casting", () -> new BasinCastingRecipeSer(BasinCastingRecipe::new));
-    public static final DeferredHolder<RecipeSerializer<?>, TableCastingRecipeSer> TABLE_CASTING_SER = REGISTER.recipeSer()
-            .register("table_casting", () -> new TableCastingRecipeSer(TableCastingRecipe::new));
+    public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<DoubleSmeltingRecipe>> DOUBLE_SMELTING_SER = REGISTER.recipeSer()
+            .register("double_smelting", () -> new DoubleSmeltingRecipeSer(DoubleSmeltingRecipe::new, 200).serializer());
+    public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<AlloyingRecipe>> ALLOYING_SER = REGISTER.recipeSer()
+            .register("alloying", () -> new AlloyingRecipe.Serializer(AlloyingRecipe::new).serializer());
+    public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<MeltingRecipe>> MELTING_SER = REGISTER.recipeSer()
+            .register("melting", () -> new MeltingRecipeSer(MeltingRecipe::new).serializer());
+    public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<BasinCastingRecipe>> BASIN_CASTING_SER = REGISTER.recipeSer()
+            .register("basin_casting", () -> new BasinCastingRecipeSer(BasinCastingRecipe::new).serializer());
+    public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<TableCastingRecipe>> TABLE_CASTING_SER = REGISTER.recipeSer()
+            .register("table_casting", () -> new TableCastingRecipeSer(TableCastingRecipe::new).serializer());
 
 
     public static final DeferredHolder<RecipeType<?>, DoubleSmeltingRecipe.Type> DOUBLE_SMELTING = REGISTER.recipes()

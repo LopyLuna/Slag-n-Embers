@@ -3,15 +3,13 @@
   "cast": "slag:cast/chestplates",
   "ingredient": {
     "amount": 72,
-    "tag": "c:molten/netherite"
+    "ingredient": "#c:molten/netherite"
   },
   "result": {
     "components": {
-      "minecraft:fire_resistant": {},
       "slag:material_type": "slag:netherite",
       "slag:part_type": "slag:chestplate"
     },
-    "count": 1,
     "id": "slag:dynamic_part"
   }
 }

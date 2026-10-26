@@ -10,9 +10,10 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.TextColor;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
+import net.neoforged.neoforge.common.conditions.ConditionalOps;
 import net.neoforged.neoforge.common.conditions.ICondition;
 import net.neoforged.neoforge.common.conditions.ModLoadedCondition;
 
@@ -25,7 +26,7 @@ public class TraitType {
     public static final TextColor GRAY = TextColor.fromLegacyFormat(ChatFormatting.GRAY);
     public static final Codec<TextColor> COLOR_CODEC = Codec.STRING.comapFlatMap(TraitType::parseColor, TextColor::serialize);
 
-    public final ResourceLocation id;
+    public final Identifier id;
     public final int sortOrder;
     public final boolean hidden;
     public final float value;
@@ -38,7 +39,7 @@ public class TraitType {
     public boolean dontRegister;
 
     public static final Codec<TraitType> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-            ResourceLocation.CODEC.fieldOf("id").forGetter(t -> t.id),
+            Identifier.CODEC.fieldOf("id").forGetter(t -> t.id),
             Codec.INT.optionalFieldOf("sort_order", 0).forGetter(t -> t.sortOrder),
             Codec.BOOL.optionalFieldOf("hidden", false).forGetter(t -> t.hidden),
             Codec.FLOAT.optionalFieldOf("value", 0f).forGetter(t -> t.value),
@@ -46,10 +47,10 @@ public class TraitType {
             Codec.FLOAT.optionalFieldOf("part_scale", 0f).forGetter(t -> t.partScale),
             COLOR_CODEC.optionalFieldOf("color", GRAY).forGetter(t -> t.color),
             TraitEffect.CODEC.listOf().optionalFieldOf("effects", List.of()).forGetter(t -> t.effects),
-            ICondition.LIST_CODEC.optionalFieldOf("conditions", List.of()).forGetter(t -> t.conditions)
+            ICondition.LIST_CODEC.optionalFieldOf(ConditionalOps.DEFAULT_CONDITIONS_KEY, List.of()).forGetter(t -> t.conditions)
     ).apply(instance, TraitType::new));
 
-    public TraitType(ResourceLocation id, int sortOrder, boolean hidden, float value, TraitOperation operation, float partScale, TextColor color, List<TraitEffect> effects, List<ICondition> conditions) {
+    public TraitType(Identifier id, int sortOrder, boolean hidden, float value, TraitOperation operation, float partScale, TextColor color, List<TraitEffect> effects, List<ICondition> conditions) {
         dontRegister = id == null || id.getNamespace().isEmpty() || id.getPath().isEmpty() || id.getPath().equals("null") || id.getPath().equals("empty");
         this.id = id;
         this.sortOrder = sortOrder;
@@ -85,7 +86,7 @@ public class TraitType {
     }
 
     public static class Builder {
-        private final ResourceLocation id;
+        private final Identifier id;
         private int sortOrder;
         private boolean hidden;
         private float value;
@@ -95,7 +96,7 @@ public class TraitType {
         private final List<TraitEffect> effects = new ArrayList<>();
         private final List<ICondition> conditions = new ArrayList<>();
 
-        public Builder(ResourceLocation id) { this.id = id; }
+        public Builder(Identifier id) { this.id = id; }
         public Builder(String id) { this.id = SlagEmbers.loc(id); }
 
         public Builder sortOrder(int sortOrder) { this.sortOrder = sortOrder; return this; }

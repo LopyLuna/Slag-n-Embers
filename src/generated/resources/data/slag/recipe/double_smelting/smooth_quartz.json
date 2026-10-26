@@ -2,12 +2,8 @@
   "type": "slag:double_smelting",
   "cookingTime": 200,
   "experience": 0.2,
-  "ingredientA": {
-    "item": "minecraft:quartz_block"
-  },
-  "ingredientB": {
-    "item": "minecraft:quartz_block"
-  },
+  "ingredientA": "minecraft:quartz_block",
+  "ingredientB": "minecraft:quartz_block",
   "result": {
     "count": 2,
     "id": "minecraft:smooth_quartz"

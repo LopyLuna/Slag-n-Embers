@@ -15,12 +15,8 @@
   "type": "minecraft:crafting_shaped",
   "category": "equipment",
   "key": {
-    "M": {
-      "tag": "c:ingots/invar"
-    },
-    "R": {
-      "item": "minecraft:paper"
-    }
+    "M": "#c:ingots/invar",
+    "R": "minecraft:paper"
   },
   "pattern": [
     "R R",
@@ -32,7 +28,6 @@
       "slag:material_type": "slag:invar",
       "slag:part_type": "slag:chestplate"
     },
-    "count": 1,
     "id": "slag:dynamic_part"
   }
 }

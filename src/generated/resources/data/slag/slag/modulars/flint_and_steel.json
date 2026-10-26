@@ -1,17 +1,14 @@
 {
   "final_segment_stacks": [
     {
-      "count": 1,
       "id": "minecraft:flint"
     },
     {
-      "count": 1,
       "id": "minecraft:iron_ingot"
     }
   ],
   "id": "slag:flint_and_steel",
   "result_stack": {
-    "count": 1,
     "id": "minecraft:flint_and_steel"
   },
   "sort_order": 100

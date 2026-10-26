@@ -9,9 +9,7 @@
     }
   ],
   "type": "slag:melting",
-  "ingredient": {
-    "tag": "c:wires/zinc"
-  },
+  "ingredient": "#c:wires/zinc",
   "ingredients": [],
   "result": [
     {

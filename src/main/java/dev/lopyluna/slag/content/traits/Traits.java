@@ -2,6 +2,7 @@ package dev.lopyluna.slag.content.traits;
 
 import dev.lopyluna.slag.content.items.dynamic_part.IDynamicPart;
 import dev.lopyluna.slag.content.items.dynamic_part.IModularItem;
+import dev.lopyluna.slag.content.items.modular.ModularItem;
 import dev.lopyluna.slag.content.traits.effects.MiningEffect;
 import dev.lopyluna.slag.content.types.MaterialType;
 import dev.lopyluna.slag.content.types.ModularType;
@@ -10,7 +11,8 @@ import dev.lopyluna.slag.register.AllDataComponents;
 import dev.lopyluna.slag.register.AllDynamicTypes;
 import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponentPatch;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.resources.Identifier;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.DamageType;
@@ -51,12 +53,12 @@ public class Traits {
     public final List<DataComponentPatch> components;
     public final ItemAttributeModifiers attributes;
     public final List<Hook> useOn, blockBreak, blockDrops, hurtEnemy, inventoryTick;
-    private final Map<ResourceLocation, Trait> byId;
+    private final Map<Identifier, Trait> byId;
 
     private Traits(Builder builder) {
         all = List.copyOf(builder.traits);
         var visible = new ArrayList<Trait>();
-        var byId = new HashMap<ResourceLocation, Trait>();
+        var byId = new HashMap<Identifier, Trait>();
         for (var trait : all) {
             if (!trait.hidden()) visible.add(trait);
             byId.put(trait.id(), trait);
@@ -125,13 +127,13 @@ public class Traits {
     }
 
     public boolean isCorrectForDrops(BlockState state) {
-        for (var effect : mining) if (state.is(effect.blocks())) return true;
+        for (var effect : mining) if (state.is(effect.blocks().get())) return true;
         return false;
     }
 
     public float miningMultiplier(BlockState state) {
         var best = 0f;
-        for (var effect : mining) if (state.is(effect.blocks())) best = Math.max(best, effect.speed());
+        for (var effect : mining) if (state.is(effect.blocks().get())) best = Math.max(best, effect.speed());
         return best;
     }
 
@@ -142,6 +144,7 @@ public class Traits {
 
     public void applyComponents(ItemStack stack) {
         for (var patch : components) stack.applyComponents(patch);
+        if (stack.getItem() instanceof ModularItem item) item.applyComponents(stack, this);
     }
 
     public static Traits of(ItemStack stack) {
@@ -151,12 +154,16 @@ public class Traits {
     }
 
     public static ItemStack glider(LivingEntity entity, ItemStack chest, boolean visual) {
-        if (visual ? chest.is(Items.ELYTRA) || of(chest).gliding || chest.canElytraFly(entity) : chest.canElytraFly(entity)) return chest;
+        if (visual ? chest.is(Items.ELYTRA) || of(chest).gliding || canGlide(chest) : canGlide(chest)) return chest;
         for (var slot : EquipmentSlot.values()) if (slot.isArmor() && slot != EquipmentSlot.CHEST) {
             var stack = entity.getItemBySlot(slot);
-            if (of(stack).gliding && (visual || stack.canElytraFly(entity))) return stack;
+            if (of(stack).gliding && (visual || canGlide(stack))) return stack;
         }
         return chest;
+    }
+
+    private static boolean canGlide(ItemStack stack) {
+        return stack.has(DataComponents.GLIDER) && !stack.nextDamageWillBreak();
     }
 
     public static Traits part(@Nullable MaterialType material, @Nullable PartType part) {
@@ -181,7 +188,7 @@ public class Traits {
 
     public static Traits resolve(List<MaterialType> materials, List<PartType> parts, @Nullable ModularType modular) {
         var size = materials.size();
-        var sums = new LinkedHashMap<ResourceLocation, Sum>();
+        var sums = new LinkedHashMap<Identifier, Sum>();
         for (var i = 0; i < size; i++) {
             var material = materials.get(i);
             var part = parts.get(i);
@@ -205,7 +212,7 @@ public class Traits {
         return new Builder(traits).build();
     }
 
-    private static @Nullable Sum sum(Map<ResourceLocation, Sum> sums, TraitEntry entry, int size) {
+    private static @Nullable Sum sum(Map<Identifier, Sum> sums, TraitEntry entry, int size) {
         var sum = sums.get(entry.trait());
         if (sum != null) return sum;
         var type = AllDynamicTypes.getTrait(entry.trait()).orElse(null);
@@ -227,11 +234,11 @@ public class Traits {
 
     public record Hook(Trait trait, TraitEffect effect) {}
 
-    private record PartKey(@Nullable ResourceLocation material, @Nullable ResourceLocation part) {}
+    private record PartKey(@Nullable Identifier material, @Nullable Identifier part) {}
 
-    private record Modifier(Holder<Attribute> attribute, ResourceLocation id, double amount, AttributeModifier.Operation operation, @Nullable EquipmentSlotGroup slot) {}
+    private record Modifier(Holder<Attribute> attribute, Identifier id, double amount, AttributeModifier.Operation operation, @Nullable EquipmentSlotGroup slot) {}
 
-    private record ModifierKey(Holder<Attribute> attribute, ResourceLocation id, AttributeModifier.Operation operation, EquipmentSlotGroup slot) {}
+    private record ModifierKey(Holder<Attribute> attribute, Identifier id, AttributeModifier.Operation operation, EquipmentSlotGroup slot) {}
 
     private static class Sum {
         private final TraitType type;
@@ -312,7 +319,7 @@ public class Traits {
             for (var trait : traits) for (var effect : trait.type().effects) effect.collect(trait, this);
         }
 
-        public void attribute(Holder<Attribute> attribute, ResourceLocation id, double amount, AttributeModifier.Operation operation, @Nullable EquipmentSlotGroup slot) {
+        public void attribute(Holder<Attribute> attribute, Identifier id, double amount, AttributeModifier.Operation operation, @Nullable EquipmentSlotGroup slot) {
             modifiers.add(new Modifier(attribute, id, amount, operation, slot));
         }
 

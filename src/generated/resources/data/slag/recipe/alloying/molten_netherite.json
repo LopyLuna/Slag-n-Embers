@@ -3,11 +3,11 @@
   "ingredients": [
     {
       "amount": 32,
-      "tag": "c:molten/debris"
+      "ingredient": "#c:molten/debris"
     },
     {
       "amount": 32,
-      "tag": "c:molten/gold"
+      "ingredient": "#c:molten/gold"
     }
   ],
   "result": {

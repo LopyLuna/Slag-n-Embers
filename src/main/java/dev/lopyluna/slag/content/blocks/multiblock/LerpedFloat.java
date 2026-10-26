@@ -6,6 +6,7 @@ import net.minecraft.util.Mth;
 
 import javax.annotation.Nullable;
 
+@SuppressWarnings("unused")
 public class LerpedFloat {
 
     protected Interpolator interpolator;
@@ -126,13 +127,13 @@ public class LerpedFloat {
 
     public void readNBT(CompoundTag compoundNBT, boolean clientPacket) {
         if (!clientPacket || compoundNBT.contains("Force"))
-            startWithValue(compoundNBT.getFloat("Value"));
+            startWithValue(compoundNBT.getFloatOr("Value", 0));
         readChaser(compoundNBT);
     }
 
     protected void readChaser(CompoundTag compoundNBT) {
-        chaseSpeed = compoundNBT.getFloat("Speed");
-        chaseTarget = compoundNBT.getFloat("Target");
+        chaseSpeed = compoundNBT.getFloatOr("Speed", 0);
+        chaseTarget = compoundNBT.getFloatOr("Target", 0);
     }
 
     @FunctionalInterface

@@ -12,7 +12,7 @@
   "cast": "slag:cast/ingots",
   "ingredient": {
     "amount": 72,
-    "tag": "c:molten/aluminium"
+    "ingredient": "#c:molten/aluminium"
   },
   "result": {
     "tag": "c:ingots/aluminium"

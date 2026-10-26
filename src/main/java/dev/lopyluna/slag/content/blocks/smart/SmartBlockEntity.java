@@ -1,7 +1,7 @@
 package dev.lopyluna.slag.content.blocks.smart;
 
 import it.unimi.dsi.fastutil.objects.Reference2ObjectArrayMap;
-import net.createmod.ponder.api.VirtualBlockEntity;
+import net.createmod.ponder.api.client.VirtualBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
@@ -72,7 +72,7 @@ public abstract class SmartBlockEntity extends CachedRenderBBBlockEntity impleme
      * Hook only these in future subclasses of STE
      */
     protected void write(CompoundTag tag, HolderLookup.Provider registries, boolean clientPacket) {
-        super.saveAdditional(tag, registries);
+        super.saveTag(tag, registries);
         forEachBehaviour(tb -> tb.write(tag, registries, clientPacket));
     }
 
@@ -86,12 +86,12 @@ public abstract class SmartBlockEntity extends CachedRenderBBBlockEntity impleme
             addBehavioursDeferred(list);
             list.forEach(b -> behaviours.put(b.getType(), b));
         }
-        super.loadAdditional(tag, registries);
+        super.loadTag(tag, registries);
         forEachBehaviour(tb -> tb.read(tag, registries, clientPacket));
     }
 
     @Override
-    protected void loadAdditional(@Nonnull CompoundTag tag, HolderLookup.Provider registries) {
+    protected void loadTag(@Nonnull CompoundTag tag, HolderLookup.Provider registries) {
         read(tag, registries, false);
     }
 
@@ -128,7 +128,13 @@ public abstract class SmartBlockEntity extends CachedRenderBBBlockEntity impleme
     }
 
     @Override
-    public final void saveAdditional(@Nonnull CompoundTag tag, HolderLookup.Provider registries) {
+    public void preRemoveSideEffects(BlockPos pos, BlockState state) {
+        super.preRemoveSideEffects(pos, state);
+        destroy();
+    }
+
+    @Override
+    public final void saveTag(@Nonnull CompoundTag tag, HolderLookup.Provider registries) {
         write(tag, registries, false);
     }
 

@@ -3,14 +3,13 @@
   "cast": "slag:cast/chestplates",
   "ingredient": {
     "amount": 432,
-    "tag": "c:molten/echo"
+    "ingredient": "#c:molten/echo"
   },
   "result": {
     "components": {
       "slag:material_type": "slag:echo",
       "slag:part_type": "slag:chestplate"
     },
-    "count": 1,
     "id": "slag:dynamic_part"
   }
 }

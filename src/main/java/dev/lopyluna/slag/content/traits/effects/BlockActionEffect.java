@@ -15,7 +15,6 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.HoeItem;
 import net.minecraft.world.item.context.UseOnContext;
@@ -61,7 +60,7 @@ public record BlockActionEffect(Action action) implements TraitEffect {
     }
 
     private static InteractionResult strip(UseOnContext context) {
-        if (AxeItemAccessor.playerHasShieldUseIntent(context)) return InteractionResult.PASS;
+        if (AxeItemAccessor.playerHasBlockingItemUseIntent(context)) return InteractionResult.PASS;
         var level = context.getLevel();
         var pos = context.getClickedPos();
         var player = context.getPlayer();
@@ -71,8 +70,8 @@ public record BlockActionEffect(Action action) implements TraitEffect {
         if (player instanceof ServerPlayer serverPlayer) CriteriaTriggers.ITEM_USED_ON_BLOCK.trigger(serverPlayer, pos, stack);
         level.setBlock(pos, result, 11);
         level.gameEvent(GameEvent.BLOCK_CHANGE, pos, GameEvent.Context.of(player, result));
-        if (player != null) stack.hurtAndBreak(1, player, LivingEntity.getSlotForHand(context.getHand()));
-        return InteractionResult.sidedSuccess(level.isClientSide);
+        if (player != null) stack.hurtAndBreak(1, player, context.getHand().asEquipmentSlot());
+        return InteractionResult.SUCCESS;
     }
 
     private static @Nullable BlockState stripped(Level level, BlockPos pos, @Nullable Player player, BlockState state, UseOnContext context) {
@@ -108,12 +107,12 @@ public record BlockActionEffect(Action action) implements TraitEffect {
             result = flat;
         } else if ((result = state.getToolModifiedState(context, ItemAbilities.SHOVEL_DOUSE, false)) != null && !level.isClientSide()) level.levelEvent(null, 1009, pos, 0);
         if (result == null) return InteractionResult.PASS;
-        if (!level.isClientSide) {
+        if (!level.isClientSide()) {
             level.setBlock(pos, result, 11);
             level.gameEvent(GameEvent.BLOCK_CHANGE, pos, GameEvent.Context.of(player, result));
-            if (player != null) context.getItemInHand().hurtAndBreak(1, player, LivingEntity.getSlotForHand(context.getHand()));
+            if (player != null) context.getItemInHand().hurtAndBreak(1, player, context.getHand().asEquipmentSlot());
         }
-        return InteractionResult.sidedSuccess(level.isClientSide);
+        return InteractionResult.SUCCESS;
     }
 
     private static InteractionResult till(UseOnContext context) {
@@ -123,11 +122,11 @@ public record BlockActionEffect(Action action) implements TraitEffect {
         if (tilled == null) return InteractionResult.PASS;
         var player = context.getPlayer();
         level.playSound(player, pos, SoundEvents.HOE_TILL, SoundSource.BLOCKS, 1f, 1f);
-        if (!level.isClientSide) {
+        if (!level.isClientSide()) {
             HoeItem.changeIntoState(tilled).accept(context);
-            if (player != null) context.getItemInHand().hurtAndBreak(1, player, LivingEntity.getSlotForHand(context.getHand()));
+            if (player != null) context.getItemInHand().hurtAndBreak(1, player, context.getHand().asEquipmentSlot());
         }
-        return InteractionResult.sidedSuccess(level.isClientSide);
+        return InteractionResult.SUCCESS;
     }
 
     private static InteractionResult harvest(UseOnContext context) {
@@ -136,7 +135,7 @@ public record BlockActionEffect(Action action) implements TraitEffect {
         var player = context.getPlayer();
         var state = level.getBlockState(pos);
         if (!state.is(AllTags.HARVESTABLE)) return InteractionResult.PASS;
-        var result = InteractionResult.PASS;
+        InteractionResult result = InteractionResult.PASS;
         var aged = false;
         for (var age : AGES) if (state.hasProperty(age)) {
             if (state.getValue(age) == age.getPossibleValues().size() - 1) {
@@ -151,7 +150,7 @@ public record BlockActionEffect(Action action) implements TraitEffect {
             level.destroyBlock(pos, true, player);
             result = InteractionResult.SUCCESS;
         }
-        if (result == InteractionResult.SUCCESS && player != null) context.getItemInHand().hurtAndBreak(1, player, LivingEntity.getSlotForHand(context.getHand()));
+        if (result == InteractionResult.SUCCESS && player != null) context.getItemInHand().hurtAndBreak(1, player, context.getHand().asEquipmentSlot());
         return result;
     }
 

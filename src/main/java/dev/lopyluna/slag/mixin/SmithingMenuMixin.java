@@ -6,6 +6,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.ContainerLevelAccess;
 import net.minecraft.world.inventory.ItemCombinerMenu;
+import net.minecraft.world.inventory.ItemCombinerMenuSlotDefinition;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.inventory.SmithingMenu;
 import net.minecraft.world.item.ItemStack;
@@ -21,13 +22,13 @@ import java.util.function.Predicate;
 
 @Mixin(SmithingMenu.class)
 public abstract class SmithingMenuMixin extends ItemCombinerMenu {
-    public SmithingMenuMixin(@Nullable MenuType<?> type, int id, Inventory inventory, ContainerLevelAccess access) {
-        super(type, id, inventory, access);
+    public SmithingMenuMixin(@Nullable MenuType<?> type, int id, Inventory inventory, ContainerLevelAccess access, ItemCombinerMenuSlotDefinition slots) {
+        super(type, id, inventory, access, slots);
     }
 
     @ModifyArg(method = "createInputSlotDefinitions", index = 3,
             at = @At(value = "INVOKE", ordinal = 0, target = "Lnet/minecraft/world/inventory/ItemCombinerMenuSlotDefinition$Builder;withSlot(IIILjava/util/function/Predicate;)Lnet/minecraft/world/inventory/ItemCombinerMenuSlotDefinition$Builder;"))
-    private Predicate<ItemStack> template(Predicate<ItemStack> original) {
+    private static Predicate<ItemStack> template(Predicate<ItemStack> original) {
         return stack -> original.test(stack) || ModularSmithingMenu.isTemplate(stack);
     }
 
@@ -42,7 +43,7 @@ public abstract class SmithingMenuMixin extends ItemCombinerMenu {
         if (!(this.player instanceof ServerPlayer serverPlayer) || !ModularSmithingMenu.isTemplate(stack)) return;
         var template = stack.copy();
         this.inputSlots.setItem(SmithingMenu.TEMPLATE_SLOT, ItemStack.EMPTY);
-        this.access.execute((level, pos) -> serverPlayer.serverLevel().getServer().execute(() ->
-                ModularSmithingMenu.open(serverPlayer, (id, inventory, p) -> new ModularSmithingMenu(id, inventory, ContainerLevelAccess.create(level, pos), template), AllLangs.container("modular_smithing"))));
+        this.access.execute((level, pos) -> serverPlayer.level().getServer().execute(() ->
+                ModularSmithingMenu.open(serverPlayer, (id, inventory, _) -> new ModularSmithingMenu(id, inventory, ContainerLevelAccess.create(level, pos), template), AllLangs.container("modular_smithing"))));
     }
 }

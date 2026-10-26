@@ -1,16 +1,13 @@
 {
   "type": "slag:table_casting",
   "cast_item": {
-    "ingredient": {
-      "item": "minecraft:diorite"
-    }
+    "ingredient": "minecraft:diorite"
   },
   "ingredient": {
     "amount": 72,
-    "tag": "c:molten/quartz"
+    "ingredient": "#c:molten/quartz"
   },
   "result": {
-    "count": 1,
     "id": "minecraft:granite"
   }
 }

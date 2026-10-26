@@ -10,13 +10,11 @@
   ],
   "type": "slag:table_casting",
   "cast_item": {
-    "ingredient": {
-      "item": "minecraft:andesite"
-    }
+    "ingredient": "minecraft:andesite"
   },
   "ingredient": {
     "amount": 8,
-    "tag": "c:molten/zinc"
+    "ingredient": "#c:molten/zinc"
   },
   "result": {
     "tag": "c:alloys/andesite"

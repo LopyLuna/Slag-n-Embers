@@ -9,9 +9,7 @@
     }
   ],
   "type": "slag:melting",
-  "ingredient": {
-    "tag": "c:storage_blocks/zinc"
-  },
+  "ingredient": "#c:storage_blocks/zinc",
   "ingredients": [],
   "result": [
     {

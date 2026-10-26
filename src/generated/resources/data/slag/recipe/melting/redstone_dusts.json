@@ -1,8 +1,6 @@
 {
   "type": "slag:melting",
-  "ingredient": {
-    "tag": "c:dusts/redstone"
-  },
+  "ingredient": "#c:dusts/redstone",
   "ingredients": [],
   "result": [
     {

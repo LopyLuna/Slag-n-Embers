@@ -2,7 +2,7 @@ plugins {
     id 'java-library'
     id 'maven-publish'
     id 'idea'
-    id 'net.neoforged.moddev' version '2.0.107'
+    id 'net.neoforged.moddev' version '2.0.148'
 }
 
 tasks.named('wrapper', Wrapper).configure {
@@ -16,15 +16,10 @@ base {
     archivesName = "Slag-n-Embers-$minecraft_version"
 }
 
-java.toolchain.languageVersion = JavaLanguageVersion.of(21)
+java.toolchain.languageVersion = JavaLanguageVersion.of(25)
 
 neoForge {
     version = project.neo_version
-
-    parchment {
-        mappingsVersion = project.parchment_mappings_version
-        minecraftVersion = project.parchment_minecraft_version
-    }
 
     runs {
         client {
@@ -41,7 +36,7 @@ neoForge {
             systemProperty 'neoforge.enabledGameTestNamespaces', project.mod_id
         }
         data {
-            data()
+            clientData()
             programArguments.addAll '--mod', project.mod_id, '--all', '--output',
                     file('src/generated/resources/').getAbsolutePath(), '--existing',
                     file('src/main/resources/').getAbsolutePath()
@@ -63,6 +58,10 @@ sourceSets.main.resources {
     exclude '.cache/'
 }
 
+sourceSets.main.java {
+    exclude 'dev/lopyluna/slag/compat/create/**'
+}
+
 configurations {
     runtimeClasspath.extendsFrom localRuntime
 }
@@ -75,6 +74,8 @@ repositories {
     maven { url = "https://dl.cloudsmith.io/public/novamachina-mods/release/maven/" }
     maven { url = "https://maven.createmod.net" }
     maven { url = "https://maven.ryanhcode.dev/releases" }
+    maven { url = "https://maven.gegy.dev/releases" }
+    maven { url = "https://maven.theillusivec4.top/" }
     mavenLocal()
 }
 
@@ -82,32 +83,17 @@ dependencies {
     //implementation "net.neoforged:neoforge:${neo_version}"
     jarJar(implementation("com.tterrag.registrate:Registrate:${registrate_version}"))
 
-    compileOnly("dev.engine-room.flywheel:flywheel-neoforge-api-$minecraft_version:$flywheel_version")
-    runtimeOnly(jarJar("dev.engine-room.flywheel:flywheel-neoforge-$minecraft_version:$flywheel_version") {
-        version {
-            strictly "[1.0,2.0)"
-            prefer flywheel_version
-        }
-    })
-    implementation(jarJar("net.createmod.ponder:ponder-neoforge:$ponder_version+mc$minecraft_version"))
-
-    //implementation("com.simibubi.create:create-1.21.1:6.0.5-92:all") { transitive = false }
+    runtimeOnly(jarJar("dev.engine-room.flywheel:flywheel-neoforge:$flywheel_version"))
+    implementation(jarJar("net.createmod.ponder:ponder-neoforge:$ponder_version+mc$minecraft_version") { transitive = false })
+    implementation(jarJar("net.createmod.catnip:catnip-neoforge:$ponder_version+mc$minecraft_version") { transitive = false })
 
     compileOnly "mezz.jei:jei-${minecraft_version}-common-api:${jei_version}"
     compileOnly "mezz.jei:jei-${minecraft_version}-neoforge-api:${jei_version}"
     implementation("mezz.jei:jei-${minecraft_version}-neoforge:${jei_version}")
-    implementation "maven.modrinth:fusion-connected-textures:${fusion_version}-neoforge-mc${mc_version}"
-
-    compileOnly("top.theillusivec4.curios:curios-neoforge:${curios_version}+${minecraft_version}:api")
-    runtimeOnly("top.theillusivec4.curios:curios-neoforge:${curios_version}+${minecraft_version}")
-
-    implementation("maven.modrinth:sodium:mc${minecraft_version}-${sodium_version}-neoforge")
-    implementation("maven.modrinth:jade:15.10.6+neoforge")
-
-
-    //compats
-    compileOnly("com.simibubi.create:create-1.21.1:6.0.10-280:slim") { transitive = false }
-    compileOnly("dev.ryanhcode.sable-companion:sable-companion-common-1.21.1:1.6.0") { transitive = false }
+    localRuntime "maven.modrinth:fusion-connected-textures:${fusion_version}-neoforge-mc${mc_version}"
+    localRuntime "top.theillusivec4.curios:curios-neoforge:${curios_version}+${minecraft_version}"
+    localRuntime "maven.modrinth:sodium:mc${minecraft_version}-${sodium_version}-neoforge"
+    localRuntime "maven.modrinth:jade:${jade_version}+neoforge"
 }
 
 var generateModMetadata = tasks.register("generateModMetadata", ProcessResources) {

@@ -9,9 +9,7 @@
     }
   ],
   "type": "slag:melting",
-  "ingredient": {
-    "tag": "c:storage_blocks/lead"
-  },
+  "ingredient": "#c:storage_blocks/lead",
   "ingredients": [],
   "result": [
     {

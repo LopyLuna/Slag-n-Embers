@@ -12,14 +12,13 @@
   "cast": "slag:cast/leggings",
   "ingredient": {
     "amount": 360,
-    "tag": "c:molten/platinum"
+    "ingredient": "#c:molten/platinum"
   },
   "result": {
     "components": {
       "slag:material_type": "slag:platinum",
       "slag:part_type": "slag:leggings"
     },
-    "count": 1,
     "id": "slag:dynamic_part"
   }
 }

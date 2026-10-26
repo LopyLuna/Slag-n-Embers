@@ -1,9 +1,7 @@
 {
   "id": "slag:golden",
   "molten_fluid": "slag:molten_gold",
-  "repair_ingredient": {
-    "tag": "c:ingots/gold"
-  },
+  "repair_ingredient": "#c:ingots/gold",
   "sort_order": 50,
   "texture": "shiny",
   "traits": [

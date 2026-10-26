@@ -19,11 +19,11 @@
   "ingredients": [
     {
       "amount": 8,
-      "tag": "c:molten/gold"
+      "ingredient": "#c:molten/gold"
     },
     {
       "amount": 8,
-      "tag": "c:molten/silver"
+      "ingredient": "#c:molten/silver"
     }
   ],
   "result": {

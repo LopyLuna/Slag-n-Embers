@@ -1,5 +1,5 @@
 {
-  "conditions": [
+  "neoforge:conditions": [
     {
       "type": "neoforge:not",
       "value": {
@@ -10,9 +10,7 @@
   ],
   "id": "slag:aluminium",
   "molten_fluid": "slag:molten_aluminium",
-  "repair_ingredient": {
-    "tag": "c:ingots/aluminium"
-  },
+  "repair_ingredient": "#c:ingots/aluminium",
   "sort_order": 240,
   "texture": "soft",
   "traits": [

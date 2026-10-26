@@ -19,11 +19,11 @@
   "ingredients": [
     {
       "amount": 24,
-      "tag": "c:molten/copper"
+      "ingredient": "#c:molten/copper"
     },
     {
       "amount": 8,
-      "tag": "c:molten/tin"
+      "ingredient": "#c:molten/tin"
     }
   ],
   "result": {

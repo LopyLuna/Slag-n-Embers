@@ -3,14 +3,13 @@ package dev.lopyluna.slag.content.blocks.melter;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import dev.lopyluna.slag.client.ClientUtils;
+import dev.lopyluna.slag.client.FluidRenderHelper;
 import dev.lopyluna.slag.content.blocks.multiblock.renderer.SafeBlockEntityRenderer;
 import dev.lopyluna.slag.content.utils.ShapeUtils;
-import net.createmod.catnip.animation.AnimationTickHolder;
-import net.createmod.catnip.math.AngleHelper;
-import net.createmod.catnip.math.VoxelShaper;
-import net.createmod.catnip.platform.NeoForgeCatnipServices;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.MultiBufferSource;
+import net.createmod.catnip.api.client.animation.AnimationTickHolder;
+import net.createmod.catnip.api.math.AngleHelper;
+import net.createmod.catnip.api.math.VoxelShaper;
+import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.core.Direction;
 import net.minecraft.util.Mth;
@@ -27,7 +26,7 @@ public class MelterRenderer extends SafeBlockEntityRenderer<MelterBE> {
     public MelterRenderer(BlockEntityRendererProvider.Context context) {}
 
     @Override
-    protected void renderSafe(MelterBE be, float pt, PoseStack ms, MultiBufferSource buffer, int light, int overlay) {
+    protected void renderSafe(MelterBE be, float pt, PoseStack ms, SubmitNodeCollector buffer, int light, int overlay) {
         var state = be.getBlockState();
         var facing = state.hasProperty(MelterBlock.FACING) ? state.getValue(MelterBlock.FACING) : Direction.NORTH;
         renderFluid(be, facing, pt, ms, buffer, light, overlay);
@@ -41,7 +40,7 @@ public class MelterRenderer extends SafeBlockEntityRenderer<MelterBE> {
         var item = inv.getFirstItem();
         if (item.isEmpty()) return;
 
-        var angle = AnimationTickHolder.getRenderTime(be.getLevel()) * 0.1f;
+        var angle = AnimationTickHolder.getRenderTime() * 0.1f;
 
         var ite = item.getItem();
         for (int i = 0; Math.min(item.getMaxStackSize(), ((int) Mth.clamp(11f * ((float) item.getCount() / (float) item.getMaxStackSize()), 0, 11)) + 1) > i; i++) {
@@ -65,7 +64,7 @@ public class MelterRenderer extends SafeBlockEntityRenderer<MelterBE> {
         }
     }
 
-    public void renderFluid(MelterBE be, Direction facing, float pt, PoseStack ms, MultiBufferSource buffer, int light, int overlay) {
+    public void renderFluid(MelterBE be, Direction facing, float pt, PoseStack ms, SubmitNodeCollector buffer, int light, int overlay) {
         var fluidLevel = be.getFluidLevel();
         if (fluidLevel == null) return;
         var tank = be.tankInventory;
@@ -96,13 +95,12 @@ public class MelterRenderer extends SafeBlockEntityRenderer<MelterBE> {
             var fluid = fluids.get(i);
             if (fluid.isEmpty()) continue;
             var top = i == fluids.size() - 1 ? yMax : bottom + clampedLevel * fluid.getAmount() / total;
-            NeoForgeCatnipServices.FLUID_RENDERER.renderFluidBox(fluid, tankHullWidth, bottom, tankHullWidth, xMax, top, zMax, buffer, ms, light, false, true);
+            FluidRenderHelper.renderFluidBox(fluid, tankHullWidth, bottom, tankHullWidth, xMax, top, zMax, buffer, ms, light, false, true);
             bottom = top;
         }
         ms.popPose();
     }
-    protected void renderItem(PoseStack ms, MultiBufferSource buffer, int light, int overlay, ItemStack stack) {
-        var mc = Minecraft.getInstance();
-        mc.getItemRenderer().renderStatic(stack, ItemDisplayContext.GROUND, light, overlay, ms, buffer, mc.level, 0);
+    protected void renderItem(PoseStack ms, SubmitNodeCollector buffer, int light, int overlay, ItemStack stack) {
+        renderItem(stack, ItemDisplayContext.GROUND, ms, buffer, light, overlay);
     }
 }

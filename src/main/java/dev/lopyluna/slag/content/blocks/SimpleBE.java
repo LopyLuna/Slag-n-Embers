@@ -2,7 +2,7 @@ package dev.lopyluna.slag.content.blocks;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.ItemInteractionResult;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -17,7 +17,7 @@ import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
-@SuppressWarnings("unused")
+@SuppressWarnings({"unused", "NullableProblems"})
 public abstract class SimpleBE extends BlockEntity {
     public static List<SimpleBE> regCap = new ArrayList<>();
     private int maxTicker = 5;
@@ -34,12 +34,18 @@ public abstract class SimpleBE extends BlockEntity {
 
     }
 
+    @Override
+    public void preRemoveSideEffects(BlockPos pos, BlockState state) {
+        super.preRemoveSideEffects(pos, state);
+        if (level != null) onRemoved(level, pos, state);
+    }
+
     public void onPlaced(@Nullable LivingEntity placer, ItemStack stack, Level level, BlockPos pos, BlockState state) {
 
     }
 
-    public ItemInteractionResult useItem(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
-        return ItemInteractionResult.FAIL;
+    public InteractionResult useItem(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
+        return InteractionResult.FAIL;
     }
 
     public void tick(Level level, BlockPos pos, BlockState state) {

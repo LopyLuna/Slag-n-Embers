@@ -9,9 +9,7 @@
     }
   ],
   "type": "slag:melting",
-  "ingredient": {
-    "tag": "c:clumps/gold"
-  },
+  "ingredient": "#c:clumps/gold",
   "ingredients": [],
   "result": [
     {

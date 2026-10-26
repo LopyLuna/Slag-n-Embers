@@ -1,8 +1,6 @@
 {
   "id": "slag:deep_alloy",
-  "repair_ingredient": {
-    "tag": "c:ingots/deep_alloy"
-  },
+  "repair_ingredient": "#c:ingots/deep_alloy",
   "sort_order": 140,
   "texture": "shiny",
   "traits": [

@@ -9,9 +9,7 @@
     }
   ],
   "type": "slag:melting",
-  "ingredient": {
-    "tag": "c:ingots/osmium"
-  },
+  "ingredient": "#c:ingots/osmium",
   "ingredients": [],
   "result": [
     {

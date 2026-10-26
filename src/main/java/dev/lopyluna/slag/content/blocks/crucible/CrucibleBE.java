@@ -1,6 +1,7 @@
 package dev.lopyluna.slag.content.blocks.crucible;
 
 import dev.lopyluna.slag.config.SlagServerConfigs;
+import dev.lopyluna.slag.content.blocks.multiblock.ConnectivityHandler;
 import dev.lopyluna.slag.content.blocks.multiblock.FluidMultiBlockEntity;
 import dev.lopyluna.slag.content.blocks.multiblock.MultiQueue;
 import dev.lopyluna.slag.content.blocks.multiblock.MultiQueue.Area;
@@ -25,7 +26,7 @@ import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
 import net.minecraft.world.phys.AABB;
-import net.neoforged.neoforge.client.model.data.ModelData;
+import net.neoforged.neoforge.model.data.ModelData;
 import net.neoforged.neoforge.fluids.FluidStack;
 import javax.annotation.Nonnull;
 
@@ -62,9 +63,16 @@ public class CrucibleBE extends FluidMultiBlockEntity {
     }
 
     @Override
+    public void preRemoveSideEffects(BlockPos pos, BlockState state) {
+        if (level == null) return;
+        level.removeBlockEntity(pos);
+        ConnectivityHandler.splitMulti(this);
+    }
+
+    @Override
     public void tick() {
         super.tick();
-        if (!isController || level == null || level.isClientSide) return;
+        if (!isController || level == null || level.isClientSide()) return;
         if (!freezing.isEmpty()) freezeEntities();
         if (!updateHeat) return;
         updateHeat = false;
@@ -81,7 +89,7 @@ public class CrucibleBE extends FluidMultiBlockEntity {
     public void lazyTick() {
         super.lazyTick();
         if (level == null) return;
-        if (level.isClientSide) return;
+        if (level.isClientSide()) return;
         if (!isController) return;
         near = playerNear();
         var sealed = sealed();
@@ -158,7 +166,7 @@ public class CrucibleBE extends FluidMultiBlockEntity {
         for (var x = 0; x < widthX; x++) for (var z = 0; z < widthZ; z++) {
             var pos = worldPosition.offset(x, height, z);
             if (!level.isLoaded(pos)) return null;
-            if (!level.getBlockState(pos).isSolidRender(level, pos)) return false;
+            if (!level.getBlockState(pos).isSolidRender()) return false;
         }
         return true;
     }
@@ -173,7 +181,7 @@ public class CrucibleBE extends FluidMultiBlockEntity {
 
     @Override
     public void updateLuminosity() {
-        if (level == null || level.isClientSide || !isController || isRemoved()) return;
+        if (level == null || level.isClientSide() || !isController || isRemoved()) return;
         var fresh = lights.length != height;
         if (fresh) lights = new int[height];
         if (fresh && relight) {
@@ -286,7 +294,7 @@ public class CrucibleBE extends FluidMultiBlockEntity {
         updateFluidBoxes = true;
         updateHeat = true;
         super.formed(fresh, absorbed);
-        if (level != null && !level.isClientSide && (glowing() || fresh.isEmpty() || !absorbed.isEmpty())) MultiQueue.settle(this, List.of(), List.of(Sweep.full(area())));
+        if (level != null && !level.isClientSide() && (glowing() || fresh.isEmpty() || !absorbed.isEmpty())) MultiQueue.settle(this, List.of(), List.of(Sweep.full(area())));
     }
 
     @Override
@@ -318,7 +326,7 @@ public class CrucibleBE extends FluidMultiBlockEntity {
         var old = getBlockState();
         super.setBlockState(state);
         if (level == null) return;
-        if (level.isClientSide && hidden(old) != hidden(state)) requestModelDataUpdate();
+        if (level.isClientSide() && hidden(old) != hidden(state)) requestModelDataUpdate();
         if (old == state || old.getLightEmission() <= 0 || state.getLightEmission() <= 0) return;
         var light = level.getChunkSource().getLightEngine();
         for (var direction : Direction.values()) light.checkBlock(worldPosition.relative(direction));
@@ -359,7 +367,7 @@ public class CrucibleBE extends FluidMultiBlockEntity {
         var was = this.window;
         super.setWindows(window);
         if (level == null) return;
-        if (level.isClientSide) {
+        if (level.isClientSide()) {
             if (was && !window) closed = level.getGameTime();
             predictWindows();
             return;
@@ -392,7 +400,7 @@ public class CrucibleBE extends FluidMultiBlockEntity {
         var was = window;
         super.read(compound, registries, clientPacket);
         if (clientPacket && was && !window && level != null) closed = level.getGameTime();
-        hasCover = compound.getBoolean("hasCover");
+        hasCover = compound.getBooleanOr("hasCover", false);
         updateFluidBoxes = true;
         heat = Heat.read(compound);
         if (!clientPacket) {

@@ -11,7 +11,7 @@
   "type": "slag:basin_casting",
   "ingredient": {
     "amount": 648,
-    "tag": "c:molten/lead"
+    "ingredient": "#c:molten/lead"
   },
   "result": {
     "tag": "c:storage_blocks/lead"

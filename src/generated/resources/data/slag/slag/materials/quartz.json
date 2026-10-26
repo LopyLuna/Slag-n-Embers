@@ -1,9 +1,7 @@
 {
   "id": "slag:quartz",
   "molten_fluid": "slag:molten_quartz",
-  "repair_ingredient": {
-    "tag": "c:gems/quartz"
-  },
+  "repair_ingredient": "#c:gems/quartz",
   "sort_order": 150,
   "texture": "metal",
   "traits": [

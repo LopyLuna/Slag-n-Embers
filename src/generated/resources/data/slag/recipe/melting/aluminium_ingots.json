@@ -9,9 +9,7 @@
     }
   ],
   "type": "slag:melting",
-  "ingredient": {
-    "tag": "c:ingots/aluminium"
-  },
+  "ingredient": "#c:ingots/aluminium",
   "ingredients": [],
   "result": [
     {

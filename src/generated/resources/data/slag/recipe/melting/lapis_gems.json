@@ -1,8 +1,6 @@
 {
   "type": "slag:melting",
-  "ingredient": {
-    "tag": "c:gems/lapis"
-  },
+  "ingredient": "#c:gems/lapis",
   "ingredients": [],
   "result": [
     {

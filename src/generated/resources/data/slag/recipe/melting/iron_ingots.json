@@ -1,8 +1,6 @@
 {
   "type": "slag:melting",
-  "ingredient": {
-    "tag": "c:ingots/iron"
-  },
+  "ingredient": "#c:ingots/iron",
   "ingredients": [],
   "result": [
     {

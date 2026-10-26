@@ -1,9 +1,6 @@
 package dev.lopyluna.slag.content.jei.category;
 
-import com.mojang.blaze3d.platform.Lighting;
-import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.math.Axis;
-import dev.lopyluna.slag.client.FluidRenderHelper;
+import dev.lopyluna.slag.client.BlockPreviewRenderer;
 import dev.lopyluna.slag.content.AllUtils;
 import dev.lopyluna.slag.content.jei.EmbersRecipesJEI;
 import dev.lopyluna.slag.content.temperature.Temperatures;
@@ -18,18 +15,13 @@ import mezz.jei.api.recipe.IFocusGroup;
 import mezz.jei.api.recipe.RecipeIngredientRole;
 import mezz.jei.api.recipe.category.AbstractRecipeCategory;
 import net.minecraft.ChatFormatting;
-import net.minecraft.Util;
+import net.minecraft.util.Util;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.renderer.LightTexture;
-import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.texture.OverlayTexture;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.tags.TagKey;
-import net.minecraft.util.RandomSource;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Block;
@@ -38,7 +30,6 @@ import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.Property;
-import net.neoforged.neoforge.client.model.data.ModelData;
 
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
@@ -47,12 +38,7 @@ import java.util.*;
 @ParametersAreNonnullByDefault
 public class HeatingCategory extends AbstractRecipeCategory<HeatingCategory.Heater> {
     private static final int WIDTH = 150, HEIGHT = 40, BLOCK_X = 16, BLOCK_Y = 20, BLOCK_SIZE = 32, TEXT_X = 36, LINE = 10, ROWS = 4, CYCLE = 1500;
-    private static final int GRAY = 0xAAAAAA, HIGHLIGHT = 0x50FFFFFF;
-    private static final float BLOCK_SCALE = 20f, FLUID_HEIGHT = 8f / 9f;
-    private static final float[] SHADES = {0.5f, 1f, 0.8f, 0.8f, 0.6f, 0.6f};
-    private static final int[] LIGHTS = {LightTexture.FULL_BRIGHT, LightTexture.FULL_BRIGHT, LightTexture.FULL_BRIGHT, LightTexture.FULL_BRIGHT};
-    private static final Direction[] SIDES = {Direction.DOWN, Direction.UP, Direction.NORTH, Direction.SOUTH, Direction.WEST, Direction.EAST, null};
-    private static final long SEED = 42L;
+    private static final int GRAY = 0xFFAAAAAA, HIGHLIGHT = 0x50FFFFFF;
     private static final Map<BlockState, Optional<BlockEntity>> ENTITIES = new HashMap<>();
 
     public record Heater(List<Block> blocks, @Nullable TagKey<Block> tag, List<ItemStack> stacks, List<Temperatures.Entry> entries, List<List<BlockState>> states, int hottest, String name) {}
@@ -126,7 +112,7 @@ public class HeatingCategory extends AbstractRecipeCategory<HeatingCategory.Heat
     }
 
     @Override
-    public void draw(Heater heater, IRecipeSlotsView view, GuiGraphics g, double mouseX, double mouseY) {
+    public void draw(Heater heater, IRecipeSlotsView view, GuiGraphicsExtractor g, double mouseX, double mouseY) {
         var font = Minecraft.getInstance().font;
         var entries = heater.entries();
         var shown = shown(entries.size());
@@ -140,9 +126,9 @@ public class HeatingCategory extends AbstractRecipeCategory<HeatingCategory.Heat
             var text = line(entries.get(i));
             var y = top + i * LINE;
             if (i == active && (shown > 1 || hovered == 0)) g.fill(TEXT_X - 2, y - 1, TEXT_X + font.width(text) + 1, y + LINE - 1, HIGHLIGHT);
-            g.drawString(font, text, TEXT_X, y, GRAY, true);
+            g.text(font, text, TEXT_X, y, GRAY, true);
         }
-        if (entries.size() > shown) g.drawString(font, "+" + (entries.size() - shown) + "...", TEXT_X, top + shown * LINE, GRAY, true);
+        if (entries.size() > shown) g.text(font, "+" + (entries.size() - shown) + "...", TEXT_X, top + shown * LINE, GRAY, true);
     }
 
     @Override
@@ -172,56 +158,12 @@ public class HeatingCategory extends AbstractRecipeCategory<HeatingCategory.Heat
         return row >= 0 && row < shown(count) ? row : -1;
     }
 
-    private static void renderBlock(GuiGraphics g, BlockState state) {
-        var pose = g.pose();
-        var buffer = g.bufferSource();
+    private static void renderBlock(GuiGraphicsExtractor g, BlockState state) {
         var entity = entity(state);
-        g.flush();
-        pose.pushPose();
-        pose.translate(BLOCK_X, BLOCK_Y, 100);
-        pose.scale(BLOCK_SCALE, -BLOCK_SCALE, BLOCK_SCALE);
-        pose.mulPose(Axis.XP.rotationDegrees(22.5f));
-        pose.mulPose(Axis.YP.rotationDegrees(146.25f));
-        pose.translate(-0.5f, -0.5f, -0.5f);
-        if (state.getRenderShape() == RenderShape.MODEL) renderModel(pose, buffer, state, entity == null ? ModelData.EMPTY : entity.getModelData());
-        var fluid = state.getFluidState();
-        if (!fluid.isEmpty()) FluidRenderHelper.renderFluidBlock(FluidRenderHelper.toStack(fluid), FLUID_HEIGHT, buffer, pose, LightTexture.FULL_BRIGHT);
-        Lighting.setupFor3DItems();
-        if (entity != null) renderEntity(pose, buffer, state, entity);
-        g.flush();
-        pose.popPose();
-    }
-
-    private static void renderModel(PoseStack pose, MultiBufferSource buffer, BlockState state, ModelData data) {
         var minecraft = Minecraft.getInstance();
-        var model = minecraft.getBlockRenderer().getBlockModel(state);
-        var colors = minecraft.getBlockColors();
-        var random = RandomSource.create();
-        var last = pose.last();
-        random.setSeed(SEED);
-        for (var type : model.getRenderTypes(state, random, data)) {
-            var consumer = buffer.getBuffer(type);
-            for (var side : SIDES) {
-                random.setSeed(SEED);
-                for (var quad : model.getQuads(state, side, random, data, type)) {
-                    var shade = quad.isShade() ? SHADES[quad.getDirection().ordinal()] : 1f;
-                    var color = quad.isTinted() ? colors.getColor(state, minecraft.level, BlockPos.ZERO, quad.getTintIndex()) : -1;
-                    var red = color == -1 ? 1f : (color >> 16 & 255) / 255f;
-                    var green = color == -1 ? 1f : (color >> 8 & 255) / 255f;
-                    var blue = color == -1 ? 1f : (color & 255) / 255f;
-                    consumer.putBulkData(last, quad, new float[]{shade, shade, shade, shade}, red, green, blue, 1f, LIGHTS, OverlayTexture.NO_OVERLAY, false);
-                }
-            }
-        }
-    }
-
-    private static void renderEntity(PoseStack pose, MultiBufferSource buffer, BlockState state, BlockEntity entity) {
-        var minecraft = Minecraft.getInstance();
-        if (minecraft.level != null) entity.setLevel(minecraft.level);
-        var renderer = minecraft.getBlockEntityRenderDispatcher().getRenderer(entity);
-        if (renderer == null) return;
+        if (entity != null && minecraft.level != null) entity.setLevel(minecraft.level);
         try {
-            renderer.render(entity, 0f, pose, buffer, LightTexture.FULL_BRIGHT, OverlayTexture.NO_OVERLAY);
+            BlockPreviewRenderer.submit(g, state, entity, BLOCK_X - BLOCK_SIZE / 2, BLOCK_Y - BLOCK_SIZE / 2, BLOCK_SIZE);
         } catch (Exception e) {
             ENTITIES.put(state, Optional.empty());
         }

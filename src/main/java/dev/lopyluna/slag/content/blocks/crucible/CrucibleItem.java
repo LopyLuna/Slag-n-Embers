@@ -5,7 +5,6 @@ import dev.lopyluna.slag.content.blocks.multiblock.ConnectivityHandler;
 import dev.lopyluna.slag.content.blocks.multiblock.FluidMultiBlockEntity;
 import dev.lopyluna.slag.content.blocks.multiblock.MultiQueue;
 import dev.lopyluna.slag.content.blocks.multiblock.MultiQueue.Sweep;
-import dev.lopyluna.slag.content.blocks.smart.SmartBlock;
 import dev.lopyluna.slag.content.utils.NBTHelper;
 import dev.lopyluna.slag.register.AllBETypes;
 import dev.lopyluna.slag.register.AllTags;
@@ -14,17 +13,15 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.Tag;
 import net.minecraft.world.Containers;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.component.CustomData;
+import net.minecraft.world.item.component.TypedEntityData;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.shapes.CollisionContext;
@@ -56,13 +53,13 @@ public class CrucibleItem extends BlockItem {
             var stack = ctx.getItemInHand();
             var template = stack.copyWithCount(1);
             if (!player.isCreative()) stack.shrink(rest.size());
-            if (level.isClientSide) return result;
+            if (level.isClientSide()) return result;
             Placement.hold(level, placed);
             MultiQueue.of(level).add(new Placement(level, player, this, template, ctx.getClickedFace(), pos, placed, rest));
             return result;
         }
         if (!(level.getBlockEntity(pos) instanceof CrucibleBE be)) return result;
-        if (level.isClientSide) predict(level, be, placed);
+        if (level.isClientSide()) predict(level, be, placed);
         else if (level.captureBlockSnapshots) be.placed = true;
         else ConnectivityHandler.formMulti(be);
         return result;
@@ -99,7 +96,7 @@ public class CrucibleItem extends BlockItem {
         if (server == null) return false;
         var data = stack.get(DataComponents.BLOCK_ENTITY_DATA);
         if (data != null) {
-            CompoundTag nbt = data.copyTag();
+            CompoundTag nbt = data.copyTagWithoutId();
             nbt.remove("Luminosity");
             nbt.remove("Size");
             nbt.remove("Height");
@@ -110,7 +107,7 @@ public class CrucibleItem extends BlockItem {
             nbt.remove("LastKnownPos");
             if (nbt.contains("TankContent")) {
                 var provider = server.registryAccess();
-                var fluids = NBTHelper.readFluidList(nbt.getCompound("TankContent").getList("Fluids", Tag.TAG_COMPOUND), provider);
+                var fluids = NBTHelper.readFluidList(nbt.getCompoundOrEmpty("TankContent").getListOrEmpty("Fluids"), provider);
 
                 int totalAmount = fluids.stream().mapToInt(FluidStack::getAmount).sum();
                 int baseCapacity = CrucibleBE.getCapacityMultiplier();
@@ -130,8 +127,7 @@ public class CrucibleItem extends BlockItem {
                 tag.put("Fluids", NBTHelper.writeFluidList(fluids, provider));
                 nbt.put("TankContent", tag);
             }
-            BlockEntity.addEntityType(nbt, ((SmartBlock<?>) this.getBlock()).getBlockEntityType());
-            stack.set(DataComponents.BLOCK_ENTITY_DATA, CustomData.of(nbt));
+            stack.set(DataComponents.BLOCK_ENTITY_DATA, TypedEntityData.of(data.type(), nbt));
         }
         return super.updateCustomBlockEntityTag(pos, level, player, stack, state);
     }

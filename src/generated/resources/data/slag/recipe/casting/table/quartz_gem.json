@@ -3,10 +3,9 @@
   "cast": "slag:cast/gems",
   "ingredient": {
     "amount": 72,
-    "tag": "c:molten/quartz"
+    "ingredient": "#c:molten/quartz"
   },
   "result": {
-    "count": 1,
     "id": "minecraft:quartz"
   }
 }

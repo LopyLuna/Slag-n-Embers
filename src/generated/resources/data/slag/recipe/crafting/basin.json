@@ -2,9 +2,7 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "A": {
-      "tag": "c:ingots/deep_alloy"
-    }
+    "A": "#c:ingots/deep_alloy"
   },
   "pattern": [
     "A A",
@@ -12,7 +10,6 @@
     "AAA"
   ],
   "result": {
-    "count": 1,
     "id": "slag:basin"
   }
 }

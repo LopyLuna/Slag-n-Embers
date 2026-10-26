@@ -2,7 +2,9 @@ package dev.lopyluna.slag.content.utils;
 
 import com.mojang.serialization.MapCodec;
 import dev.lopyluna.slag.SlagEmbers;
+import net.minecraft.commands.synchronization.ArgumentTypeInfo;
 import net.minecraft.core.particles.ParticleType;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.damagesource.DamageType;
 import net.minecraft.world.effect.MobEffect;
@@ -20,10 +22,10 @@ import static dev.lopyluna.slag.SlagEmbers.LOGGER;
 import static dev.lopyluna.slag.SlagEmbers.MOD_ID;
 import static net.minecraft.core.registries.Registries.*;
 
-@SuppressWarnings({"unused", "removal"})
+@SuppressWarnings({"unused"})
 public record EmbersRegistration(String modID) {
 
-    public static final DeferredRegister.DataComponents DATA_COMPONENTS = DeferredRegister.createDataComponents(MOD_ID);
+    public static final DeferredRegister.DataComponents DATA_COMPONENTS = DeferredRegister.createDataComponents(Registries.DATA_COMPONENT_TYPE, MOD_ID);
     public static final DeferredRegister<DamageType> DAMAGES = DeferredRegister.create(DAMAGE_TYPE, MOD_ID);
     public static final DeferredRegister<MobEffect> MOB_EFFECTS = DeferredRegister.create(MOB_EFFECT, MOD_ID);
     public static final DeferredRegister<ParticleType<?>> PARTICLES = DeferredRegister.create(PARTICLE_TYPE, MOD_ID);
@@ -34,6 +36,7 @@ public record EmbersRegistration(String modID) {
     public static final DeferredRegister<CreativeModeTab> CREATIVE_MODE_TABS = DeferredRegister.create(CREATIVE_MODE_TAB, MOD_ID);
     public static final DeferredRegister<Level> DIMENSIONS = DeferredRegister.create(DIMENSION, MOD_ID);
     public static final DeferredRegister<MapCodec<? extends ICondition>> CONDITIONS = DeferredRegister.create(NeoForgeRegistries.Keys.CONDITION_CODECS, MOD_ID);
+    public static final DeferredRegister<ArgumentTypeInfo<?, ?>> ARGUMENTS = DeferredRegister.create(COMMAND_ARGUMENT_TYPE, MOD_ID);
 
     public DeferredRegister.DataComponents components() {return DATA_COMPONENTS;}
     public DeferredRegister<CreativeModeTab> creativeTab() {return CREATIVE_MODE_TABS;}
@@ -46,6 +49,7 @@ public record EmbersRegistration(String modID) {
     public DeferredRegister<SoundEvent> sounds() {return SOUNDS;}
     public DeferredRegister<Level> dimensions() {return DIMENSIONS;}
     public DeferredRegister<MapCodec<? extends ICondition>> conditions() {return CONDITIONS;}
+    public DeferredRegister<ArgumentTypeInfo<?, ?>> arguments() {return ARGUMENTS;}
 
     public void register(IEventBus bus) {
         LOGGER.info("Registering " + SlagEmbers.NAME + " Data Components...");
@@ -70,6 +74,8 @@ public record EmbersRegistration(String modID) {
         DIMENSIONS.register(bus);
         LOGGER.info("Registering " + SlagEmbers.NAME + " Conditions...");
         CONDITIONS.register(bus);
+        LOGGER.info("Registering " + SlagEmbers.NAME + " Arguments...");
+        ARGUMENTS.register(bus);
         LOGGER.info("Registering " + SlagEmbers.NAME + " Done");
     }
 }

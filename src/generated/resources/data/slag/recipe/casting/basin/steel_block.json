@@ -11,7 +11,7 @@
   "type": "slag:basin_casting",
   "ingredient": {
     "amount": 648,
-    "tag": "c:molten/steel"
+    "ingredient": "#c:molten/steel"
   },
   "result": {
     "tag": "c:storage_blocks/steel"

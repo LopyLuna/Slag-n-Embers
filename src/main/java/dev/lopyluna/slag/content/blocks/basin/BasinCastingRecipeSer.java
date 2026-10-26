@@ -17,8 +17,8 @@ import javax.annotation.Nonnull;
 import java.util.Objects;
 import java.util.Optional;
 
-@SuppressWarnings("OptionalUsedAsFieldOrParameterType")
-public class BasinCastingRecipeSer implements RecipeSerializer<BasinCastingRecipe> {
+@SuppressWarnings({"OptionalUsedAsFieldOrParameterType", "unused"})
+public class BasinCastingRecipeSer {
     private static final StreamCodec<RegistryFriendlyByteBuf, Optional<CastItem>> ITEM_CODEC = ByteBufCodecs.optional(CastItem.STREAM_CODEC);
     private final BasinCastingRecipe.Factory factory;
     private final MapCodec<BasinCastingRecipe> codec;
@@ -28,7 +28,7 @@ public class BasinCastingRecipeSer implements RecipeSerializer<BasinCastingRecip
         this.factory = factory;
         this.codec = RecordCodecBuilder.mapCodec((instance) -> {
             var recipe = instance.group(
-                    Codec.STRING.optionalFieldOf("group", "").forGetter(Recipe::getGroup),
+                    Codec.STRING.optionalFieldOf("group", "").forGetter(Recipe::group),
                     FluidInput.CODEC.fieldOf("ingredient").forGetter(BasinCastingRecipe::getInput),
                     CastItem.CODEC.optionalFieldOf("cast_item").forGetter(BasinCastingRecipe::getItem),
                     Codec.INT.optionalFieldOf("duration", 0).forGetter(BasinCastingRecipe::getDuration),
@@ -39,11 +39,14 @@ public class BasinCastingRecipeSer implements RecipeSerializer<BasinCastingRecip
         });
         this.streamCodec = StreamCodec.of(this::toNetwork, this::fromNetwork);
     }
-    @Override public @Nonnull MapCodec<BasinCastingRecipe> codec() {
+    public @Nonnull MapCodec<BasinCastingRecipe> codec() {
         return codec;
     }
-    @Override public @Nonnull StreamCodec<RegistryFriendlyByteBuf, BasinCastingRecipe> streamCodec() {
+    public @Nonnull StreamCodec<RegistryFriendlyByteBuf, BasinCastingRecipe> streamCodec() {
         return streamCodec;
+    }
+    public RecipeSerializer<BasinCastingRecipe> serializer() {
+        return new RecipeSerializer<>(codec, streamCodec);
     }
     @Override public String toString() {
         return "basin_casting";
@@ -61,7 +64,7 @@ public class BasinCastingRecipeSer implements RecipeSerializer<BasinCastingRecip
     }
 
     private void toNetwork(RegistryFriendlyByteBuf buffer, BasinCastingRecipe recipe) {
-        buffer.writeUtf(recipe.getGroup());
+        buffer.writeUtf(recipe.group());
         SizedFluidIngredient.STREAM_CODEC.encode(buffer, recipe.getInput());
         ITEM_CODEC.encode(buffer, recipe.getItem());
         buffer.writeVarInt(recipe.getDuration());

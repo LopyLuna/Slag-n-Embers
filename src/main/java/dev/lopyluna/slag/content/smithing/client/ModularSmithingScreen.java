@@ -1,22 +1,21 @@
 package dev.lopyluna.slag.content.smithing.client;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import dev.lopyluna.slag.SlagEmbers;
-import dev.lopyluna.slag.client.ClientUtils;
 import dev.lopyluna.slag.content.items.modular.ModularItem;
 import dev.lopyluna.slag.content.smithing.ModularSmithingMenu;
 import dev.lopyluna.slag.register.AllLangs;
 import net.minecraft.ChatFormatting;
-import net.minecraft.Util;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.input.MouseButtonEvent;
+import net.minecraft.client.renderer.RenderPipelines;
+import net.minecraft.util.Util;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
-import net.minecraft.client.gui.screens.inventory.InventoryScreen;
 import net.minecraft.client.renderer.Rect2i;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.sounds.SoundEvents;
-import net.minecraft.util.FastColor;
+import net.minecraft.util.ARGB;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -27,7 +26,6 @@ import net.minecraft.world.item.ItemStack;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -35,12 +33,12 @@ import java.util.List;
 
 @SuppressWarnings({"NullableProblems", "SuspiciousNameCombination"})
 public class ModularSmithingScreen extends AbstractContainerScreen<ModularSmithingMenu> {
-    private static final ResourceLocation TEXTURE = SlagEmbers.loc("textures/gui/modular_smithing.png");
-    private static final ResourceLocation PANEL = ResourceLocation.withDefaultNamespace("container/inventory/effect_background_small");
+    private static final Identifier TEXTURE = SlagEmbers.loc("textures/gui/modular_smithing.png");
+    private static final Identifier PANEL = Identifier.withDefaultNamespace("container/inventory/effect_background");
     private static final Vector3f STAND_TRANSLATION = new Vector3f();
     private static final Quaternionf STAND_ANGLE = new Quaternionf().rotationXYZ(0.43633232F, 0.0F, (float) Math.PI);
     private static final int LEFT_W = 142, LEFT_H = 166, RIGHT_W = 100, RIGHT_H = 166, GAP = 4, MARGIN = 6, LINE = 10, ROWS = 5;
-    private static final float ORBIT_X = 18f, ORBIT_Y = 6f, ORBIT_SCALE = 0.15f, ORBIT_SPEED = 0.03f, HOVER_SCALE = 0.2f, GLOW = 1.5f;
+    private static final float ORBIT_X = 18f, ORBIT_Y = 6f, ORBIT_SCALE = 0.15f, ORBIT_SPEED = 0.03f, HOVER_SCALE = 0.2f;
 
     private final List<Line> lines = new ArrayList<>();
     private final List<Part> parts = new ArrayList<>();
@@ -57,9 +55,7 @@ public class ModularSmithingScreen extends AbstractContainerScreen<ModularSmithi
     private record Part(int index, ItemStack stack, float x, float y, float scale) {}
 
     public ModularSmithingScreen(ModularSmithingMenu menu, Inventory inventory, Component title) {
-        super(menu, inventory, title);
-        imageWidth = 176;
-        imageHeight = 166;
+        super(menu, inventory, title, 176, 166);
         titleLabelX = 44;
         titleLabelY = 15;
     }
@@ -67,7 +63,6 @@ public class ModularSmithingScreen extends AbstractContainerScreen<ModularSmithi
     @Override
     protected void init() {
         super.init();
-        if (minecraft == null) return;
         if (minecraft.level != null) {
             stand = new ArmorStand(minecraft.level, 0, 0, 0);
             stand.setNoBasePlate(true);
@@ -152,7 +147,7 @@ public class ModularSmithingScreen extends AbstractContainerScreen<ModularSmithi
         }
 
         add(AllLangs.tr("modular_parts").append(":").withStyle(ChatFormatting.GRAY));
-        for (var part : parts.itemsCopy()) add(Component.literal(" ").append(part.getHoverName()).append(part.getCount() == 1 ? "" : " " + part.getCount() + "x").withColor(FastColor.ARGB32.color(115, 115, 115)));
+        for (var part : parts.itemsCopy()) add(Component.literal(" ").append(part.getHoverName()).append(part.getCount() == 1 ? "" : " " + part.getCount() + "x").withColor(ARGB.color(115, 115, 115)));
     }
 
     private void stat(List<Line> stats, String key, double value, String display) {
@@ -187,15 +182,16 @@ public class ModularSmithingScreen extends AbstractContainerScreen<ModularSmithi
     }
 
     @Override
-    protected void renderBg(GuiGraphics g, float partial, int mouseX, int mouseY) {
-        g.blit(TEXTURE, leftPos, topPos, 0, 0, imageWidth, imageHeight);
+    public void extractBackground(GuiGraphicsExtractor g, int mouseX, int mouseY, float partial) {
+        super.extractBackground(g, mouseX, mouseY, partial);
+        g.blit(RenderPipelines.GUI_TEXTURED, TEXTURE, leftPos, topPos, 0, 0, imageWidth, imageHeight, 256, 256);
 
-        ClientUtils.panel(g, PANEL, rightX(), topPos, RIGHT_W, RIGHT_H);
+        g.blitSprite(RenderPipelines.GUI_TEXTURED, PANEL, rightX(), topPos, RIGHT_W, RIGHT_H);
         renderList(g, mouseX, mouseY);
-        if (stand != null) InventoryScreen.renderEntityInInventory(g, rightX() + RIGHT_W / 2f, topPos + RIGHT_H - 18f, 25f, STAND_TRANSLATION, STAND_ANGLE, null, stand);
+        if (stand != null) renderStand(g);
 
         if (!lines.isEmpty()) {
-            ClientUtils.panel(g, PANEL, leftX(), topPos, LEFT_W, LEFT_H);
+            g.blitSprite(RenderPipelines.GUI_TEXTURED, PANEL, leftX(), topPos, LEFT_W, LEFT_H);
             renderPanel(g);
         }
 
@@ -233,19 +229,25 @@ public class ModularSmithingScreen extends AbstractContainerScreen<ModularSmithi
         parts.sort(Comparator.comparingDouble((Part part) -> part.index() == picked ? Double.MAX_VALUE : part.y()));
     }
 
-    private void renderParts(GuiGraphics g, @Nullable Part hovered) {
+    private void renderStand(GuiGraphicsExtractor g) {
+        if (stand == null) return;
+        var state = minecraft.getEntityRenderDispatcher().getRenderer(stand).createRenderState(stand, 1f);
+        state.shadowPieces.clear();
+        var feet = topPos + RIGHT_H - 18;
+        g.entity(state, 25f, STAND_TRANSLATION, STAND_ANGLE, null, rightX(), topPos, rightX() + RIGHT_W, feet * 2 - topPos);
+    }
+
+    private void renderParts(GuiGraphicsExtractor g, @Nullable Part hovered) {
         var pose = g.pose();
         for (var part : parts) {
             var selected = part.index() == picked;
             var scale = part.scale() * (part == hovered || selected ? 1 + HOVER_SCALE : 1);
-            pose.pushPose();
-            pose.translate(part.x(), part.y(), selected ? 32 : 0);
-            pose.scale(scale, scale, 1);
-            pose.translate(-8, -8, 0);
-            if (selected) RenderSystem.setShaderColor(GLOW, GLOW, GLOW, 1f);
-            g.renderItem(part.stack(), 0, 0);
-            if (selected) RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
-            pose.popPose();
+            pose.pushMatrix();
+            pose.translate(part.x(), part.y());
+            pose.scale(scale, scale);
+            pose.translate(-8, -8);
+            g.item(part.stack(), 0, 0);
+            pose.popMatrix();
         }
     }
 
@@ -258,15 +260,15 @@ public class ModularSmithingScreen extends AbstractContainerScreen<ModularSmithi
         return null;
     }
 
-    private void renderList(GuiGraphics g, int mouseX, int mouseY) {
+    private void renderList(GuiGraphicsExtractor g, int mouseX, int mouseY) {
         var modulars = menu.constructible();
         var x = rightX();
         if (modulars.isEmpty()) {
             var split = font.split(AllLangs.tr("modular_tool_waiting"), RIGHT_W - MARGIN * 2);
-            for (var i = 0; i < split.size(); i++) g.drawString(font, split.get(i), x + MARGIN, topPos + MARGIN + i * LINE, 0xA0A0A0, false);
+            for (var i = 0; i < split.size(); i++) g.text(font, split.get(i), x + MARGIN, topPos + MARGIN + i * LINE, 0xFFA0A0A0, false);
             return;
         }
-        g.drawString(font, AllLangs.tr("modular_possible").append(":"), x + MARGIN, topPos + MARGIN, 0xFFFFFF, false);
+        g.text(font, AllLangs.tr("modular_possible").append(":"), x + MARGIN, topPos + MARGIN, 0xFFFFFFFF, false);
         listScroll = Mth.clamp(listScroll, 0, Math.max(0, modulars.size() - ROWS));
         var bar = modulars.size() > ROWS;
         var width = RIGHT_W - MARGIN * 2 - (bar ? 4 : 0);
@@ -277,7 +279,7 @@ public class ModularSmithingScreen extends AbstractContainerScreen<ModularSmithi
             var hovered = mouseX >= x + MARGIN - 1 && mouseX < x + MARGIN + width + 1 && mouseY >= y - 1 && mouseY < y + LINE - 1;
             if (hovered && index != selected) g.fill(x + MARGIN - 1, y - 1, x + MARGIN + width + 1, y + LINE - 1, 0x30FFFFFF);
             var name = modulars.get(index).getName();
-            g.drawString(font, font.split(name, width).getFirst(), x + MARGIN, y, index == selected ? 0xFFFF55 : 0xC0C0C0, false);
+            g.text(font, font.split(name, width).getFirst(), x + MARGIN, y, index == selected ? 0xFFFFFF55 : 0xFFC0C0C0, false);
         }
         if (!bar) return;
         var top = listY();
@@ -297,14 +299,14 @@ public class ModularSmithingScreen extends AbstractContainerScreen<ModularSmithi
         return row + listScroll;
     }
 
-    private void renderPanel(GuiGraphics g) {
+    private void renderPanel(GuiGraphicsExtractor g) {
         var x = leftX();
         var top = topPos + MARGIN;
         var height = LEFT_H - MARGIN * 2;
         var content = lines.size() * LINE;
         scroll = Mth.clamp(scroll, 0, Math.max(0, content - height));
         g.enableScissor(x + MARGIN, top, x + LEFT_W - MARGIN, top + height);
-        for (var i = 0; i < lines.size(); i++) g.drawString(font, lines.get(i).text(), x + MARGIN + lines.get(i).indent(), top + i * LINE - scroll, 0xFFFFFF, false);
+        for (var i = 0; i < lines.size(); i++) g.text(font, lines.get(i).text(), x + MARGIN + lines.get(i).indent(), top + i * LINE - scroll, 0xFFFFFFFF, false);
         g.disableScissor();
         if (content <= height) return;
         var barX = x + LEFT_W - MARGIN;
@@ -319,19 +321,22 @@ public class ModularSmithingScreen extends AbstractContainerScreen<ModularSmithi
     }
 
     private void press(int id, boolean click) {
-        if (minecraft == null || minecraft.player == null || minecraft.gameMode == null) return;
+        if (minecraft.player == null || minecraft.gameMode == null) return;
         if (!menu.clickMenuButton(minecraft.player, id)) return;
         minecraft.gameMode.handleInventoryButtonClick(menu.containerId, id);
         if (click) minecraft.getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F));
     }
 
     @Override
-    public boolean mouseClicked(double mouseX, double mouseY, int button) {
+    public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
+        var mouseX = event.x();
+        var mouseY = event.y();
+        var button = event.button();
         if (button == 0) {
             var part = partAt(mouseX, mouseY);
             if (part != null) {
                 picked = part.index() == picked ? -1 : part.index();
-                if (minecraft != null) minecraft.getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F));
+                minecraft.getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F));
                 return true;
             }
             var index = listAt(mouseX, mouseY);
@@ -350,7 +355,7 @@ public class ModularSmithingScreen extends AbstractContainerScreen<ModularSmithi
                 return true;
             }
         }
-        return super.mouseClicked(mouseX, mouseY, button);
+        return super.mouseClicked(event, doubleClick);
     }
 
     @Override
@@ -376,14 +381,17 @@ public class ModularSmithingScreen extends AbstractContainerScreen<ModularSmithi
     }
 
     @Override
-    protected void renderSlot(GuiGraphics g, Slot slot) {
-        if (slot == menu.getSlot(ModularSmithingMenu.BLUEPRINT)) return;
+    protected void extractSlot(GuiGraphicsExtractor g, Slot slot, int mouseX, int mouseY) {
+        if (slot == menu.getSlot(ModularSmithingMenu.BLUEPRINT)) {
+            if (hoveredSlot == slot && partAt(mouseX, mouseY) == null) g.fill(ModularSmithingMenu.AREA_X, ModularSmithingMenu.AREA_Y, ModularSmithingMenu.AREA_X + ModularSmithingMenu.AREA_W, ModularSmithingMenu.AREA_Y + ModularSmithingMenu.AREA_H, -2130706433);
+            return;
+        }
         var ghost = slot == menu.getSlot(ModularSmithingMenu.SLOT_B) ? pickedStack() : ItemStack.EMPTY;
         if (!ghost.isEmpty() && !slot.hasItem()) {
             renderSlotContents(g, ghost, slot, null);
             return;
         }
-        super.renderSlot(g, slot);
+        super.extractSlot(g, slot, mouseX, mouseY);
     }
 
     private ItemStack pickedStack() {
@@ -392,15 +400,6 @@ public class ModularSmithingScreen extends AbstractContainerScreen<ModularSmithi
         return data.items().get(picked);
     }
 
-    @Override
-    protected void renderSlotHighlight(GuiGraphics g, Slot slot, int mouseX, int mouseY, float partial) {
-        if (slot != menu.getSlot(ModularSmithingMenu.BLUEPRINT)) {
-            super.renderSlotHighlight(g, slot, mouseX, mouseY, partial);
-            return;
-        }
-        if (partAt(mouseX, mouseY) != null) return;
-        g.fill(ModularSmithingMenu.AREA_X, ModularSmithingMenu.AREA_Y, ModularSmithingMenu.AREA_X + ModularSmithingMenu.AREA_W, ModularSmithingMenu.AREA_Y + ModularSmithingMenu.AREA_H, -2130706433);
-    }
 
     @Override
     protected boolean isHovering(int x, int y, int width, int height, double mouseX, double mouseY) {
@@ -410,24 +409,23 @@ public class ModularSmithingScreen extends AbstractContainerScreen<ModularSmithi
     }
 
     @Override
-    protected void renderTooltip(GuiGraphics g, int mouseX, int mouseY) {
+    protected void extractTooltip(GuiGraphicsExtractor g, int mouseX, int mouseY) {
         var part = partAt(mouseX, mouseY);
         if (part != null) {
-            g.renderTooltip(font, getTooltipFromContainerItem(part.stack()), part.stack().getTooltipImage(), mouseX, mouseY);
+            g.setTooltipForNextFrame(font, getTooltipFromContainerItem(part.stack()), part.stack().getTooltipImage(), mouseX, mouseY);
             return;
         }
         if (hoveredSlot != null && hoveredSlot == menu.getSlot(ModularSmithingMenu.SLOT_B) && !hoveredSlot.hasItem() && menu.getCarried().isEmpty()) {
             var ghost = pickedStack();
-            if (ghost.isEmpty()) g.renderTooltip(font, font.split(AllLangs.tr("modular_extract"), 140), mouseX, mouseY);
-            else g.renderTooltip(font, getTooltipFromContainerItem(ghost), ghost.getTooltipImage(), mouseX, mouseY);
+            if (ghost.isEmpty()) g.setTooltipForNextFrame(font, font.split(AllLangs.tr("modular_extract"), 140), mouseX, mouseY);
+            else g.setTooltipForNextFrame(font, getTooltipFromContainerItem(ghost), ghost.getTooltipImage(), mouseX, mouseY);
             return;
         }
-        super.renderTooltip(g, mouseX, mouseY);
+        super.extractTooltip(g, mouseX, mouseY);
     }
 
     @Override
-    public void render(@Nonnull GuiGraphics g, int mouseX, int mouseY, float partial) {
-        super.render(g, mouseX, mouseY, partial);
-        renderTooltip(g, mouseX, mouseY);
+    public void extractRenderState(GuiGraphicsExtractor g, int mouseX, int mouseY, float partial) {
+        super.extractRenderState(g, mouseX, mouseY, partial);
     }
 }

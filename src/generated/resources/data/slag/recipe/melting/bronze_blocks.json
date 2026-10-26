@@ -9,9 +9,7 @@
     }
   ],
   "type": "slag:melting",
-  "ingredient": {
-    "tag": "c:storage_blocks/bronze"
-  },
+  "ingredient": "#c:storage_blocks/bronze",
   "ingredients": [],
   "result": [
     {

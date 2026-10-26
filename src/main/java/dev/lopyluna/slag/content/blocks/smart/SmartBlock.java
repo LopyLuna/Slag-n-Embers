@@ -2,7 +2,6 @@ package dev.lopyluna.slag.content.blocks.smart;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BaseEntityBlock;
@@ -42,16 +41,8 @@ public abstract class SmartBlock<T extends BlockEntity> extends BaseEntityBlock 
         return getBlockEntityOptional(getter, pos).map(action).orElse(InteractionResult.PASS);
     }
 
-    public ItemInteractionResult onBlockEntityUseItemOn(BlockGetter getter, BlockPos pos, Function<T, ItemInteractionResult> action) {
-        return getBlockEntityOptional(getter, pos).map(action).orElse(ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION);
-    }
-
-    @Override
-    protected void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean movedByPiston) {
-        if (!state.hasBlockEntity()) return;
-        if (state.is(newState.getBlock()) && newState.hasBlockEntity()) return;
-        if (level.getBlockEntity(pos) instanceof SmartBlockEntity be) be.destroy();
-        level.removeBlockEntity(pos);
+    public InteractionResult onBlockEntityUseItemOn(BlockGetter getter, BlockPos pos, Function<T, InteractionResult> action) {
+        return getBlockEntityOptional(getter, pos).map(action).orElse(InteractionResult.TRY_WITH_EMPTY_HAND);
     }
 
     public Optional<T> getBlockEntityOptional(BlockGetter getter, BlockPos pos) {

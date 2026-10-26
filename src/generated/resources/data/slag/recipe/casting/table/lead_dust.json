@@ -12,7 +12,7 @@
   "cast": "slag:cast/dusts",
   "ingredient": {
     "amount": 72,
-    "tag": "c:molten/lead"
+    "ingredient": "#c:molten/lead"
   },
   "result": {
     "tag": "c:dusts/lead"

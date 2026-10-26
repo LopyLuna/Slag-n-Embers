@@ -12,14 +12,13 @@
   "cast": "slag:cast/leggings",
   "ingredient": {
     "amount": 360,
-    "tag": "c:molten/aluminium"
+    "ingredient": "#c:molten/aluminium"
   },
   "result": {
     "components": {
       "slag:material_type": "slag:aluminium",
       "slag:part_type": "slag:leggings"
     },
-    "count": 1,
     "id": "slag:dynamic_part"
   }
 }

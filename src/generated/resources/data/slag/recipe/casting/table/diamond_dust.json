@@ -12,7 +12,7 @@
   "cast": "slag:cast/dusts",
   "ingredient": {
     "amount": 72,
-    "tag": "c:molten/diamond"
+    "ingredient": "#c:molten/diamond"
   },
   "result": {
     "tag": "c:dusts/diamond"

@@ -9,9 +9,7 @@
     }
   ],
   "type": "slag:melting",
-  "ingredient": {
-    "tag": "c:plates/silver"
-  },
+  "ingredient": "#c:plates/silver",
   "ingredients": [],
   "result": [
     {

@@ -25,7 +25,7 @@ import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.TooltipFlag;
@@ -51,7 +51,7 @@ public class MeltingCategory extends AbstractRecipeCategory<RecipeHolder<Melting
     public MeltingCategory(IGuiHelper guiHelper) {
         super(EmbersRecipesJEI.MELTING.get(), Component.translatableWithFallback("gui.slag.category.melting", "Melting"), guiHelper.createDrawableItemLike(AllBlocks.MELTER), 123, 54);
 
-        ResourceLocation backgroundTexture = SlagEmbers.loc("textures/gui/jei.png");
+        Identifier backgroundTexture = SlagEmbers.loc("textures/gui/jei.png");
         this.tankBackground = guiHelper.createDrawable(backgroundTexture, 0, 0, 32, 56);
         this.tankOverlay = guiHelper.createDrawable(backgroundTexture, 32, 0, 32, 56);
         this.validHeaterSlot = guiHelper.createDrawable(backgroundTexture, 64, 0, 20, 20);
@@ -62,7 +62,7 @@ public class MeltingCategory extends AbstractRecipeCategory<RecipeHolder<Melting
     public void setRecipe(IRecipeLayoutBuilder builder, RecipeHolder<MeltingRecipe> holder, IFocusGroup focuses) {
         var recipe = holder.value();
 
-        List<ItemStack> inputs = new ArrayList<>(List.of(recipe.getInput().getItems()));
+        List<ItemStack> inputs = new ArrayList<>(recipe.getInput().map(input -> input.items().map(ItemStack::new).toList()).orElse(List.of()));
         inputs.addAll(recipe.getInputs());
         inputs.removeIf(s -> s.is(Items.BARRIER));
 
@@ -70,7 +70,7 @@ public class MeltingCategory extends AbstractRecipeCategory<RecipeHolder<Melting
                 .setStandardSlotBackground()
                 .addItemStacks(inputs);
 
-        builder.addSlot(RecipeIngredientRole.CATALYST, 20, 38)
+        builder.addSlot(RecipeIngredientRole.CRAFTING_STATION, 20, 38)
                 .setBackground(validHeaterSlot, -2, -2)
                 .addItemStacks(AllUtils.getHeaterStacks(recipe.temperature, recipe.heatType))
                 .addRichTooltipCallback((view, tooltip) -> tooltip.add(AllLangs.requires(recipe.temperature, recipe.heatType).withStyle(ChatFormatting.GRAY)));
@@ -104,14 +104,14 @@ public class MeltingCategory extends AbstractRecipeCategory<RecipeHolder<Melting
             fluidSlot.addRichTooltipCallback((s, t) -> {
                 t.clear();
                 var tooltips = new ArrayList<Component>();
-                tooltips.add(fluid.getDisplayName());
+                tooltips.add(fluid.getHoverName());
                 createLang(fluid, tooltips).run();
                 if (advance) {
                     var loc = BuiltInRegistries.FLUID.getKey(fluid.getFluid());
                     tooltips.add(Component.literal(loc.toString()).withStyle(ChatFormatting.DARK_GRAY));
                     var helper = EmbersJEI.modIds;
                     tooltips.add(Component.literal(getFormattedModNameForModIdWithoutDisplay(helper, loc.getNamespace())).withStyle(ChatFormatting.BLUE).withStyle(ChatFormatting.ITALIC));
-                    var name = getRegistryName(holder);
+                    var name = getIdentifier(holder);
                     if (name != null) {
                         tooltips.add(Component.translatable("jei.tooltip.recipe.id", Component.literal(name.toString())).withStyle(ChatFormatting.DARK_GRAY));
 
@@ -172,12 +172,12 @@ public class MeltingCategory extends AbstractRecipeCategory<RecipeHolder<Melting
     }
 
     public String getFormattedModNameForModIdWithoutDisplay(IModIdHelper helper, String modId) {
-        return helper.getFormattedModNameForModId(modId);
+        return helper.getFormattedModNameComponentForModId(modId).getString();
     }
 
     public String getFormattedModNameForModId(IModIdHelper helper, String modId) {
         if (!helper.isDisplayingModNameEnabled()) return "";
-        return helper.getFormattedModNameForModId(modId);
+        return helper.getFormattedModNameComponentForModId(modId).getString();
     }
 
     @Override
@@ -185,18 +185,18 @@ public class MeltingCategory extends AbstractRecipeCategory<RecipeHolder<Melting
         var recipe = holder.value();
         var total = 0;
         for (var fluid : recipe.getOutputs()) total += fluid.getAmount();
-        builder.addAnimatedRecipeArrow(MelterBE.meltingTicks(total, recipe.duration, recipe.speed)).setPosition(49, 17);
-        builder.addAnimatedRecipeFlame(999999).setPosition(21, 20);
+        builder.addAnimatedRecipeArrowWidget(MelterBE.meltingTicks(total, recipe.duration, recipe.speed)).setPosition(49, 17);
+        builder.addAnimatedRecipeFlameWidget(999999).setPosition(21, 20);
     }
 
 
     @Override public boolean isHandled(RecipeHolder<MeltingRecipe> holder) {
         var recipe = holder.value();
         if (recipe.isSpecial()) return false;
-        return !recipe.getInput().hasNoItems() || !recipe.getInputs().isEmpty();
+        return recipe.getInput().isPresent() || !recipe.getInputs().isEmpty();
     }
-    @Override public ResourceLocation getRegistryName(RecipeHolder<MeltingRecipe> recipe) {
-        return recipe.id();
+    @Override public Identifier getIdentifier(RecipeHolder<MeltingRecipe> recipe) {
+        return recipe.id().identifier();
     }
     @Override public @Nonnull Codec<RecipeHolder<MeltingRecipe>> getCodec(ICodecHelper helper, @Nonnull IRecipeManager manager) {
         return helper.getRecipeHolderCodec();

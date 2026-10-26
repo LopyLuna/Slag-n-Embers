@@ -55,7 +55,7 @@ public class AllCreativeTabs {
                     toolParts.add(stack);
                 }
 
-                for (var stack : modular.finalSegmentStacks) {
+                for (var stack : modular.finalSegmentStacks()) {
                     var copy = stack.copy();
                     copy.set(AllDataComponents.BUILT, modular.id);
                     toolParts.add(copy);
@@ -97,7 +97,7 @@ public class AllCreativeTabs {
                     toolParts.add(stack);
                 }
 
-                for (var stack : modular.finalSegmentStacks) toolParts.add(stack.copy());
+                for (var stack : modular.finalSegmentStacks()) toolParts.add(stack.copy());
                 baseTool.set(AllDataComponents.DYNAMIC_PARTS, new DataDynamicParts(toolParts));
                 baseTool.set(AllDataComponents.MODULAR_TYPE, modular.id);
                 Traits.of(baseTool).applyComponents(baseTool);

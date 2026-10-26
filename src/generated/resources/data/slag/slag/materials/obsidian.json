@@ -1,9 +1,7 @@
 {
   "id": "slag:obsidian",
   "molten_fluid": "slag:molten_obsidian",
-  "repair_ingredient": {
-    "tag": "c:obsidians"
-  },
+  "repair_ingredient": "#c:obsidians",
   "sort_order": 90,
   "texture": "shiny",
   "traits": [

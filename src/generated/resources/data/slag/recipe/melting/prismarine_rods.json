@@ -9,9 +9,7 @@
     }
   ],
   "type": "slag:melting",
-  "ingredient": {
-    "tag": "c:rods/prismarine"
-  },
+  "ingredient": "#c:rods/prismarine",
   "ingredients": [],
   "result": [
     {

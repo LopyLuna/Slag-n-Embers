@@ -1,5 +1,6 @@
 package dev.lopyluna.slag.content.types;
 
+import com.google.common.base.Suppliers;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import com.tterrag.registrate.providers.RegistrateLangProvider;
@@ -11,29 +12,31 @@ import dev.lopyluna.slag.register.AllDataComponents;
 import dev.lopyluna.slag.register.AllTags;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.Items;
+import net.neoforged.neoforge.common.conditions.ConditionalOps;
 import net.neoforged.neoforge.common.conditions.ICondition;
 import net.neoforged.neoforge.common.conditions.ModLoadedCondition;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 import java.util.stream.Stream;
 
-@SuppressWarnings("unused")
+@SuppressWarnings({"unused", "OptionalUsedAsFieldOrParameterType"})
 public class ModularType {
-    public final ResourceLocation id;
+    public final Identifier id;
 
     public final String modelType;
     public final int sortOrder;
     public final List<TagKey<Item>> segments;
-    public final List<ItemStack> finalSegmentStacks;
-    private final ItemStack resultStack;
+    public final List<ItemStackTemplate> finalSegments;
+    private final Optional<ItemStackTemplate> result;
+    private final Supplier<List<ItemStack>> finalSegmentStacks;
     public final List<TraitEntry> traits;
     public final Incompatible incompatible;
     public final List<ICondition> conditions;
@@ -44,15 +47,15 @@ public class ModularType {
 
     public static final Codec<ModularType> CODEC = RecordCodecBuilder.create(instance ->
             instance.group(
-                    ResourceLocation.CODEC.fieldOf("id").forGetter(m -> m.id),
+                    Identifier.CODEC.fieldOf("id").forGetter(m -> m.id),
                     Codec.STRING.optionalFieldOf("model_type", "").forGetter(m -> m.modelType),
                     Codec.INT.fieldOf("sort_order").forGetter(m -> m.sortOrder),
                     TagKey.codec(Registries.ITEM).listOf().optionalFieldOf("segments", new ArrayList<>()).forGetter(m -> m.segments),
-                    ItemStack.CODEC.listOf().optionalFieldOf("final_segment_stacks", new ArrayList<>()).forGetter(m -> m.finalSegmentStacks),
-                    ItemStack.CODEC.optionalFieldOf("result_stack", ItemStack.EMPTY).forGetter(m -> m.resultStack),
+                    ItemStackTemplate.CODEC.listOf().optionalFieldOf("final_segment_stacks", List.of()).forGetter(m -> m.finalSegments),
+                    ItemStackTemplate.CODEC.optionalFieldOf("result_stack").forGetter(m -> m.result),
                     TraitEntry.CODEC.listOf().optionalFieldOf("traits", List.of()).forGetter(m -> m.traits),
                     Incompatible.CODEC.optionalFieldOf("incompatible", Incompatible.EMPTY).forGetter(m -> m.incompatible),
-                    ICondition.LIST_CODEC.optionalFieldOf("conditions", List.of()).forGetter(m -> m.conditions),
+                    ICondition.LIST_CODEC.optionalFieldOf(ConditionalOps.DEFAULT_CONDITIONS_KEY, List.of()).forGetter(m -> m.conditions),
                     TagKey.codec(Registries.ITEM).listOf().optionalFieldOf("item_tags", new ArrayList<>()).forGetter(m -> m.itemTags)
             ).apply(instance, ModularType::new)
     );
@@ -60,9 +63,7 @@ public class ModularType {
     @Override
     public int hashCode() {
         var traitHash = traits.hashCode() + incompatible.hashCode() + conditions.hashCode();
-        var resultStackHash = 0;
-        if (resultStack != null) resultStackHash = resultStack.copy().hashCode();
-        return 31 * id.hashCode() + 31 * traitHash + 31 * segmentHash() + 31 * finalSegmentStacksHash() + 31 * itemTagsHash() + 31 * resultStackHash + Objects.hash(modelType, sortOrder);
+        return 31 * id.hashCode() + 31 * traitHash + 31 * segmentHash() + 31 * finalSegmentStacksHash() + 31 * itemTagsHash() + 31 * result.hashCode() + Objects.hash(modelType, sortOrder);
     }
 
     @Override
@@ -70,29 +71,34 @@ public class ModularType {
         if (obj == this) return true;
         if (obj == null || obj.getClass() != this.getClass()) return false;
         var that = (ModularType) obj;
-        return this.id.equals(that.id) && this.modelType.equals(that.modelType) && this.sortOrder == that.sortOrder && equalSegment(that.segments) && equalFinalSegmentStacks(that.finalSegmentStacks) && equalItemTags(that.itemTags) && ItemStack.isSameItemSameComponents(this.resultStack, that.resultStack) && this.traits.equals(that.traits) && this.incompatible.equals(that.incompatible) && this.conditions.equals(that.conditions);
+        return this.id.equals(that.id) && this.modelType.equals(that.modelType) && this.sortOrder == that.sortOrder && equalSegment(that.segments) && equalFinalSegmentStacks(that.finalSegments) && equalItemTags(that.itemTags) && this.result.equals(that.result) && this.traits.equals(that.traits) && this.incompatible.equals(that.incompatible) && this.conditions.equals(that.conditions);
     }
 
     public Component getName() {
         return name(id);
     }
 
-    public static Component name(ResourceLocation id) {
+    public static Component name(Identifier id) {
         return Component.translatableWithFallback("modular." + id.getNamespace() + "." + id.getPath(), RegistrateLangProvider.toEnglishName(id.getPath()));
     }
 
     public ItemStack getResultStack() {
-        return resultStack.copy();
+        return result.map(ItemStackTemplate::create).orElse(ItemStack.EMPTY);
     }
 
-    private ModularType(ResourceLocation id, String modelType, int sortOrder, List<TagKey<Item>> segments, List<ItemStack> finalSegmentStacks, ItemStack resultStack, List<TraitEntry> traits, Incompatible incompatible, List<ICondition> conditions, List<TagKey<Item>> itemTags) {
+    public List<ItemStack> finalSegmentStacks() {
+        return finalSegmentStacks.get();
+    }
+
+    private ModularType(Identifier id, String modelType, int sortOrder, List<TagKey<Item>> segments, List<ItemStackTemplate> finalSegments, Optional<ItemStackTemplate> result, List<TraitEntry> traits, Incompatible incompatible, List<ICondition> conditions, List<TagKey<Item>> itemTags) {
         dontRegister = id == null || id.getNamespace().isEmpty() || id.getPath().isEmpty() || id.getPath().equals("null") || id.getPath().equals("empty");
         this.id = id;
         this.modelType = modelType;
         this.sortOrder = sortOrder;
         this.segments = segments;
-        this.finalSegmentStacks = finalSegmentStacks;
-        this.resultStack = resultStack;
+        this.finalSegments = finalSegments;
+        this.result = result;
+        finalSegmentStacks = Suppliers.memoize(() -> finalSegments.stream().map(ItemStackTemplate::create).toList());
         this.traits = traits;
         this.incompatible = incompatible;
         this.conditions = conditions;
@@ -106,18 +112,18 @@ public class ModularType {
 
     @SuppressWarnings("unused")
     public static class Builder {
-        private final ResourceLocation id;
+        private final Identifier id;
         private String modelType = "";
         private int sortOrder;
         private List<TagKey<Item>> segments = new ArrayList<>();
-        private List<ItemStack> finalSegmentStacks = new ArrayList<>();
-        private ItemStack resultStack;
+        private List<ItemStackTemplate> finalSegments = new ArrayList<>();
+        private ItemStackTemplate result;
         private final List<TraitEntry> traits = new ArrayList<>();
         private final List<ICondition> conditions = new ArrayList<>();
         private final Incompatible.Builder incompatible = new Incompatible.Builder();
         private List<TagKey<Item>> itemTags = new ArrayList<>();
 
-        public Builder(ResourceLocation id) { this.id = id; }
+        public Builder(Identifier id) { this.id = id; }
         public Builder(String id) { this.id = SlagEmbers.loc(id); }
 
         public Builder modelType(String modelType) { this.modelType = modelType; return this; }
@@ -135,29 +141,29 @@ public class ModularType {
             return addSegmentStack(Items.STICK, rodCount);
         }
 
-        public Builder segmentStacks(List<ItemStack> finalSegmentStacks) { this.finalSegmentStacks = finalSegmentStacks; return this; }
-        public Builder segmentStacksFromItems(List<Item> finalSegmentStacks) { this.finalSegmentStacks = finalSegmentStacks.stream().map(ItemStack::new).toList(); return this; }
-        public Builder segmentStacksFromItems(int count, List<Item> finalSegmentStacks) { this.finalSegmentStacks = finalSegmentStacks.stream().map(item -> new ItemStack(item, count)).toList(); return this; }
+        public Builder segmentStacks(List<ItemStackTemplate> finalSegments) { this.finalSegments = new ArrayList<>(finalSegments); return this; }
+        public Builder segmentStacksFromItems(List<Item> finalSegments) { this.finalSegments = new ArrayList<>(finalSegments.stream().map(ItemStackTemplate::new).toList()); return this; }
+        public Builder segmentStacksFromItems(int count, List<Item> finalSegments) { this.finalSegments = new ArrayList<>(finalSegments.stream().map(item -> new ItemStackTemplate(item, count)).toList()); return this; }
 
-        public final Builder segmentStacks(ItemStack... finalSegmentStacks) { this.finalSegmentStacks = List.of(finalSegmentStacks); return this; }
-        public final Builder segmentStacksFromItems(Item... finalSegmentStacks) { this.finalSegmentStacks = Stream.of(finalSegmentStacks).map(ItemStack::new).toList(); return this; }
-        public final Builder segmentStacksFromItems(int count, Item... finalSegmentStacks) { this.finalSegmentStacks = Stream.of(finalSegmentStacks).map(item -> new ItemStack(item, count)).toList(); return this; }
+        public final Builder segmentStacks(ItemStackTemplate... finalSegments) { this.finalSegments = new ArrayList<>(List.of(finalSegments)); return this; }
+        public final Builder segmentStacksFromItems(Item... finalSegments) { this.finalSegments = new ArrayList<>(Stream.of(finalSegments).map(ItemStackTemplate::new).toList()); return this; }
+        public final Builder segmentStacksFromItems(int count, Item... finalSegments) { this.finalSegments = new ArrayList<>(Stream.of(finalSegments).map(item -> new ItemStackTemplate(item, count)).toList()); return this; }
 
-        public Builder addSegmentStack(ItemStack finalSegmentStack) { this.finalSegmentStacks.add(finalSegmentStack); return this; }
-        public Builder addSegmentStack(Item finalSegmentStack) { this.finalSegmentStacks.add(new ItemStack(finalSegmentStack)); return this; }
-        public Builder addSegmentStack(Item finalSegmentStack, int count) { this.finalSegmentStacks.add(new ItemStack(finalSegmentStack, count)); return this; }
+        public Builder addSegmentStack(ItemStackTemplate finalSegment) { this.finalSegments.add(finalSegment); return this; }
+        public Builder addSegmentStack(Item finalSegment) { this.finalSegments.add(new ItemStackTemplate(finalSegment)); return this; }
+        public Builder addSegmentStack(Item finalSegment, int count) { this.finalSegments.add(new ItemStackTemplate(finalSegment, count)); return this; }
 
-        public Builder addSegmentStacks(List<ItemStack> finalSegmentStacks) { this.finalSegmentStacks.addAll(finalSegmentStacks); return this; }
-        public Builder addSegmentStacksFromItems(List<Item> finalSegmentStacks) { this.finalSegmentStacks.addAll(finalSegmentStacks.stream().map(ItemStack::new).toList()); return this; }
-        public Builder addSegmentStacksFromItems(int count, List<Item> finalSegmentStacks) { this.finalSegmentStacks.addAll(finalSegmentStacks.stream().map(item -> new ItemStack(item, count)).toList()); return this; }
+        public Builder addSegmentStacks(List<ItemStackTemplate> finalSegments) { this.finalSegments.addAll(finalSegments); return this; }
+        public Builder addSegmentStacksFromItems(List<Item> finalSegments) { this.finalSegments.addAll(finalSegments.stream().map(ItemStackTemplate::new).toList()); return this; }
+        public Builder addSegmentStacksFromItems(int count, List<Item> finalSegments) { this.finalSegments.addAll(finalSegments.stream().map(item -> new ItemStackTemplate(item, count)).toList()); return this; }
 
-        public final Builder addSegmentStacks(ItemStack... finalSegmentStacks) { this.finalSegmentStacks.addAll(List.of(finalSegmentStacks)); return this; }
-        public final Builder addSegmentStacksFromItems(Item... finalSegmentStacks) { this.finalSegmentStacks.addAll(Stream.of(finalSegmentStacks).map(ItemStack::new).toList()); return this; }
-        public final Builder addSegmentStacksFromItems(int count, Item... finalSegmentStacks) { this.finalSegmentStacks.addAll(Stream.of(finalSegmentStacks).map(item -> new ItemStack(item, count)).toList()); return this; }
+        public final Builder addSegmentStacks(ItemStackTemplate... finalSegments) { this.finalSegments.addAll(List.of(finalSegments)); return this; }
+        public final Builder addSegmentStacksFromItems(Item... finalSegments) { this.finalSegments.addAll(Stream.of(finalSegments).map(ItemStackTemplate::new).toList()); return this; }
+        public final Builder addSegmentStacksFromItems(int count, Item... finalSegments) { this.finalSegments.addAll(Stream.of(finalSegments).map(item -> new ItemStackTemplate(item, count)).toList()); return this; }
 
-        public Builder resultStack(ItemStack resultStack) { this.resultStack = resultStack; return this; }
-        public Builder resultStack(Item resultStack) { this.resultStack = new ItemStack(resultStack); return this; }
-        public Builder resultStack(Item resultStack, int count) { this.resultStack = new ItemStack(resultStack, count); return this; }
+        public Builder resultStack(ItemStackTemplate result) { this.result = result; return this; }
+        public Builder resultStack(Item result) { this.result = new ItemStackTemplate(result); return this; }
+        public Builder resultStack(Item result, int count) { this.result = new ItemStackTemplate(result, count); return this; }
 
         public Builder trait(TraitEntry entry) { traits.add(entry); return this; }
         public Builder trait(TraitType trait) { return trait(TraitEntry.of(trait)); }
@@ -177,7 +183,7 @@ public class ModularType {
         @SafeVarargs public final Builder addItemTags(TagKey<Item>... itemTags) { this.itemTags.addAll(List.of(itemTags)); return this; }
 
         public ModularType register() {
-            return new ModularType(id, modelType, sortOrder, segments, finalSegmentStacks, resultStack == null ? ItemStack.EMPTY : resultStack, List.copyOf(traits), incompatible.build(), List.copyOf(conditions), itemTags);
+            return new ModularType(id, modelType, sortOrder, segments, List.copyOf(finalSegments), Optional.ofNullable(result), List.copyOf(traits), incompatible.build(), List.copyOf(conditions), itemTags);
         }
     }
 
@@ -192,9 +198,9 @@ public class ModularType {
 
     public int finalSegmentStacksHash() {
         int hash = 0;
-        if (finalSegmentStacks != null && !finalSegmentStacks.isEmpty()) {
-            hash = finalSegmentStacks.hashCode();
-            for (var stack : finalSegmentStacks) hash += stack.hashCode();
+        if (finalSegments != null && !finalSegments.isEmpty()) {
+            hash = finalSegments.hashCode();
+            for (var stack : finalSegments) hash += stack.hashCode();
         }
         return hash;
     }
@@ -214,10 +220,9 @@ public class ModularType {
         return segments.size() == other.size();
     }
 
-    public boolean equalFinalSegmentStacks(List<ItemStack> other) {
-        if (this.finalSegmentStacks == null || other == null || (this.finalSegmentStacks.isEmpty() != other.isEmpty())) return false;
-        for (var stack : other) if (!containsStack(stack, true)) return false;
-        return finalSegmentStacks.size() == other.size();
+    public boolean equalFinalSegmentStacks(List<ItemStackTemplate> other) {
+        if (this.finalSegments == null || other == null || (this.finalSegments.isEmpty() != other.isEmpty())) return false;
+        return finalSegments.size() == other.size() && new HashSet<>(finalSegments).containsAll(other);
     }
 
     public boolean equalItemTags(List<TagKey<Item>> other) {
@@ -230,7 +235,7 @@ public class ModularType {
         if (stack == null || stack.isEmpty()) return false;
         var newStack = stack.copy();
         if (!built) newStack.remove(AllDataComponents.BUILT);
-        for (var finalStack : finalSegmentStacks) if (ItemStack.isSameItemSameComponents(newStack, finalStack) && newStack.getCount() == finalStack.getCount()) return true;
+        for (var finalStack : finalSegmentStacks()) if (ItemStack.isSameItemSameComponents(newStack, finalStack) && newStack.getCount() == finalStack.getCount()) return true;
         return false;
     }
 

@@ -1,8 +1,6 @@
 {
   "type": "slag:melting",
-  "ingredient": {
-    "item": "minecraft:lodestone"
-  },
+  "ingredient": "minecraft:lodestone",
   "ingredients": [],
   "result": [
     {

@@ -11,7 +11,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimplePreparableReloadListener;
 import net.minecraft.tags.TagKey;
@@ -22,8 +22,8 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.Property;
 import net.neoforged.fml.ModList;
-import net.neoforged.neoforge.client.model.data.ModelData;
-import net.neoforged.neoforge.client.model.data.ModelProperty;
+import net.neoforged.neoforge.model.data.ModelData;
+import net.neoforged.neoforge.model.data.ModelProperty;
 import javax.annotation.Nonnull;
 
 import javax.annotation.Nullable;
@@ -107,7 +107,7 @@ public class Temperatures {
             var value = element.getValue();
             if (value.isJsonNull()) continue;
             var tag = key.startsWith("#");
-            var id = ResourceLocation.tryParse(tag ? key.substring(1) : key);
+            var id = Identifier.tryParse(tag ? key.substring(1) : key);
             if (id == null) {
                 error(log, "{} isn't a valid id! is it a typo or something?", key);
                 continue;
@@ -203,7 +203,7 @@ public class Temperatures {
             var merged = new JsonObject();
             var namespaces = new ArrayList<>(manager.getNamespaces());
             namespaces.sort(Comparator.comparing((String namespace) -> !namespace.equals(SlagEmbers.MOD_ID)).thenComparing(namespace -> namespace));
-            for (var namespace : namespaces) for (var resource : manager.getResourceStack(ResourceLocation.fromNamespaceAndPath(namespace, PATH))) {
+            for (var namespace : namespaces) for (var resource : manager.getResourceStack(Identifier.fromNamespaceAndPath(namespace, PATH))) {
                 try (var reader = resource.openAsReader()) {
                     for (var entry : JsonParser.parseReader(reader).getAsJsonObject().entrySet()) {
                         if (entry.getValue().isJsonNull()) merged.remove(entry.getKey());
@@ -222,6 +222,7 @@ public class Temperatures {
         }
     }
 
+    @SuppressWarnings("ClassCanBeRecord")
     public static class Entry {
         public final Heat heat;
         public final String[] names;
@@ -278,7 +279,7 @@ public class Temperatures {
         }
 
         public static Heat read(CompoundTag tag) {
-            return tag.contains("HeatTier") ? of(parse(Tiers.class, tag.getString("HeatTier")), parse(Type.class, tag.getString("HeatType"))) : NONE;
+            return tag.contains("HeatTier") ? of(parse(Tiers.class, tag.getStringOr("HeatTier", "")), parse(Type.class, tag.getStringOr("HeatType", ""))) : NONE;
         }
 
         public void write(CompoundTag tag) {

@@ -3,12 +3,9 @@ package dev.lopyluna.slag.register;
 import dev.lopyluna.slag.SlagEmbers;
 import dev.lopyluna.slag.content.traits.TraitType;
 import dev.lopyluna.slag.content.traits.effects.*;
-import net.minecraft.core.component.DataComponentPatch;
-import net.minecraft.core.component.DataComponents;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.tags.ItemTags;
-import net.minecraft.util.Unit;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.item.Item;
@@ -45,17 +42,17 @@ public class AllTraits {
     public static final TraitType TOOL = register(new TraitType.Builder("tool").hidden()
             .effect(FlagEffect.TOOL));
     public static final TraitType PICKAXE_MINING = register(new TraitType.Builder("pickaxe_mining").hidden()
-            .effects(MiningEffect.of(BlockTags.MINEABLE_WITH_PICKAXE), AbilitiesEffect.of(ItemAbilities.PICKAXE_DIG)));
+            .effects(MiningEffect.of(BlockTags.MINEABLE_WITH_PICKAXE), AbilitiesEffect.of(ItemAbility.get("pickaxe_dig"))));
     public static final TraitType AXE_MINING = register(new TraitType.Builder("axe_mining").hidden()
-            .effects(MiningEffect.of(BlockTags.MINEABLE_WITH_AXE), AbilitiesEffect.of(ItemAbilities.AXE_DIG)));
+            .effects(MiningEffect.of(BlockTags.MINEABLE_WITH_AXE), AbilitiesEffect.of(ItemAbility.get("axe_dig"))));
     public static final TraitType SHOVEL_MINING = register(new TraitType.Builder("shovel_mining").hidden()
-            .effects(MiningEffect.of(BlockTags.MINEABLE_WITH_SHOVEL), AbilitiesEffect.of(ItemAbilities.SHOVEL_DIG)));
+            .effects(MiningEffect.of(BlockTags.MINEABLE_WITH_SHOVEL), AbilitiesEffect.of(ItemAbility.get("shovel_dig"))));
     public static final TraitType HOE_MINING = register(new TraitType.Builder("hoe_mining").hidden()
-            .effects(MiningEffect.of(BlockTags.MINEABLE_WITH_HOE), AbilitiesEffect.of(ItemAbilities.HOE_DIG)));
+            .effects(MiningEffect.of(BlockTags.MINEABLE_WITH_HOE), AbilitiesEffect.of(ItemAbility.get("hoe_dig"))));
     public static final TraitType SWORD_MINING = register(new TraitType.Builder("sword_mining").hidden()
-            .effects(MiningEffect.of(BlockTags.SWORD_EFFICIENT).cost(2), MiningEffect.of(Blocks.COBWEB).speed(2f).cost(2), AbilitiesEffect.of(ItemAbilities.SWORD_DIG)));
+            .effects(MiningEffect.of(BlockTags.SWORD_EFFICIENT).cost(2), MiningEffect.of(Blocks.COBWEB).speed(2f).cost(2), AbilitiesEffect.of(ItemAbility.get("sword_dig"))));
     public static final TraitType KNIFE_MINING = register(new TraitType.Builder("knife_mining").hidden()
-            .effects(MiningEffect.of(AllTags.KNIFE_MINEABLE), AbilitiesEffect.of(ItemAbilities.SHEARS_CARVE, ItemAbilities.SWORD_DIG, ItemAbility.get("knife_dig"), ItemAbility.get("knife_harvest"))));
+            .effects(MiningEffect.of(AllTags.KNIFE_MINEABLE), AbilitiesEffect.of(ItemAbilities.SHEARS_CARVE, ItemAbility.get("sword_dig"), ItemAbility.get("knife_dig"), ItemAbility.get("knife_harvest"))));
     public static final TraitType SWEEPING = register(new TraitType.Builder("sweeping").hidden()
             .effect(AbilitiesEffect.of(ItemAbilities.SWORD_SWEEP)));
     public static final TraitType STRIPPING = register(new TraitType.Builder("stripping").hidden()
@@ -79,7 +76,7 @@ public class AllTraits {
             .effect(new EquipmentSlotEffect(EquipmentSlot.FEET)));
 
     public static final TraitType FIRE_RESISTANT = register(new TraitType.Builder("fire_resistant").color(0x613E37)
-            .effects(new ComponentsEffect(DataComponentPatch.builder().set(DataComponents.FIRE_RESISTANT, Unit.INSTANCE).build()), new DamageImmunityEffect(DamageTypeTags.IS_FIRE)));
+            .effects(new DamageImmunityEffect(DamageTypeTags.IS_FIRE)));
     public static final TraitType PIGLIN_LOVED = register(new TraitType.Builder("piglin_loved").color(0xF2C93D)
             .effects(ItemTagsEffect.of(ItemTags.PIGLIN_LOVED), FlagEffect.PIGLIN_NEUTRAL));
     public static final TraitType SILENT = register(new TraitType.Builder("silent").color(0x009295)

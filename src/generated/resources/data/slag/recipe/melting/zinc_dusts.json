@@ -9,9 +9,7 @@
     }
   ],
   "type": "slag:melting",
-  "ingredient": {
-    "tag": "c:dusts/zinc"
-  },
+  "ingredient": "#c:dusts/zinc",
   "ingredients": [],
   "result": [
     {

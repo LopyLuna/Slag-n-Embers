@@ -7,15 +7,19 @@ import dev.lopyluna.slag.content.utils.FluidInput;
 import net.minecraft.advancements.AdvancementRequirements;
 import net.minecraft.advancements.AdvancementRewards;
 import net.minecraft.advancements.Criterion;
-import net.minecraft.advancements.critereon.RecipeUnlockedTrigger;
+import net.minecraft.advancements.criterion.RecipeUnlockedTrigger;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.data.recipes.RecipeBuilder;
 import net.minecraft.data.recipes.RecipeOutput;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.level.material.Fluid;
 import net.neoforged.neoforge.fluids.FluidStack;
+import net.neoforged.neoforge.fluids.FluidStackTemplate;
 import net.neoforged.neoforge.fluids.crafting.SizedFluidIngredient;
 import javax.annotation.Nonnull;
 
@@ -90,19 +94,18 @@ public class AlloyingRecipeBuilder implements RecipeBuilder {
     }
 
     @Override
-    public void save(RecipeOutput recipeOutput, ResourceLocation loc) {
-        if (this.criteria.isEmpty()) throw new IllegalStateException("No way of obtaining recipe " + loc);
-        var builder = recipeOutput.advancement().addCriterion("has_the_recipe", RecipeUnlockedTrigger.unlocked(loc))
-                .rewards(AdvancementRewards.Builder.recipe(loc)).requirements(AdvancementRequirements.Strategy.OR);
+    public void save(RecipeOutput recipeOutput, ResourceKey<Recipe<?>> key) {
+        if (this.criteria.isEmpty()) throw new IllegalStateException("No way of obtaining recipe " + key.identifier());
+        var builder = recipeOutput.advancement().addCriterion("has_the_recipe", RecipeUnlockedTrigger.unlocked(key))
+                .rewards(AdvancementRewards.Builder.recipe(key)).requirements(AdvancementRequirements.Strategy.OR);
         Objects.requireNonNull(builder);
         this.criteria.forEach(builder::addCriterion);
 
-        AlloyingRecipe recipe = this.factory.create(Objects.requireNonNullElse(this.group, ""), this.inputs, this.stackResult, this.temperature, Optional.ofNullable(this.heatType), this.strict, this.duration, this.speed);
-        recipeOutput.accept(loc, recipe, builder.build(loc.withPrefix("recipes/misc/")));
+        AlloyingRecipe recipe = this.factory.create(Objects.requireNonNullElse(this.group, ""), this.inputs, FluidStackTemplate.fromNonEmptyStack(this.stackResult), this.temperature, Optional.ofNullable(this.heatType), this.strict, this.duration, this.speed);
+        recipeOutput.accept(key, recipe, builder.build(key.identifier().withPrefix("recipes/misc/")));
 
     }
 
-    @Override
     public @Nonnull Item getResult() {
         return Items.AIR;
     }
@@ -111,18 +114,11 @@ public class AlloyingRecipeBuilder implements RecipeBuilder {
     }
 
     @Override
-    public void save(RecipeOutput recipeOutput) {
-        this.save(recipeOutput, getDefaultRecipeId(this.getResultFluid()));
-    }
-    @Override
-    public void save(RecipeOutput recipeOutput, String id) {
-        var loc = getDefaultRecipeId(this.getResultFluid());
-        var parse = ResourceLocation.parse(id);
-        if (parse.equals(loc)) throw new IllegalStateException("Recipe " + id + " should remove its 'save' argument as it is equal to default one");
-        else this.save(recipeOutput, parse);
+    public @Nonnull ResourceKey<Recipe<?>> defaultId() {
+        return ResourceKey.create(Registries.RECIPE, getDefaultRecipeId(this.getResultFluid()));
     }
 
-    static ResourceLocation getDefaultRecipeId(Fluid fluid) {
+    static Identifier getDefaultRecipeId(Fluid fluid) {
         return BuiltInRegistries.FLUID.getKey(fluid);
     }
 

@@ -9,9 +9,7 @@
     }
   ],
   "type": "slag:melting",
-  "ingredient": {
-    "tag": "c:ores/silver"
-  },
+  "ingredient": "#c:ores/silver",
   "ingredients": [],
   "result": [
     {

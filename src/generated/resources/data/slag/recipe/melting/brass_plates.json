@@ -9,9 +9,7 @@
     }
   ],
   "type": "slag:melting",
-  "ingredient": {
-    "tag": "c:plates/brass"
-  },
+  "ingredient": "#c:plates/brass",
   "ingredients": [],
   "result": [
     {

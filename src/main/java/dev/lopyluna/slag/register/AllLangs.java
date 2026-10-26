@@ -11,14 +11,15 @@ import dev.lopyluna.slag.content.temperature.Temperatures.Type;
 import dev.lopyluna.slag.content.traits.Trait;
 import dev.lopyluna.slag.content.traits.Traits;
 import net.minecraft.ChatFormatting;
-import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.FastColor;
+import net.minecraft.resources.Identifier;
+import net.minecraft.util.ARGB;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.ItemAttributeModifiers;
+import net.neoforged.fml.loading.FMLEnvironment;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -35,7 +36,7 @@ public class AllLangs {
         }
     }
 
-    public static MutableComponent trArgs(ResourceLocation id, Object... args) {
+    public static MutableComponent trArgs(Identifier id, Object... args) {
         return Component.translatable("tooltip." + id.getNamespace() + "." + id.getPath(), args);
     }
     public static MutableComponent trArgs(String path, Object... args) {
@@ -103,11 +104,11 @@ public class AllLangs {
     }
 
     public static void modularParts(List<Component> tooltip, List<ItemStack> toolParts) {
-        var shift = Screen.hasShiftDown();
+        var shift = FMLEnvironment.getDist().isClient() && Minecraft.getInstance().hasShiftDown();
         trHoldKeyTooltip(tooltip, shift, "shift", "parts", null, null, false, null);
         if (shift) {
             tooltip.add(Component.literal(" ").append(tr("modular_parts")).append(":").withStyle(ChatFormatting.GRAY));
-            for (var part : toolParts) tooltip.add(Component.literal("  ").append(part.getHoverName()).append(part.getCount() == 1 ? "" : " " + part.getCount() + "x").withColor(FastColor.ARGB32.color(115, 115, 115)));
+            for (var part : toolParts) tooltip.add(Component.literal("  ").append(part.getHoverName()).append(part.getCount() == 1 ? "" : " " + part.getCount() + "x").withColor(ARGB.color(115, 115, 115)));
         }
     }
 
@@ -116,7 +117,7 @@ public class AllLangs {
     }
 
     public static void modularToolStats(List<Component> tooltip, DataDynamicParts parts, ItemStack stack, IModularItem modular) {
-        var ctrl = Screen.hasControlDown();
+        var ctrl = FMLEnvironment.getDist().isClient() && Minecraft.getInstance().hasControlDown();
         var sharp = modular.getSharp(stack);
         var dura = modular.getDura(stack);
         var attackSpeed = modular.getAttackSpeed(stack);
@@ -135,7 +136,7 @@ public class AllLangs {
         modularTraits(tooltip, ctrl, modular, stack);
     }
     public static void modularArmorStats(List<Component> tooltip, DataDynamicParts parts, ItemStack stack, IModularItem modular) {
-        var ctrl = Screen.hasControlDown();
+        var ctrl = FMLEnvironment.getDist().isClient() && Minecraft.getInstance().hasControlDown();
         var defense = Math.round(modular.getDefense(stack));
         var dura = modular.getDura(stack);
         var kbRes = modular.getKbRes(stack);

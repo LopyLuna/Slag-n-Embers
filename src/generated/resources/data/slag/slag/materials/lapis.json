@@ -1,9 +1,7 @@
 {
   "id": "slag:lapis",
   "molten_fluid": "slag:molten_lapis",
-  "repair_ingredient": {
-    "tag": "c:gems/lapis"
-  },
+  "repair_ingredient": "#c:gems/lapis",
   "sort_order": 170,
   "traits": [
     {

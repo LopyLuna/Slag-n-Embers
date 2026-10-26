@@ -3,14 +3,13 @@
   "cast": "slag:cast/leggings",
   "ingredient": {
     "amount": 360,
-    "tag": "c:molten/rose_gold"
+    "ingredient": "#c:molten/rose_gold"
   },
   "result": {
     "components": {
       "slag:material_type": "slag:rose_gold",
       "slag:part_type": "slag:leggings"
     },
-    "count": 1,
     "id": "slag:dynamic_part"
   }
 }

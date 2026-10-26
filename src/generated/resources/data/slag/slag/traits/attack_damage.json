@@ -2,7 +2,7 @@
   "effects": [
     {
       "type": "slag:attribute",
-      "attribute": "minecraft:generic.attack_damage",
+      "attribute": "minecraft:attack_damage",
       "id": "minecraft:base_attack_damage",
       "slot": "mainhand"
     }

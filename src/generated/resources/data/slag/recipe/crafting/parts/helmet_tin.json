@@ -15,12 +15,8 @@
   "type": "minecraft:crafting_shaped",
   "category": "equipment",
   "key": {
-    "M": {
-      "tag": "c:ingots/tin"
-    },
-    "R": {
-      "item": "minecraft:paper"
-    }
+    "M": "#c:ingots/tin",
+    "R": "minecraft:paper"
   },
   "pattern": [
     "MMM",
@@ -31,7 +27,6 @@
       "slag:material_type": "slag:tin",
       "slag:part_type": "slag:helmet"
     },
-    "count": 1,
     "id": "slag:dynamic_part"
   }
 }

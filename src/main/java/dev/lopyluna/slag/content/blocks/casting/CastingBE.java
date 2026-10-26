@@ -5,6 +5,7 @@ import dev.lopyluna.slag.content.blocks.multiblock.LerpedFloat;
 import dev.lopyluna.slag.content.blocks.smart.BlockEntityBehaviour;
 import dev.lopyluna.slag.content.blocks.smart.SmartBlockEntity;
 import dev.lopyluna.slag.content.utils.ItemResult;
+import dev.lopyluna.slag.content.utils.NBTHelper;
 import dev.lopyluna.slag.register.AllDataComponents;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -15,7 +16,7 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
 import net.minecraft.world.Containers;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.RecipeHolder;
+import net.minecraft.world.item.crafting.RecipeMap;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
@@ -24,10 +25,8 @@ import net.minecraft.world.level.material.Fluids;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
 import net.neoforged.neoforge.fluids.FluidStack;
-import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 
 import javax.annotation.Nullable;
-import java.util.Collection;
 import java.util.List;
 
 public abstract class CastingBE extends SmartBlockEntity {
@@ -50,7 +49,7 @@ public abstract class CastingBE extends SmartBlockEntity {
     protected Handler handler;
 
     private Fluid recipeFluid = Fluids.EMPTY;
-    private Collection<RecipeHolder<?>> recipeSource;
+    private RecipeMap recipeSource;
     private boolean forceFluidLevelUpdate = true;
     private long lastCool = -1;
     private int syncCooldown;
@@ -85,8 +84,8 @@ public abstract class CastingBE extends SmartBlockEntity {
     }
 
     public static <T extends CastingBE> void registerCapabilities(RegisterCapabilitiesEvent event, BlockEntityType<T> type) {
-        event.registerBlockEntity(Capabilities.FluidHandler.BLOCK, type, (be, context) -> be.tankInventory);
-        event.registerBlockEntity(Capabilities.ItemHandler.BLOCK, type, (be, context) -> be.itemInventory);
+        event.registerBlockEntity(Capabilities.Fluid.BLOCK, type, (be, _) -> be.tankInventory);
+        event.registerBlockEntity(Capabilities.Item.BLOCK, type, (be, _) -> be.itemInventory);
     }
 
     @Override
@@ -95,13 +94,14 @@ public abstract class CastingBE extends SmartBlockEntity {
         if (syncCooldown > 0 && --syncCooldown == 0 && queuedSync) sendData();
         if (level == null) return;
         updateLuminosity();
-        if (level.isClientSide) {
+        if (level.isClientSide()) {
             if (fluidLevel != null) fluidLevel.tickChaser();
             if (coolingProgress > 0 && coolingProgress < coolingTarget) coolingProgress++;
             return;
         }
 
-        if (updateRecipe || recipeSource != level.getRecipeManager().getRecipes()) refreshRecipe();
+        var manager = AllUtils.recipes(level);
+        if (manager != null && (updateRecipe || recipeSource != manager.recipeMap())) refreshRecipe();
         if (handler == null || tankInventory.getFluidAmount() < handler.capacity()) {
             if (coolingProgress == 0) return;
             coolingProgress = 0;
@@ -127,14 +127,15 @@ public abstract class CastingBE extends SmartBlockEntity {
         onCast();
         store(result);
         if (!leftover.isEmpty()) store(leftover);
-        tankInventory.drain(capacity, IFluidHandler.FluidAction.EXECUTE);
+        tankInventory.drain(capacity);
         level.playSound(null, worldPosition, SoundEvents.LAVA_EXTINGUISH, SoundSource.BLOCKS, 0.5F, 1F);
     }
 
     private void refreshRecipe() {
-        if (level == null) return;
+        var manager = AllUtils.recipes(level);
+        if (manager == null) return;
         updateRecipe = false;
-        recipeSource = level.getRecipeManager().getRecipes();
+        recipeSource = manager.recipeMap();
         var fluid = tankInventory.getFluid();
         recipeFluid = fluid.getFluid();
         handler = fluid.isEmpty() ? null : findHandler(recipeFluid);
@@ -150,13 +151,13 @@ public abstract class CastingBE extends SmartBlockEntity {
     }
 
     public @Nullable Handler getHandler(FluidStack resource) {
-        if (level == null || level.isClientSide || resource.isEmpty()) return null;
+        if (level == null || level.isClientSide() || resource.isEmpty()) return null;
         if (updateRecipe) refreshRecipe();
         return tankInventory.isEmpty() ? findHandler(resource.getFluid()) : handler;
     }
 
     protected void onFluidChanged(FluidStack stack) {
-        if (level == null || level.isClientSide) return;
+        if (level == null || level.isClientSide()) return;
         if (stack.getFluid() != recipeFluid) updateRecipe = true;
         setChanged();
         sendData();
@@ -204,15 +205,15 @@ public abstract class CastingBE extends SmartBlockEntity {
     protected void read(CompoundTag tag, HolderLookup.Provider registries, boolean clientPacket) {
         super.read(tag, registries, clientPacket);
         itemInventory.load(tag, registries);
-        tankInventory.readFromNBT(registries, tag.getCompound("TankContent"));
-        if (tag.contains("Capacity")) tankInventory.setCapacity(tag.getInt("Capacity"));
+        tankInventory.setFluid(NBTHelper.readFluid(tag.getCompoundOrEmpty("TankContent").getCompoundOrEmpty("Fluid"), registries));
+        if (tag.contains("Capacity")) tankInventory.setCapacity(tag.getIntOr("Capacity", 0));
         updateRecipe = true;
         if (fluidLevel == null) fluidLevel = LerpedFloat.linear().startWithValue(getFillState());
         if (!clientPacket) return;
 
-        preview = tag.contains("ResultPreview") ? ItemStack.parseOptional(registries, tag.getCompound("ResultPreview")) : ItemStack.EMPTY;
-        coolingProgress = tag.getInt("CoolingProgress");
-        coolingTarget = tag.getInt("CoolingTarget");
+        preview = tag.contains("ResultPreview") ? NBTHelper.readItem(tag.getCompoundOrEmpty("ResultPreview"), registries) : ItemStack.EMPTY;
+        coolingProgress = tag.getIntOr("CoolingProgress", 0);
+        coolingTarget = tag.getIntOr("CoolingTarget", 0);
 
         var fill = getFillState();
         if (tag.contains("ForceFluidLevel")) fluidLevel = LerpedFloat.linear().startWithValue(fill);
@@ -223,12 +224,14 @@ public abstract class CastingBE extends SmartBlockEntity {
     @Override
     protected void write(CompoundTag tag, HolderLookup.Provider registries, boolean clientPacket) {
         super.write(tag, registries, clientPacket);
-        tag.put("TankContent", tankInventory.writeToNBT(registries, new CompoundTag()));
+        var tank = new CompoundTag();
+        if (!tankInventory.isEmpty()) tank.put("Fluid", NBTHelper.writeFluid(tankInventory.getFluid(), registries));
+        tag.put("TankContent", tank);
         itemInventory.save(tag, registries);
         if (!clientPacket) return;
 
         tag.putInt("Capacity", tankInventory.getCapacity());
-        if (!preview.isEmpty()) tag.put("ResultPreview", preview.save(registries, new CompoundTag()));
+        if (!preview.isEmpty()) tag.put("ResultPreview", NBTHelper.writeItem(preview, registries));
         tag.putInt("CoolingProgress", coolingProgress);
         tag.putInt("CoolingTarget", coolingTarget);
         if (forceFluidLevelUpdate) tag.putBoolean("ForceFluidLevel", true);

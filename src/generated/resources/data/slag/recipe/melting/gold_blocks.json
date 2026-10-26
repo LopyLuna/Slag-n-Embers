@@ -1,8 +1,6 @@
 {
   "type": "slag:melting",
-  "ingredient": {
-    "tag": "c:storage_blocks/gold"
-  },
+  "ingredient": "#c:storage_blocks/gold",
   "ingredients": [],
   "result": [
     {

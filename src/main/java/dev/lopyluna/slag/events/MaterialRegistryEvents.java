@@ -17,7 +17,7 @@ public class MaterialRegistryEvents {
         if (!event.shouldUpdateStaticData()) return;
         ItemResult.invalidate();
         AllFluids.updateHidden();
-        AllDynamicTypes.load(event.getRegistryAccess());
+        AllDynamicTypes.load(event.getRegistries());
         SlagEmbers.LOGGER.info("Loaded {} traits, {} materials, {} parts and {} modulars", AllDynamicTypes.getAllTraits().size(), AllDynamicTypes.getAllMaterials().size(), AllDynamicTypes.getAllParts().size(), AllDynamicTypes.getAllModulars().size());
     }
 }

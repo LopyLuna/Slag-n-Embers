@@ -1,22 +1,22 @@
-// 1.21.1	2026-09-22T07:19:13.7360594	Slag Trait Datagen
-1d7f68a0cb44f4173ef90283b40e2cf091480d17 data/slag/slag/traits/armor.json
-f68df961b12ce25dca1bc12b812b367ae92ab20a data/slag/slag/traits/armor_toughness.json
-a98094256749100b52613e5d9ea6e969bfb0edd0 data/slag/slag/traits/attack_damage.json
-78dabeda7d20b9e0de3193634bab6ce30dfa9c68 data/slag/slag/traits/attack_speed.json
+// 26.1.2	2026-10-24T03:52:27.087746	Slag Trait Datagen
+c9d476be33875bdca5ba6229e15ac38ae6498f3d data/slag/slag/traits/armor.json
+c144a3a656e00374509ed656d4787af59512017b data/slag/slag/traits/armor_toughness.json
+ac2270f460a9eb06a221dc140e0944d8ef40f4dc data/slag/slag/traits/attack_damage.json
+09a87d3592cbbea1108578863901c935c4d95329 data/slag/slag/traits/attack_speed.json
 0cb2ae9add54009fff36f62bd4a5692589b7d467 data/slag/slag/traits/auto_smelting.json
 136ed1c734316ad68276f1f6827880ecf1d1a2a9 data/slag/slag/traits/axe_mining.json
 088482ae9fdb81a1cb9e84da60d3dbfd60765e4c data/slag/slag/traits/chest_slot.json
 ddbf75a05c39f383836f69dbd6dcafcd80cb0234 data/slag/slag/traits/durability.json
 fd2ac6565dbc1f018112b493439ed58c76054141 data/slag/slag/traits/enchantability.json
 30b18267852c9f6bca8762100259e85b3188de62 data/slag/slag/traits/feet_slot.json
-2d9a0e6d2f66ebabffcb0be5cba66e5b16e15c97 data/slag/slag/traits/fire_resistant.json
+05f0b1590cf8290ff45fb8a608b24ddf9a831e5c data/slag/slag/traits/fire_resistant.json
 d0ccae19b622973200e16aa0498c30fa1f4c5c15 data/slag/slag/traits/flattening.json
 0e94f2b58e07972a8d6a9a4ba535a6d43dc69698 data/slag/slag/traits/gliding.json
 7ff1e5e03972e644ca856784ba5af6137f550542 data/slag/slag/traits/harvesting.json
 4754419708c608ea95f5d60b2172a34bfb749222 data/slag/slag/traits/head_slot.json
 337fec9331a79fd463d9a7c94a0d552314feaf3c data/slag/slag/traits/hoe_mining.json
 ec8d0b8ac95a973b989ca0a7aad6bbc3fb08603b data/slag/slag/traits/knife_mining.json
-8934083c6bb4a166c8fea9e0a82023322c754b9c data/slag/slag/traits/knockback_resistance.json
+42c636420e2d7d44cbf908d53efadb084782e501 data/slag/slag/traits/knockback_resistance.json
 b58c7dd960dbb612455f22371f8759123eed5214 data/slag/slag/traits/legs_slot.json
 5be251f646abd797bca5c9b2c23306f5c819ad49 data/slag/slag/traits/mining_speed.json
 58dc1a3c883926659b83eb45813557943d2744fe data/slag/slag/traits/mining_tier.json

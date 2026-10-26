@@ -1,33 +1,19 @@
 package dev.lopyluna.slag.client;
 
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import net.minecraft.MethodsReturnNonnullByDefault;
-import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.Sheets;
-import javax.annotation.Nonnull;
+import net.minecraft.client.renderer.rendertype.RenderType;
+import net.minecraft.client.renderer.rendertype.RenderTypes;
 
-public class SolidBufferSource implements MultiBufferSource {
-    private final MultiBufferSource parent;
+@SuppressWarnings("NullableProblems")
+public record SolidBufferSource(VertexConsumer d) implements VertexConsumer {
+    public static final RenderType SOLID = RenderTypes.solidMovingBlock();
 
-    public SolidBufferSource(MultiBufferSource parent) {
-        this.parent = parent;
-    }
-
-    @Override
-    public @Nonnull VertexConsumer getBuffer(@Nonnull RenderType type) {
-        RenderType rt = type;
-        if (type == Sheets.cutoutBlockSheet() || type == Sheets.translucentItemSheet() || type == Sheets.translucentCullBlockSheet()) rt = Sheets.solidBlockSheet();
-        return new SolidVertexConsumer(parent.getBuffer(rt));
-    }
-
-    @MethodsReturnNonnullByDefault
-        private record SolidVertexConsumer(VertexConsumer d) implements VertexConsumer {
-        @Override public VertexConsumer addVertex(float x, float y, float z) { return d.addVertex(x, y, z); }
-        @Override public VertexConsumer setColor(int r, int g, int b, int a) { return d.setColor(r, g, b, 255); }
-        @Override public VertexConsumer setUv(float u, float v) { return d.setUv(u, v); }
-        @Override public VertexConsumer setUv1(int u, int v) { return d.setUv1(u, v); }
-        @Override public VertexConsumer setUv2(int u, int v) { return d.setUv2(u, v); }
-        @Override public VertexConsumer setNormal(float x, float y, float z) { return d.setNormal(x, y, z); }
-    }
+    @Override public VertexConsumer addVertex(float x, float y, float z) { d.addVertex(x, y, z); return this; }
+    @Override public VertexConsumer setColor(int r, int g, int b, int a) { d.setColor(r, g, b, 255); return this; }
+    @Override public VertexConsumer setColor(int color) { d.setColor(color | 0xFF000000); return this; }
+    @Override public VertexConsumer setUv(float u, float v) { d.setUv(u, v); return this; }
+    @Override public VertexConsumer setUv1(int u, int v) { d.setUv1(u, v); return this; }
+    @Override public VertexConsumer setUv2(int u, int v) { d.setUv2(u, v); return this; }
+    @Override public VertexConsumer setNormal(float x, float y, float z) { d.setNormal(x, y, z); return this; }
+    @Override public VertexConsumer setLineWidth(float width) { d.setLineWidth(width); return this; }
 }

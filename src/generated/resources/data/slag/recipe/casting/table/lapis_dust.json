@@ -12,7 +12,7 @@
   "cast": "slag:cast/dusts",
   "ingredient": {
     "amount": 72,
-    "tag": "c:molten/lapis"
+    "ingredient": "#c:molten/lapis"
   },
   "result": {
     "tag": "c:dusts/lapis"

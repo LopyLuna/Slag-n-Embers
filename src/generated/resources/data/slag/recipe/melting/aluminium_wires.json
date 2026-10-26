@@ -9,9 +9,7 @@
     }
   ],
   "type": "slag:melting",
-  "ingredient": {
-    "tag": "c:wires/aluminium"
-  },
+  "ingredient": "#c:wires/aluminium",
   "ingredients": [],
   "result": [
     {

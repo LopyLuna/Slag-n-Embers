@@ -2,7 +2,7 @@
   "effects": [
     {
       "type": "slag:attribute",
-      "attribute": "minecraft:generic.attack_speed",
+      "attribute": "minecraft:attack_speed",
       "id": "minecraft:base_attack_speed",
       "scale": -1.0,
       "slot": "mainhand"

@@ -1,9 +1,7 @@
 {
   "id": "slag:amethyst",
   "molten_fluid": "slag:molten_amethyst",
-  "repair_ingredient": {
-    "tag": "c:gems/amethyst"
-  },
+  "repair_ingredient": "#c:gems/amethyst",
   "sort_order": 180,
   "texture": "metal",
   "traits": [

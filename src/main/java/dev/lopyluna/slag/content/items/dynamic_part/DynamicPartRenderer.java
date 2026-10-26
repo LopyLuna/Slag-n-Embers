@@ -1,6 +1,6 @@
 package dev.lopyluna.slag.content.items.dynamic_part;
 
-import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.math.Quadrant;
 import dev.lopyluna.slag.SlagEmbers;
 import dev.lopyluna.slag.client.MaterialTextures;
 import dev.lopyluna.slag.client.render.CustomRenderedItemModel;
@@ -9,58 +9,64 @@ import dev.lopyluna.slag.client.render.PartialItemModelRenderer;
 import dev.lopyluna.slag.register.AllDataComponents;
 import dev.lopyluna.slag.register.AllDynamicTypes;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.Sheets;
-import net.minecraft.client.renderer.block.model.ItemOverrides;
-import net.minecraft.client.renderer.block.model.ItemTransforms;
-import net.minecraft.client.renderer.entity.ItemRenderer;
+import net.minecraft.client.renderer.block.dispatch.BlockModelRotation;
+import net.minecraft.client.renderer.chunk.ChunkSectionLayer;
+import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.client.resources.model.BakedModel;
-import net.minecraft.client.resources.model.BlockModelRotation;
-import net.minecraft.client.resources.model.ModelResourceLocation;
-import net.minecraft.client.resources.model.SimpleBakedModel;
+import net.minecraft.client.resources.model.ModelBaker;
+import net.minecraft.client.resources.model.cuboid.CuboidFace;
+import net.minecraft.client.resources.model.cuboid.FaceBakery;
+import net.minecraft.client.resources.model.cuboid.ItemModelGenerator;
+import net.minecraft.client.resources.model.geometry.BakedQuad;
+import net.minecraft.client.resources.model.geometry.QuadCollection;
+import net.minecraft.core.Direction;
 import net.minecraft.resources.FileToIdConverter;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.ModelEvent;
-import net.neoforged.neoforge.client.model.geometry.UnbakedGeometryHelper;
+import net.neoforged.neoforge.client.model.ExtraFaceData;
+import org.joml.Vector3f;
+import org.joml.Vector3fc;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-@SuppressWarnings("deprecation")
 @EventBusSubscriber(modid = SlagEmbers.MOD_ID, value = Dist.CLIENT)
 @ParametersAreNonnullByDefault
 public class DynamicPartRenderer extends CustomRenderedItemModelRenderer {
     private static final FileToIdConverter MODELS = FileToIdConverter.json("models");
-    private static final Map<Key, Part> PARTS = new ConcurrentHashMap<>();
+    private static final Identifier BASE = SlagEmbers.loc("item/dynamic_part");
+    private static final Map<Key, CustomRenderedItemModel> PARTS = new ConcurrentHashMap<>();
+    private static final ModelBaker.Interner INTERNER = new ModelBaker.Interner() {
+        @Override public @Nonnull Vector3fc vector(Vector3fc vector) { return vector; }
+        @Override public @Nonnull BakedQuad.MaterialInfo materialInfo(BakedQuad.MaterialInfo material) { return material; }
+    };
 
-    @Override protected void render(ItemStack stack, ItemRenderer itemRenderer, CustomRenderedItemModel model, PartialItemModelRenderer renderer,
-                                    ItemDisplayContext transformType, PoseStack ms, MultiBufferSource buf, int light, int overlay) {
-        renderPart(stack, renderer, light);
+    @Override protected void render(ItemStack stack, PartialItemModelRenderer renderer, ItemDisplayContext ctx) {
+        renderer.transform(getModel(BASE));
+        renderPart(stack, renderer);
     }
 
-    public static void renderPart(ItemStack stack, PartialItemModelRenderer renderer, int light) {
-        var part = PARTS.computeIfAbsent(new Key(stack.get(AllDataComponents.MATERIAL_TYPE), stack.get(AllDataComponents.PART_TYPE), stack.get(AllDataComponents.BUILT)), DynamicPartRenderer::bake);
-        renderer.render(part.model, part.type, light);
+    public static void renderPart(ItemStack stack, PartialItemModelRenderer renderer) {
+        renderer.render(PARTS.computeIfAbsent(new Key(stack.get(AllDataComponents.MATERIAL_TYPE), stack.get(AllDataComponents.PART_TYPE), stack.get(AllDataComponents.BUILT)), DynamicPartRenderer::bake));
     }
 
     public static void clear() {
         PARTS.clear();
     }
 
-    private static Part bake(Key key) {
+    private static CustomRenderedItemModel bake(Key key) {
         var material = AllDynamicTypes.getMaterial(key.material).orElse(null);
         var type = AllDynamicTypes.getPart(key.part).orElse(null);
-        Part part = null;
+        CustomRenderedItemModel part = null;
         if (material != null && type != null) {
             var ns = material.id.getNamespace();
             var mat = material.id.getPath();
@@ -69,38 +75,37 @@ public class DynamicPartRenderer extends CustomRenderedItemModelRenderer {
             var style = material.texture;
             if (key.built != null) {
                 var built = key.built.getPath();
-                part = model(SlagEmbers.loc(ns, "item/modular/" + built + "/" + mat + "/" + path));
+                part = CustomRenderedItemModel.get(SlagEmbers.loc(ns, "item/modular/" + built + "/" + mat + "/" + path));
                 if (part == null) part = sprite(SlagEmbers.loc(partNs, "item/modular/" + built + "/" + style + "/" + path + "_" + mat));
             }
-            if (part == null) part = model(SlagEmbers.loc(ns, "item/dynamic_parts/" + mat + "/" + path));
+            if (part == null) part = CustomRenderedItemModel.get(SlagEmbers.loc(ns, "item/dynamic_parts/" + mat + "/" + path));
             if (part == null) part = sprite(SlagEmbers.loc(partNs, "item/dynamic_parts/" + style + "/" + path + "_" + mat));
         }
-        return part == null ? new Part(Minecraft.getInstance().getModelManager().getMissingModel(), Sheets.translucentCullBlockSheet()) : part;
+        return part == null ? CustomRenderedItemModel.EMPTY : part;
     }
 
-    private static @Nullable Part model(ResourceLocation id) {
-        var manager = Minecraft.getInstance().getModelManager();
-        var model = getModel(id, manager);
-        return model == manager.getMissingModel() ? null : new Part(model, Sheets.translucentCullBlockSheet());
-    }
-
-    private static @Nullable Part sprite(ResourceLocation id) {
+    private static @Nullable CustomRenderedItemModel sprite(Identifier id) {
         var sprite = MaterialTextures.findSprite(id);
-        return sprite == null ? null : new Part(flat(sprite), MaterialTextures.ITEM);
+        return sprite == null ? null : flat(sprite, MaterialTextures.ITEM);
     }
 
-    public static BakedModel flat(TextureAtlasSprite sprite) {
-        var builder = new SimpleBakedModel.Builder(false, false, false, ItemTransforms.NO_TRANSFORMS, ItemOverrides.EMPTY).particle(sprite);
-        for (var element : UnbakedGeometryHelper.createUnbakedItemElements(0, sprite)) for (var face : element.faces.entrySet())
-            builder.addUnculledFace(UnbakedGeometryHelper.bakeElementFace(element, face.getValue(), sprite, face.getKey(), BlockModelRotation.X0_Y0));
-        return builder.build();
+    public static CustomRenderedItemModel flat(TextureAtlasSprite sprite, RenderType type) {
+        var info = new BakedQuad.MaterialInfo(sprite, ChunkSectionLayer.TRANSLUCENT, type, 0, true, 0, true);
+        var from = new Vector3f(0f, 0f, 7.5f);
+        var to = new Vector3f(16f, 16f, 8.5f);
+        var builder = new QuadCollection.Builder();
+        builder.addUnculledFace(FaceBakery.bakeQuad(INTERNER, from, to, new CuboidFace.UVs(0f, 0f, 16f, 16f), Quadrant.R0, info, Direction.SOUTH, BlockModelRotation.IDENTITY, null, ExtraFaceData.DEFAULT));
+        builder.addUnculledFace(FaceBakery.bakeQuad(INTERNER, from, to, new CuboidFace.UVs(16f, 0f, 0f, 16f), Quadrant.R0, info, Direction.NORTH, BlockModelRotation.IDENTITY, null, ExtraFaceData.DEFAULT));
+        ItemModelGenerator.bakeSideFaces(builder, INTERNER, BlockModelRotation.IDENTITY, info, ExtraFaceData.DEFAULT);
+        return new CustomRenderedItemModel(builder.build().getAll(), null);
     }
 
     @SubscribeEvent
-    public static void registerAdditionalModels(ModelEvent.RegisterAdditional event) {
+    public static void registerStandalone(ModelEvent.RegisterStandalone event) {
+        CustomRenderedItemModel.register(event, BASE);
         var manager = Minecraft.getInstance().getResourceManager();
         for (var folder : List.of("models/item/dynamic_parts", "models/item/modular")) for (var file : manager.listResources(folder, loc -> loc.getPath().endsWith(".json")).keySet())
-            event.register(ModelResourceLocation.standalone(MODELS.fileToId(file)));
+            CustomRenderedItemModel.register(event, MODELS.fileToId(file));
     }
 
     @SubscribeEvent
@@ -108,7 +113,5 @@ public class DynamicPartRenderer extends CustomRenderedItemModelRenderer {
         clear();
     }
 
-    private record Key(@Nullable ResourceLocation material, @Nullable ResourceLocation part, @Nullable ResourceLocation built) {}
-
-    private record Part(BakedModel model, RenderType type) {}
+    private record Key(@Nullable Identifier material, @Nullable Identifier part, @Nullable Identifier built) {}
 }

@@ -11,7 +11,7 @@
   "type": "slag:basin_casting",
   "ingredient": {
     "amount": 648,
-    "tag": "c:molten/zinc"
+    "ingredient": "#c:molten/zinc"
   },
   "result": {
     "tag": "c:storage_blocks/zinc"

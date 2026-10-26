@@ -1,5 +1,5 @@
 {
-  "conditions": [
+  "neoforge:conditions": [
     {
       "type": "neoforge:not",
       "value": {
@@ -10,9 +10,7 @@
   ],
   "id": "slag:brass",
   "molten_fluid": "slag:molten_brass",
-  "repair_ingredient": {
-    "tag": "c:ingots/brass"
-  },
+  "repair_ingredient": "#c:ingots/brass",
   "sort_order": 300,
   "texture": "shiny",
   "traits": [

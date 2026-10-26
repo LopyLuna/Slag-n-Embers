@@ -15,12 +15,8 @@
   "type": "minecraft:crafting_shaped",
   "category": "equipment",
   "key": {
-    "M": {
-      "tag": "c:ingots/aluminium"
-    },
-    "R": {
-      "item": "minecraft:paper"
-    }
+    "M": "#c:ingots/aluminium",
+    "R": "minecraft:paper"
   },
   "pattern": [
     "MMM",
@@ -32,7 +28,6 @@
       "slag:material_type": "slag:aluminium",
       "slag:part_type": "slag:leggings"
     },
-    "count": 1,
     "id": "slag:dynamic_part"
   }
 }

@@ -3,10 +3,9 @@
   "cast": "slag:cast/nuggets",
   "ingredient": {
     "amount": 8,
-    "tag": "c:molten/iron"
+    "ingredient": "#c:molten/iron"
   },
   "result": {
-    "count": 1,
     "id": "minecraft:iron_nugget"
   }
 }

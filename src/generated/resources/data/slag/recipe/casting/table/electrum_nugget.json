@@ -12,7 +12,7 @@
   "cast": "slag:cast/nuggets",
   "ingredient": {
     "amount": 8,
-    "tag": "c:molten/electrum"
+    "ingredient": "#c:molten/electrum"
   },
   "result": {
     "tag": "c:nuggets/electrum"

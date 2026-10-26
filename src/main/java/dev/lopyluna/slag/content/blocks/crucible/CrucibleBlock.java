@@ -3,16 +3,14 @@ package dev.lopyluna.slag.content.blocks.crucible;
 import com.mojang.serialization.MapCodec;
 import dev.lopyluna.slag.compat.sable.SableCompat;
 import dev.lopyluna.slag.config.SlagServerConfigs;
+import dev.lopyluna.slag.content.AllUtils;
 import dev.lopyluna.slag.content.blocks.multiblock.ConnectivityHandler;
 import dev.lopyluna.slag.content.blocks.smart.SmartBlock;
 import dev.lopyluna.slag.content.utils.ShapeUtils;
 import dev.lopyluna.slag.register.AllBETypes;
-import dev.lopyluna.slag.register.AllLangs;
 import dev.lopyluna.slag.register.AllSoundTypes;
-import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
@@ -22,13 +20,11 @@ import net.minecraft.tags.TagKey;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.InsideBlockEffectApplier;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
@@ -43,22 +39,19 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
+import net.minecraft.world.level.redstone.Orientation;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.neoforged.neoforge.capabilities.Capabilities;
-import net.neoforged.neoforge.common.EffectCures;
 import net.neoforged.neoforge.common.NeoForgeMod;
 import net.neoforged.neoforge.common.SoundActions;
 import net.neoforged.neoforge.common.util.DeferredSoundType;
 import net.neoforged.neoforge.fluids.FluidStack;
-import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 import javax.annotation.Nonnull;
 
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
-import java.util.List;
 
 import static dev.lopyluna.slag.content.blocks.crucible.CrucibleBE.*;
 
@@ -82,12 +75,6 @@ public class CrucibleBlock extends SmartBlock<CrucibleBE> {
     }
 
     @Override
-    public void appendHoverText(ItemStack pStack, Item.TooltipContext pContext, List<Component> pTooltips, TooltipFlag pFlag) {
-        super.appendHoverText(pStack, pContext, pTooltips, pFlag);
-        pTooltips.add(AllLangs.tr("dynamic_multiblock").withStyle(ChatFormatting.GRAY));
-    }
-
-    @Override
     public Class<CrucibleBE> getBlockEntityClass() {
         return CrucibleBE.class;
     }
@@ -102,8 +89,8 @@ public class CrucibleBlock extends SmartBlock<CrucibleBE> {
     }
 
     @Override
-    protected void entityInside(BlockState state, Level level, BlockPos pos, Entity entity) {
-        super.entityInside(state, level, pos, entity);
+    protected void entityInside(BlockState state, Level level, BlockPos pos, Entity entity, InsideBlockEffectApplier effectApplier, boolean isPrecise) {
+        super.entityInside(state, level, pos, entity, effectApplier, isPrecise);
         if (!(entity instanceof LivingEntity living) || !(level.getBlockEntity(pos) instanceof CrucibleBE part) || !(part.getControllerBE() instanceof CrucibleBE be)) return;
         if (be.updateFluidBoxes) be.updateFluidBoxes();
 
@@ -126,11 +113,11 @@ public class CrucibleBlock extends SmartBlock<CrucibleBE> {
     }
 
     public static void applyFluid(Level level, LivingEntity living, boolean hot, boolean milk, boolean extinguish) {
-        if (milk && !living.getActiveEffects().isEmpty()) living.removeEffectsCuredBy(EffectCures.MILK);
+        if (milk && !living.getActiveEffects().isEmpty()) living.removeAllEffects();
         if (hot) living.lavaHurt();
         else if (extinguish && living.isOnFire()) {
             living.extinguishFire();
-            living.playSound(SoundEvents.GENERIC_EXTINGUISH_FIRE, 0.7F, 1.6F + (level.random.nextFloat() - level.random.nextFloat()) * 0.4F);
+            living.playSound(SoundEvents.GENERIC_EXTINGUISH_FIRE, 0.7F, 1.6F + (level.getRandom().nextFloat() - level.getRandom().nextFloat()) * 0.4F);
         }
     }
 
@@ -188,20 +175,10 @@ public class CrucibleBlock extends SmartBlock<CrucibleBE> {
     }
 
     @Override
-    protected void neighborChanged(BlockState state, Level level, BlockPos pos, Block neighborBlock, BlockPos neighborPos, boolean movedByPiston) {
-        super.neighborChanged(state, level, pos, neighborBlock, neighborPos, movedByPiston);
-        if (!(level.getBlockEntity(pos) instanceof CrucibleBE be) || !(be.getControllerBE() instanceof CrucibleBE ctrl)) return;
-        if (neighborPos.getY() >= pos.getY() || !state.getValue(BOTTOM)) return;
+    protected void neighborChanged(BlockState state, Level level, BlockPos pos, Block neighborBlock, @Nullable Orientation orientation, boolean movedByPiston) {
+        super.neighborChanged(state, level, pos, neighborBlock, orientation, movedByPiston);
+        if (!state.getValue(BOTTOM) || !(level.getBlockEntity(pos) instanceof CrucibleBE be) || !(be.getControllerBE() instanceof CrucibleBE ctrl)) return;
         ctrl.updateHeat = true;
-    }
-
-    @Override
-    protected void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean movedByPiston) {
-        if (state.hasBlockEntity() && (state.getBlock() != newState.getBlock() || !newState.hasBlockEntity())) {
-            if (!(level.getBlockEntity(pos) instanceof CrucibleBE tankBE)) return;
-            level.removeBlockEntity(pos);
-            ConnectivityHandler.splitMulti(tankBE);
-        }
     }
 
     @Override
@@ -210,50 +187,36 @@ public class CrucibleBlock extends SmartBlock<CrucibleBE> {
             var ctrl = be.getControllerBE();
             if (ctrl == null) ctrl = be;
             ctrl.setWindows(!ctrl.window);
-            return InteractionResult.SUCCESS_NO_ITEM_USED;
+            return InteractionResult.SUCCESS;
         }
         return super.useWithoutItem(state, level, pos, player, hitResult);
     }
 
     @Override
-    protected @Nonnull ItemInteractionResult useItemOn(ItemStack held, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
-        if (!SlagServerConfigs.INSERT_FLUID_ITEM_INTO_CRUCIBLE.get()) return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
-        if (!(level.getBlockEntity(pos) instanceof CrucibleBE be)) return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+    protected @Nonnull InteractionResult useItemOn(ItemStack held, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
+        if (!SlagServerConfigs.INSERT_FLUID_ITEM_INTO_CRUCIBLE.get()) return InteractionResult.TRY_WITH_EMPTY_HAND;
+        if (!(level.getBlockEntity(pos) instanceof CrucibleBE be)) return InteractionResult.TRY_WITH_EMPTY_HAND;
 
         var ctrl = be.getControllerBE();
         if (ctrl == null) ctrl = be;
         var tank = ctrl.tankInventory;
 
-        var single = held.copyWithCount(1);
-        var itemHandler = single.getCapability(Capabilities.FluidHandler.ITEM);
-        if (itemHandler == null) return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+        var itemHandler = AllUtils.heldFluids(player, hand);
+        if (itemHandler == null) return InteractionResult.TRY_WITH_EMPTY_HAND;
 
-        FluidStack available = itemHandler.drain(Integer.MAX_VALUE, IFluidHandler.FluidAction.SIMULATE);
-        if (available.isEmpty()) return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+        var available = AllUtils.drain(itemHandler, Integer.MAX_VALUE, true);
+        if (available.isEmpty()) return InteractionResult.TRY_WITH_EMPTY_HAND;
+        if (!AllUtils.moveExact(itemHandler, tank, available, level.isClientSide())) return InteractionResult.TRY_WITH_EMPTY_HAND;
 
-        int fillable = tank.fill(available, IFluidHandler.FluidAction.SIMULATE);
-        if (fillable != available.getAmount()) return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
-
-        if (!level.isClientSide) {
-            FluidStack drained = itemHandler.drain(fillable, IFluidHandler.FluidAction.EXECUTE);
-            if (!drained.isEmpty()) {
-                int accepted = tank.fill(drained, IFluidHandler.FluidAction.EXECUTE);
-                if (accepted > 0 && !player.getAbilities().instabuild) {
-                    var container = itemHandler.getContainer();
-                    held.shrink(1);
-                    if (held.isEmpty()) player.setItemInHand(hand, container);
-                    else if (!container.isEmpty() && !player.getInventory().add(container)) player.drop(container, false);
-                }
-
-                ctrl.sendDataImmediately();
-                ctrl.setChanged();
-            }
+        if (!level.isClientSide()) {
+            ctrl.sendDataImmediately();
+            ctrl.setChanged();
         }
         var soundFill = getFillSound(available);
         var soundEmpty = getEmptySound(available);
         if (soundFill != null) level.playSound(null, pos, soundFill, SoundSource.BLOCKS, .5f, 1);
         if (soundEmpty != null) player.playSound(soundEmpty, .5f, 1);
-        return ItemInteractionResult.SUCCESS;
+        return InteractionResult.SUCCESS;
     }
 
 
@@ -314,7 +277,7 @@ public class CrucibleBlock extends SmartBlock<CrucibleBE> {
     }
 
     @Override
-    protected @Nonnull VoxelShape getOcclusionShape(BlockState state, BlockGetter level, BlockPos pos) {
+    protected @Nonnull VoxelShape getOcclusionShape(BlockState state) {
         return state.getValue(WINDOW) ? Shapes.empty() : SHAPES[state.getValue(SHAPE).ordinal() * 2 + (state.getValue(BOTTOM) ? 1 : 0)];
     }
 

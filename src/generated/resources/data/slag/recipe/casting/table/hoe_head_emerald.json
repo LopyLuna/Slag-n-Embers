@@ -3,14 +3,13 @@
   "cast": "slag:cast/hoe_heads",
   "ingredient": {
     "amount": 144,
-    "tag": "c:molten/emerald"
+    "ingredient": "#c:molten/emerald"
   },
   "result": {
     "components": {
       "slag:material_type": "slag:emerald",
       "slag:part_type": "slag:hoe_head"
     },
-    "count": 1,
     "id": "slag:dynamic_part"
   }
 }

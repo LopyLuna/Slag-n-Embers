@@ -9,9 +9,7 @@
     }
   ],
   "type": "slag:melting",
-  "ingredient": {
-    "tag": "c:rods/copper"
-  },
+  "ingredient": "#c:rods/copper",
   "ingredients": [],
   "result": [
     {

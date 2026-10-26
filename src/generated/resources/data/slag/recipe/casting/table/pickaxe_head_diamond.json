@@ -3,14 +3,13 @@
   "cast": "slag:cast/pickaxe_heads",
   "ingredient": {
     "amount": 216,
-    "tag": "c:molten/diamond"
+    "ingredient": "#c:molten/diamond"
   },
   "result": {
     "components": {
       "slag:material_type": "slag:diamond",
       "slag:part_type": "slag:pickaxe_head"
     },
-    "count": 1,
     "id": "slag:dynamic_part"
   }
 }

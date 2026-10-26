@@ -2,9 +2,7 @@
   "type": "minecraft:crafting_shapeless",
   "category": "equipment",
   "ingredients": [
-    {
-      "tag": "minecraft:terracotta"
-    }
+    "#minecraft:terracotta"
   ],
   "result": {
     "count": 2,

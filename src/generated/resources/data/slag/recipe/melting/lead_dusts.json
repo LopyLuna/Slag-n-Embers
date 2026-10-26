@@ -9,9 +9,7 @@
     }
   ],
   "type": "slag:melting",
-  "ingredient": {
-    "tag": "c:dusts/lead"
-  },
+  "ingredient": "#c:dusts/lead",
   "ingredients": [],
   "result": [
     {

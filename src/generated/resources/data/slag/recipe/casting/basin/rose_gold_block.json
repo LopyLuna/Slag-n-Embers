@@ -2,10 +2,9 @@
   "type": "slag:basin_casting",
   "ingredient": {
     "amount": 648,
-    "tag": "c:molten/rose_gold"
+    "ingredient": "#c:molten/rose_gold"
   },
   "result": {
-    "count": 1,
     "id": "slag:rose_gold_block"
   }
 }

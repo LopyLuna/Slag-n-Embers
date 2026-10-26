@@ -12,7 +12,7 @@
   "cast": "slag:cast/nuggets",
   "ingredient": {
     "amount": 8,
-    "tag": "c:molten/netherite"
+    "ingredient": "#c:molten/netherite"
   },
   "result": {
     "tag": "c:nuggets/netherite"

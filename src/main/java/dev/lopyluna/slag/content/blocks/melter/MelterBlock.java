@@ -8,6 +8,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.InsideBlockEffectApplier;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
@@ -22,19 +23,21 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
-import net.minecraft.world.level.block.state.properties.DirectionProperty;
+import net.minecraft.world.level.block.state.properties.EnumProperty;
+import net.minecraft.world.level.redstone.Orientation;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.neoforged.neoforge.capabilities.Capabilities;
-import net.neoforged.neoforge.items.ItemHandlerHelper;
+import net.neoforged.neoforge.transfer.ResourceHandlerUtil;
+import net.neoforged.neoforge.transfer.item.ItemResource;
 import javax.annotation.Nonnull;
 
+import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
 
 @ParametersAreNonnullByDefault
 public class MelterBlock extends SmartBlock<MelterBE> {
-    public static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
+    public static final EnumProperty<Direction> FACING = BlockStateProperties.HORIZONTAL_FACING;
     public static final MapCodec<MelterBlock> CODEC = simpleCodec(MelterBlock::new);
     public static final VoxelShape SHAPE = ShapeUtils.shape(0, 0, 0, 16, 4, 16)
             .add(0, 0, 0, 16, 16, 3).add(0, 0, 13, 16, 16, 16)
@@ -57,7 +60,7 @@ public class MelterBlock extends SmartBlock<MelterBE> {
 
     @Override
     protected @Nonnull InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hitResult) {
-        if (!level.isClientSide) {
+        if (!level.isClientSide()) {
             if (level.getBlockEntity(pos) instanceof MelterBE be) player.openMenu(be);
             return InteractionResult.CONSUME;
         }
@@ -65,19 +68,17 @@ public class MelterBlock extends SmartBlock<MelterBE> {
     }
 
     @Override
-    protected void entityInside(BlockState state, Level level, BlockPos pos, Entity entity) {
+    protected void entityInside(BlockState state, Level level, BlockPos pos, Entity entity, InsideBlockEffectApplier effectApplier, boolean isPrecise) {
+        if (level.isClientSide()) return;
         if (entity instanceof ItemEntity itemEntity) {
             var stack = itemEntity.getItem();
             if (stack.isEmpty()) return;
-            var cap = level.getCapability(Capabilities.ItemHandler.BLOCK, pos, Direction.DOWN);
-            if (cap == null) return;
-            var remainder = ItemHandlerHelper.insertItemStacked(cap, stack, false);
-           // System.out.println("Tried insert: in= " + stack + " out= " + remainder);
+            if (!(level.getBlockEntity(pos) instanceof MelterBE be)) return;
+            var inserted = ResourceHandlerUtil.insertStacking(be.itemInventory, ItemResource.of(stack), stack.getCount(), null);
+            if (inserted <= 0) return;
 
-            if (remainder.getCount() == stack.getCount()) return;
-
-            if (remainder.isEmpty()) entity.discard();
-            else itemEntity.setItem(remainder);
+            if (inserted >= stack.getCount()) entity.discard();
+            else itemEntity.setItem(stack.copyWithCount(stack.getCount() - inserted));
         }
     }
 
@@ -92,9 +93,9 @@ public class MelterBlock extends SmartBlock<MelterBE> {
     }
 
     @Override
-    protected void neighborChanged(BlockState state, Level level, BlockPos pos, Block neighborBlock, BlockPos neighborPos, boolean movedByPiston) {
-        super.neighborChanged(state, level, pos, neighborBlock, neighborPos, movedByPiston);
-        if (neighborPos.equals(pos.below())) withBlockEntityDo(level, pos, MelterBE::updateHeat);
+    protected void neighborChanged(BlockState state, Level level, BlockPos pos, Block neighborBlock, @Nullable Orientation orientation, boolean movedByPiston) {
+        super.neighborChanged(state, level, pos, neighborBlock, orientation, movedByPiston);
+        withBlockEntityDo(level, pos, MelterBE::updateHeat);
     }
 
     @Override
@@ -120,7 +121,7 @@ public class MelterBlock extends SmartBlock<MelterBE> {
     }
 
     @Override
-    public int getAnalogOutputSignal(BlockState blockState, Level level, BlockPos pos) {
+    public int getAnalogOutputSignal(BlockState blockState, Level level, BlockPos pos, Direction direction) {
         return level.getBlockEntity(pos) instanceof MelterBE be && be.itemInventory != null ? AbstractContainerMenu.getRedstoneSignalFromContainer(be.itemInventory) : 0;
     }
 

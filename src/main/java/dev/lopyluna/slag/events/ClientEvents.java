@@ -21,8 +21,7 @@ import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 import net.neoforged.neoforge.client.event.ModelEvent;
 import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
 
-@SuppressWarnings("removal")
-@EventBusSubscriber(modid = SlagEmbers.MOD_ID, bus = EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
+@EventBusSubscriber(modid = SlagEmbers.MOD_ID, value = Dist.CLIENT)
 public class ClientEvents {
     @SubscribeEvent
     static void registerBER(EntityRenderersEvent.RegisterRenderers e) {

@@ -12,14 +12,13 @@
   "cast": "slag:cast/boots",
   "ingredient": {
     "amount": 144,
-    "tag": "c:molten/brass"
+    "ingredient": "#c:molten/brass"
   },
   "result": {
     "components": {
       "slag:material_type": "slag:brass",
       "slag:part_type": "slag:boots"
     },
-    "count": 1,
     "id": "slag:dynamic_part"
   }
 }

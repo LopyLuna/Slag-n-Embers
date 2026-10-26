@@ -12,14 +12,13 @@
   "cast": "slag:cast/shovel_heads",
   "ingredient": {
     "amount": 72,
-    "tag": "c:molten/aluminium"
+    "ingredient": "#c:molten/aluminium"
   },
   "result": {
     "components": {
       "slag:material_type": "slag:aluminium",
       "slag:part_type": "slag:shovel_head"
     },
-    "count": 1,
     "id": "slag:dynamic_part"
   }
 }

@@ -7,8 +7,8 @@ import org.spongepowered.asm.mixin.gen.Invoker;
 
 @Mixin(AxeItem.class)
 public interface AxeItemAccessor {
-    @Invoker("playerHasShieldUseIntent")
-    static boolean playerHasShieldUseIntent(UseOnContext context) {
+    @Invoker("playerHasBlockingItemUseIntent")
+    static boolean playerHasBlockingItemUseIntent(UseOnContext context) {
         throw new AssertionError();
     }
 }

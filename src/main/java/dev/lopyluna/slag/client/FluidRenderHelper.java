@@ -3,66 +3,73 @@ package dev.lopyluna.slag.client;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
-import net.createmod.catnip.annotations.ClientOnly;
-import net.createmod.catnip.data.Iterate;
-import net.createmod.catnip.platform.CatnipServices;
-import net.createmod.catnip.platform.services.ModFluidHelper;
+import net.createmod.catnip.api.data.Iterate;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.texture.MissingTextureAtlasSprite;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.renderer.RenderPipelines;
+import net.minecraft.client.renderer.SubmitNodeCollector;
+import net.minecraft.client.renderer.block.FluidModel;
+import net.minecraft.client.renderer.rendertype.RenderType;
+import net.minecraft.client.renderer.rendertype.RenderTypes;
+import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
-import net.minecraft.world.inventory.InventoryMenu;
-import net.minecraft.world.level.BlockAndTintGetter;
-import net.minecraft.world.level.material.Fluid;
+import net.minecraft.client.renderer.block.BlockAndTintGetter;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.neoforge.client.extensions.common.IClientFluidTypeExtensions;
 import net.neoforged.neoforge.fluids.FluidStack;
 
 import javax.annotation.Nullable;
-import java.util.function.Function;
+import java.util.function.BiConsumer;
 
 @SuppressWarnings({"unused", "MultipleVariablesInDeclaration", "UnusedAssignment"})
 public class FluidRenderHelper {
     private FluidRenderHelper() {}
 
-    @ClientOnly
+    public static final RenderType FLUID = RenderTypes.translucentMovingBlock();
+
+    public static void submit(SubmitNodeCollector collector, PoseStack ms, RenderType type, BiConsumer<VertexConsumer, PoseStack> draw) {
+        collector.submitCustomGeometry(ms, type, (pose, buffer) -> {
+            var stack = new PoseStack();
+            stack.last().set(pose);
+            draw.accept(buffer, stack);
+        });
+    }
+
+    public static void submit(SubmitNodeCollector collector, PoseStack ms, BiConsumer<VertexConsumer, PoseStack> draw) {
+        submit(collector, ms, FLUID, draw);
+    }
+
+    private static FluidModel model(FluidStack fluid) {
+        return Minecraft.getInstance().getModelManager().getFluidStateModelSet().get(fluid.getFluid().defaultFluidState());
+    }
+
     public static TextureAtlasSprite getFlowingTexture(FluidStack fluid) {
-        return Minecraft.getInstance().getTextureAtlas(InventoryMenu.BLOCK_ATLAS).apply(IClientFluidTypeExtensions.of(fluid.getFluid()).getFlowingTexture(fluid));
+        return model(fluid).flowingMaterial().sprite();
     }
 
-    @ClientOnly
     public static TextureAtlasSprite getFlowingTextureOrMissing(FluidStack fluid) {
-        TextureAtlasSprite texture = getFlowingTexture(fluid);
-        if (texture != null) return texture;
-        return Minecraft.getInstance().getTextureAtlas(InventoryMenu.BLOCK_ATLAS).apply(MissingTextureAtlasSprite.getLocation());
+        return getFlowingTexture(fluid);
     }
 
-    public static void renderFlowingFluidBox(FluidStack fluid, float xMin, float yMin, float zMin, float xMax, float yMax, float zMax, MultiBufferSource buffer, PoseStack ms, int light, boolean renderBottom, boolean invertGasses) {
-        renderFlowingFluidBox(fluid, xMin, yMin, zMin, xMax, yMax, zMax, getFluidBuilder(buffer), ms, light, renderBottom, invertGasses);
+    public static void renderFlowingFluidBox(FluidStack fluid, float xMin, float yMin, float zMin, float xMax, float yMax, float zMax, SubmitNodeCollector collector, PoseStack ms, int light, boolean renderBottom, boolean invertGasses) {
+        submit(collector, ms, (builder, stack) -> renderFlowingFluidBox(fluid, xMin, yMin, zMin, xMax, yMax, zMax, builder, stack, light, renderBottom, invertGasses));
     }
 
-    @SuppressWarnings("unchecked")
     public static void renderFlowingFluidBox(FluidStack fluid, float xMin, float yMin, float zMin, float xMax, float yMax, float zMax, VertexConsumer builder, PoseStack ms, int light, boolean renderBottom, boolean invertGasses) {
-        ModFluidHelper<FluidStack> helper = (ModFluidHelper<FluidStack>) CatnipServices.FLUID_HELPER;
-
         TextureAtlasSprite fluidTexture = getFlowingTextureOrMissing(fluid);
-        int color = helper.getColor(fluid, null, null);
+        int color = getColor(fluid, null, null);
 
         int blockLightIn = (light >> 4) & 0xF;
-        int luminosity = Math.max(blockLightIn, helper.getLuminosity(fluid));
+        int luminosity = Math.max(blockLightIn, getLuminosity(fluid));
         light = (light & 0xF00000) | luminosity << 4;
 
         Vec3 center = new Vec3(xMin + (xMax - xMin) / 2, yMin + (yMax - yMin) / 2, zMin + (zMax - zMin) / 2);
         ms.pushPose();
-        if (invertGasses && helper.isLighterThanAir(fluid)) {
+        if (invertGasses && isLighterThanAir(fluid)) {
             ms.translate(center.x, center.y, center.z);
             ms.mulPose(Axis.XP.rotationDegrees(180));
             ms.translate(-center.x, -center.y, -center.z);
@@ -73,14 +80,14 @@ public class FluidRenderHelper {
 
             boolean positive = side.getAxisDirection() == Direction.AxisDirection.POSITIVE;
             if (side.getAxis().isHorizontal()) {
-                if (side.getAxis() == Direction.Axis.X) net.createmod.catnip.render.FluidRenderHelper.renderTiledFace(side, zMin, yMin, zMax, yMax, positive ? xMax : xMin, builder, ms, light, color, fluidTexture, 0.5f);
-                else net.createmod.catnip.render.FluidRenderHelper.renderTiledFace(side, xMin, yMin, xMax, yMax, positive ? zMax : zMin, builder, ms, light, color, fluidTexture, 0.5f);
-            } else net.createmod.catnip.render.FluidRenderHelper.renderTiledFace(side, xMin, zMin, xMax, zMax, positive ? yMax : yMin, builder, ms, light, color, fluidTexture, 0.5f);
+                if (side.getAxis() == Direction.Axis.X) renderTiledFace(side, zMin, yMin, zMax, yMax, positive ? xMax : xMin, builder, ms, light, color, fluidTexture, 0.5f);
+                else renderTiledFace(side, xMin, yMin, xMax, yMax, positive ? zMax : zMin, builder, ms, light, color, fluidTexture, 0.5f);
+            } else renderTiledFace(side, xMin, zMin, xMax, zMax, positive ? yMax : yMin, builder, ms, light, color, fluidTexture, 0.5f);
         }
         ms.popPose();
     }
 
-    public static void drawFluidBox(GuiGraphics g, int x, int y, int sizeX, int sizeY, FluidStack fs) {
+    public static void drawFluidBox(GuiGraphicsExtractor g, int x, int y, int sizeX, int sizeY, FluidStack fs) {
         if (fs == null || fs.isEmpty()) return;
         TextureAtlasSprite spr = getStillTextureOrMissing(fs);
         int argb = getColor(fs, null, null);
@@ -88,40 +95,32 @@ public class FluidRenderHelper {
 
     }
 
-    public static void drawFluidBox(GuiGraphics g, int x, int y, int sizeX, int sizeY, TextureAtlasSprite spr, int argb) {
+    public static void drawFluidBox(GuiGraphicsExtractor g, int x, int y, int sizeX, int sizeY, TextureAtlasSprite spr, int argb) {
         if (spr == null) return;
 
-        float a = ((argb >>> 24) & 0xFF) / 255f;
-        float r = ((argb >>> 16) & 0xFF) / 255f;
-        float gg = ((argb >>>  8) & 0xFF) / 255f;
-        float b =  (argb & 0xFF) / 255f;
-        g.setColor(r, gg, b, a);
-
-        final int u0px = spr.getX();
-        final int v0px = spr.getY();
         final int sw   = spr.contents().width();
         final int sh   = spr.contents().height();
         final float u0 = spr.getU0(), u1 = spr.getU1();
         final float v0 = spr.getV0(), v1 = spr.getV1();
         final int atlasW = Math.round(sw / (u1 - u0));
         final int atlasH = Math.round(sh / (v1 - v0));
+        final int u0px = Math.round(u0 * atlasW);
+        final int v0px = Math.round(v0 * atlasH);
 
         for (int oy = 0; oy < sizeY; ) {
             int h = Math.min(sh, sizeY - oy);
             for (int ox = 0; ox < sizeX; ) {
                 int w = Math.min(sw, sizeX - ox);
-                g.blit(spr.atlasLocation(), x + ox, y + oy, w, h, (float) u0px, (float) v0px, w, h, atlasW, atlasH);
+                g.blit(RenderPipelines.GUI_TEXTURED, spr.atlasLocation(), x + ox, y + oy, (float) u0px, (float) v0px, w, h, atlasW, atlasH, argb);
                 ox += w;
             }
             oy += h;
         }
-
-        g.setColor(1f, 1f, 1f, 1f);
     }
 
     public static void renderFluidBox(FluidState fluid, float xMin, float yMin, float zMin, float xMax, float yMax, float zMax,
-                               MultiBufferSource buffer, PoseStack ms, int light, boolean renderBottom, boolean invertGasses) {
-        renderFluidBox(fluid, xMin, yMin, zMin, xMax, yMax, zMax, getFluidBuilder(buffer), ms, light, renderBottom, invertGasses);
+                               SubmitNodeCollector collector, PoseStack ms, int light, boolean renderBottom, boolean invertGasses) {
+        renderFluidBox(toStack(fluid), xMin, yMin, zMin, xMax, yMax, zMax, collector, ms, light, renderBottom, invertGasses);
     }
 
     public static void renderFluidBox(FluidState fluid,  float xMin, float yMin, float zMin, float xMax,
@@ -130,12 +129,11 @@ public class FluidRenderHelper {
     }
 
     public static void renderFluidBox(FluidStack fluid,  float xMin, float yMin, float zMin, float xMax,
-                               float yMax, float zMax, MultiBufferSource buffer, PoseStack ms, int light, boolean renderBottom, boolean invertGasses) {
-        renderFluidBox(fluid, xMin, yMin, zMin, xMax, yMax, zMax, getFluidBuilder(buffer), ms, light, renderBottom, invertGasses);
+                               float yMax, float zMax, SubmitNodeCollector collector, PoseStack ms, int light, boolean renderBottom, boolean invertGasses) {
+        submit(collector, ms, (builder, stack) -> renderFluidBox(fluid, xMin, yMin, zMin, xMax, yMax, zMax, builder, stack, light, renderBottom, invertGasses));
     }
 
-    public static void renderFluidBlock(FluidStack fluid, float height, MultiBufferSource buffer, PoseStack ms, int light) {
-        var builder = getFluidBuilder(buffer);
+    public static void renderFluidBlock(FluidStack fluid, float height, VertexConsumer builder, PoseStack ms, int light) {
         var still = getStillTextureOrMissing(fluid);
         var flowing = getFlowingTextureOrMissing(fluid);
         var color = getColor(fluid, null, null);
@@ -143,12 +141,8 @@ public class FluidRenderHelper {
         for (var side : Direction.values()) {
             var positive = side.getAxisDirection() == Direction.AxisDirection.POSITIVE;
             if (side.getAxis() == Direction.Axis.Y) renderStillTiledFace(side, 0, 0, 1, 1, positive ? height : 0, builder, ms, light, color, still);
-            else net.createmod.catnip.render.FluidRenderHelper.renderTiledFace(side, 0, 0, 1, height, positive ? 1 : 0, builder, ms, light, color, flowing, 0.5f);
+            else renderTiledFace(side, 0, 0, 1, height, positive ? 1 : 0, builder, ms, light, color, flowing, 0.5f);
         }
-    }
-
-    public static VertexConsumer getFluidBuilder(MultiBufferSource buffer) {
-        return buffer.getBuffer(RenderType.translucent());
     }
 
     public static void renderFluidBox(FluidStack fluid, float xMin, float yMin, float zMin, float xMax, float yMax, float zMax, VertexConsumer builder, PoseStack ms, int light, boolean renderBottom, boolean invertGasses) {
@@ -206,10 +200,6 @@ public class FluidRenderHelper {
         boolean horizontal = dir.getAxis().isHorizontal();
         boolean x = dir.getAxis() == Direction.Axis.X;
 
-        float shrink = texture.uvShrinkRatio() * 0.25f * textureScale;
-        float centerU = texture.getU0() + (texture.getU1() - texture.getU0()) * 0.5f * textureScale;
-        float centerV = texture.getV0() + (texture.getV1() - texture.getV0()) * 0.5f * textureScale;
-
         float f;
         float x2 = 0, y2 = 0;
         float u1, u2;
@@ -225,8 +215,6 @@ public class FluidRenderHelper {
                 u1 = texture.getU((x1 - f) * textureScale);
                 u2 = texture.getU((x2 - f) * textureScale);
             }
-            u1 = Mth.lerp(shrink, u1, centerU);
-            u2 = Mth.lerp(shrink, u2, centerU);
             for (float y1 = down; y1 < up; y1 = y2) {
                 f = Mth.floor(y1);
                 y2 = Math.min(f + 1, up);
@@ -238,8 +226,6 @@ public class FluidRenderHelper {
                     v1 = texture.getV((f - y2) * textureScale);
                     v2 = texture.getV((f - y1) * textureScale);
                 }
-                v1 = Mth.lerp(shrink, v1, centerV);
-                v2 = Mth.lerp(shrink, v2, centerV);
 
                 if (horizontal) {
                     if (x) {
@@ -264,7 +250,7 @@ public class FluidRenderHelper {
     }
 
     private static void putVertex(VertexConsumer builder, PoseStack ms, float x, float y, float z, int color, float u, float v, Direction face, int light) {
-        Vec3i normal = face.getNormal();
+        Vec3i normal = face.getUnitVec3i();
         PoseStack.Pose peek = ms.last();
         int a = color >> 24 & 0xff;
         int r = color >> 16 & 0xff;
@@ -274,13 +260,10 @@ public class FluidRenderHelper {
         builder.addVertex(peek.pose(), x, y, z)
                 .setColor(r, g, b, a)
                 .setUv(u, v)
+                .setOverlay(OverlayTexture.NO_OVERLAY)
                 .setLight(light)
                 .setNormal(peek, normal.getX(), normal.getY(), normal.getZ())
         ;
-    }
-
-    private static TextureAtlasSprite safe(Function<ResourceLocation, TextureAtlasSprite> atlas, net.minecraft.resources.ResourceLocation rl) {
-        return rl != null ? atlas.apply(rl) : atlas.apply(MissingTextureAtlasSprite.getLocation());
     }
 
     public static int getLuminosity(FluidStack fluid) {
@@ -288,21 +271,18 @@ public class FluidRenderHelper {
     }
 
     public static TextureAtlasSprite getStillTexture(FluidStack fluid) {
-        ResourceLocation id = IClientFluidTypeExtensions.of(fluid.getFluid()).getStillTexture(fluid);
-        return Minecraft.getInstance().getTextureAtlas(InventoryMenu.BLOCK_ATLAS).apply(id);
+        return model(fluid).stillMaterial().sprite();
     }
 
     public static TextureAtlasSprite getStillTextureOrMissing(FluidStack fluid) {
-        TextureAtlasSprite texture = getStillTexture(fluid);
-        if (texture != null) return texture;
-        return Minecraft.getInstance().getTextureAtlas(InventoryMenu.BLOCK_ATLAS).apply(MissingTextureAtlasSprite.getLocation());
+        return getStillTexture(fluid);
     }
+
     public static int getColor(FluidStack stack, @Nullable BlockAndTintGetter level, @Nullable BlockPos pos) {
-        Fluid fluid = stack.getFluid();
-        IClientFluidTypeExtensions extension = IClientFluidTypeExtensions.of(fluid);
-        if (level == null || pos == null)
-            return extension.getTintColor(stack);
-        return extension.getTintColor(fluid.defaultFluidState(), level, pos);
+        var source = model(stack).fluidTintSource();
+        if (source == null) return -1;
+        if (level == null || pos == null) return source.colorAsStack(stack);
+        return source.colorInWorld(stack.getFluid().defaultFluidState(), level.getBlockState(pos), level, pos);
     }
 
     public static boolean isLighterThanAir(FluidStack fluid) {

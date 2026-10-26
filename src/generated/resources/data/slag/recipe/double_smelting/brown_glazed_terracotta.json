@@ -2,12 +2,8 @@
   "type": "slag:double_smelting",
   "cookingTime": 200,
   "experience": 0.2,
-  "ingredientA": {
-    "item": "minecraft:brown_terracotta"
-  },
-  "ingredientB": {
-    "item": "minecraft:brown_terracotta"
-  },
+  "ingredientA": "minecraft:brown_terracotta",
+  "ingredientB": "minecraft:brown_terracotta",
   "result": {
     "count": 2,
     "id": "minecraft:brown_glazed_terracotta"

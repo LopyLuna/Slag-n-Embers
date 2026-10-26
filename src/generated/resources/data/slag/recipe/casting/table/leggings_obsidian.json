@@ -3,14 +3,13 @@
   "cast": "slag:cast/leggings",
   "ingredient": {
     "amount": 3240,
-    "tag": "c:molten/obsidian"
+    "ingredient": "#c:molten/obsidian"
   },
   "result": {
     "components": {
       "slag:material_type": "slag:obsidian",
       "slag:part_type": "slag:leggings"
     },
-    "count": 1,
     "id": "slag:dynamic_part"
   }
 }

@@ -9,9 +9,7 @@
     }
   ],
   "type": "slag:melting",
-  "ingredient": {
-    "tag": "c:clumps/aluminium"
-  },
+  "ingredient": "#c:clumps/aluminium",
   "ingredients": [],
   "result": [
     {

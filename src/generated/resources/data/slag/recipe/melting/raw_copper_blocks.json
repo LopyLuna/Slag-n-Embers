@@ -1,8 +1,6 @@
 {
   "type": "slag:melting",
-  "ingredient": {
-    "tag": "c:storage_blocks/raw_copper"
-  },
+  "ingredient": "#c:storage_blocks/raw_copper",
   "ingredients": [],
   "result": [
     {

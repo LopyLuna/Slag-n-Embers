@@ -3,14 +3,13 @@
   "cast": "slag:cast/helmets",
   "ingredient": {
     "amount": 216,
-    "tag": "c:molten/copper"
+    "ingredient": "#c:molten/copper"
   },
   "result": {
     "components": {
       "slag:material_type": "slag:copper",
       "slag:part_type": "slag:helmet"
     },
-    "count": 1,
     "id": "slag:dynamic_part"
   }
 }

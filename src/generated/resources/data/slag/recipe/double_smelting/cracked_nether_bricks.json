@@ -2,12 +2,8 @@
   "type": "slag:double_smelting",
   "cookingTime": 200,
   "experience": 0.2,
-  "ingredientA": {
-    "item": "minecraft:nether_bricks"
-  },
-  "ingredientB": {
-    "item": "minecraft:nether_bricks"
-  },
+  "ingredientA": "minecraft:nether_bricks",
+  "ingredientB": "minecraft:nether_bricks",
   "result": {
     "count": 2,
     "id": "minecraft:cracked_nether_bricks"

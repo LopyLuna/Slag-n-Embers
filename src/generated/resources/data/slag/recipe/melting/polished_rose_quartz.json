@@ -9,9 +9,7 @@
     }
   ],
   "type": "slag:melting",
-  "ingredient": {
-    "tag": "slag:polished_rose_quartz"
-  },
+  "ingredient": "#slag:polished_rose_quartz",
   "ingredients": [],
   "result": [
     {

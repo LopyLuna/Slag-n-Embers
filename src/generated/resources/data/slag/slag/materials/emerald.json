@@ -1,9 +1,7 @@
 {
   "id": "slag:emerald",
   "molten_fluid": "slag:molten_emerald",
-  "repair_ingredient": {
-    "tag": "c:gems/emerald"
-  },
+  "repair_ingredient": "#c:gems/emerald",
   "sort_order": 100,
   "texture": "shiny",
   "traits": [

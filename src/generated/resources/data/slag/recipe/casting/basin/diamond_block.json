@@ -2,10 +2,9 @@
   "type": "slag:basin_casting",
   "ingredient": {
     "amount": 648,
-    "tag": "c:molten/diamond"
+    "ingredient": "#c:molten/diamond"
   },
   "result": {
-    "count": 1,
     "id": "minecraft:diamond_block"
   }
 }

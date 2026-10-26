@@ -1,16 +1,13 @@
 {
   "type": "slag:basin_casting",
   "cast_item": {
-    "ingredient": {
-      "item": "minecraft:dirt"
-    }
+    "ingredient": "minecraft:dirt"
   },
   "ingredient": {
     "amount": 250,
-    "fluid": "minecraft:water"
+    "ingredient": "minecraft:water"
   },
   "result": {
-    "count": 1,
     "id": "minecraft:mud"
   }
 }

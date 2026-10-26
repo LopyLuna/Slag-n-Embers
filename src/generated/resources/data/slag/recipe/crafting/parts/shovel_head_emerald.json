@@ -8,12 +8,8 @@
   "type": "minecraft:crafting_shaped",
   "category": "equipment",
   "key": {
-    "M": {
-      "tag": "c:gems/emerald"
-    },
-    "R": {
-      "item": "minecraft:paper"
-    }
+    "M": "#c:gems/emerald",
+    "R": "minecraft:paper"
   },
   "pattern": [
     "M",
@@ -25,7 +21,6 @@
       "slag:material_type": "slag:emerald",
       "slag:part_type": "slag:shovel_head"
     },
-    "count": 1,
     "id": "slag:dynamic_part"
   }
 }

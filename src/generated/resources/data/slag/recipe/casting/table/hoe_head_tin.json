@@ -12,14 +12,13 @@
   "cast": "slag:cast/hoe_heads",
   "ingredient": {
     "amount": 144,
-    "tag": "c:molten/tin"
+    "ingredient": "#c:molten/tin"
   },
   "result": {
     "components": {
       "slag:material_type": "slag:tin",
       "slag:part_type": "slag:hoe_head"
     },
-    "count": 1,
     "id": "slag:dynamic_part"
   }
 }

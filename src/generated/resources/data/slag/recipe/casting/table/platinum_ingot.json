@@ -12,7 +12,7 @@
   "cast": "slag:cast/ingots",
   "ingredient": {
     "amount": 72,
-    "tag": "c:molten/platinum"
+    "ingredient": "#c:molten/platinum"
   },
   "result": {
     "tag": "c:ingots/platinum"

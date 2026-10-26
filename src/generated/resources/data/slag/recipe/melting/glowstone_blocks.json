@@ -1,8 +1,6 @@
 {
   "type": "slag:melting",
-  "ingredient": {
-    "item": "minecraft:glowstone"
-  },
+  "ingredient": "minecraft:glowstone",
   "ingredients": [],
   "result": [
     {

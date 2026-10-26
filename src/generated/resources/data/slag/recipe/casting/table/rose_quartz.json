@@ -10,13 +10,11 @@
   ],
   "type": "slag:table_casting",
   "cast_item": {
-    "ingredient": {
-      "tag": "c:gems/quartz"
-    }
+    "ingredient": "#c:gems/quartz"
   },
   "ingredient": {
     "amount": 288,
-    "tag": "c:molten/redstone"
+    "ingredient": "#c:molten/redstone"
   },
   "result": {
     "tag": "c:gems/rose_quartz"

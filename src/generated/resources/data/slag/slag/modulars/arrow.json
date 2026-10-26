@@ -1,15 +1,12 @@
 {
   "final_segment_stacks": [
     {
-      "count": 1,
       "id": "minecraft:flint"
     },
     {
-      "count": 1,
       "id": "minecraft:stick"
     },
     {
-      "count": 1,
       "id": "minecraft:feather"
     }
   ],

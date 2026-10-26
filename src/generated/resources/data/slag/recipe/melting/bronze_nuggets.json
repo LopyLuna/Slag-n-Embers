@@ -9,9 +9,7 @@
     }
   ],
   "type": "slag:melting",
-  "ingredient": {
-    "tag": "c:nuggets/bronze"
-  },
+  "ingredient": "#c:nuggets/bronze",
   "ingredients": [],
   "result": [
     {

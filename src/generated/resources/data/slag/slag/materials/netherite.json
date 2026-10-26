@@ -1,9 +1,7 @@
 {
   "id": "slag:netherite",
   "molten_fluid": "slag:molten_netherite",
-  "repair_ingredient": {
-    "tag": "c:ingots/netherite"
-  },
+  "repair_ingredient": "#c:ingots/netherite",
   "sort_order": 70,
   "texture": "metal",
   "traits": [

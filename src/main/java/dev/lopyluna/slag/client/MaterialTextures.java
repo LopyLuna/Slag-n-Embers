@@ -4,24 +4,25 @@ import com.mojang.blaze3d.platform.NativeImage;
 import dev.lopyluna.slag.SlagEmbers;
 import dev.lopyluna.slag.content.items.dynamic_part.DynamicPartRenderer;
 import dev.lopyluna.slag.content.types.Incompatible;
+import dev.lopyluna.slag.mixin.SpriteLoaderAccessor;
 import dev.lopyluna.slag.register.AllDynamicTypes;
 import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
-import net.minecraft.Util;
+import net.minecraft.client.renderer.rendertype.RenderTypes;
+import net.minecraft.data.AtlasIds;
+import net.minecraft.util.Util;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.texture.*;
 import net.minecraft.client.resources.metadata.animation.FrameSize;
 import net.minecraft.resources.FileToIdConverter;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.ResourceManagerReloadListener;
-import net.minecraft.server.packs.resources.ResourceMetadata;
-import net.minecraft.util.FastColor;
-import net.minecraft.world.inventory.InventoryMenu;
+import net.minecraft.util.ARGB;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.neoforge.client.event.RegisterClientReloadListenersEvent;
+import net.neoforged.neoforge.client.event.AddClientReloadListenersEvent;
 
 import javax.annotation.Nullable;
 import java.io.IOException;
@@ -33,30 +34,30 @@ import java.util.function.IntUnaryOperator;
 
 @EventBusSubscriber(modid = SlagEmbers.MOD_ID, value = Dist.CLIENT)
 public class MaterialTextures {
-    public static final ResourceLocation ATLAS = SlagEmbers.loc("textures/atlas/materials.png");
-    public static final RenderType ITEM = RenderType.itemEntityTranslucentCull(ATLAS);
+    public static final Identifier ATLAS = SlagEmbers.loc("textures/atlas/materials.png");
+    public static final RenderType ITEM = RenderTypes.itemTranslucent(ATLAS);
     private static final FileToIdConverter TEXTURES = new FileToIdConverter("textures", ".png");
-    private static final ResourceLocation PALETTE = SlagEmbers.loc("color_palettes/base_palette");
-    private static final ResourceLocation ARMOR_PALETTE = SlagEmbers.loc("color_palettes/armor/base_palette");
+    private static final Identifier PALETTE = SlagEmbers.loc("color_palettes/base_palette");
+    private static final Identifier ARMOR_PALETTE = SlagEmbers.loc("color_palettes/armor/base_palette");
 
     private static TextureAtlas atlas;
     private static int version = -1;
 
     @SubscribeEvent
-    public static void registerReloadListener(RegisterClientReloadListenersEvent event) {
-        event.registerReloadListener((ResourceManagerReloadListener) MaterialTextures::build);
+    public static void registerReloadListener(AddClientReloadListenersEvent event) {
+        event.addListener(SlagEmbers.loc("material_textures"), (ResourceManagerReloadListener) MaterialTextures::build);
     }
 
     public static void tick() {
         if (atlas != null && version != AllDynamicTypes.version) build(Minecraft.getInstance().getResourceManager());
     }
 
-    public static TextureAtlasSprite getSprite(ResourceLocation id) {
-        if (atlas == null) return Minecraft.getInstance().getModelManager().getAtlas(InventoryMenu.BLOCK_ATLAS).getSprite(MissingTextureAtlasSprite.getLocation());
+    public static TextureAtlasSprite getSprite(Identifier id) {
+        if (atlas == null) return Minecraft.getInstance().getAtlasManager().getAtlasOrThrow(AtlasIds.ITEMS).getSprite(MissingTextureAtlasSprite.getLocation());
         return atlas.getSprite(id);
     }
 
-    public static @Nullable TextureAtlasSprite findSprite(ResourceLocation id) {
+    public static @Nullable TextureAtlasSprite findSprite(Identifier id) {
         var sprite = getSprite(id);
         return sprite.contents().name().equals(MissingTextureAtlasSprite.getLocation()) ? null : sprite;
     }
@@ -65,14 +66,14 @@ public class MaterialTextures {
         version = AllDynamicTypes.version;
         var palette = palette(manager, PALETTE);
         var armorPalette = palette(manager, ARMOR_PALETTE);
-        var templates = new HashMap<ResourceLocation, NativeImage>();
-        var sprites = new HashMap<ResourceLocation, SpriteContents>();
+        var templates = new HashMap<Identifier, NativeImage>();
+        var sprites = new HashMap<Identifier, SpriteContents>();
         var parts = AllDynamicTypes.getAllPartsList();
         var modulars = AllDynamicTypes.getAllModularsList();
 
         for (var material : AllDynamicTypes.getAllMaterials()) {
             var colors = palette(manager, material.id.withPrefix("color_palettes/"));
-            if (colors == null && !material.palette.isEmpty()) colors = abgr(PaletteHelper.colorsToGradient(8, material.palette));
+            if (colors == null && !material.palette.isEmpty()) colors = argb(PaletteHelper.colorsToGradient(8, material.palette));
             var armorColors = palette(manager, material.id.withPrefix("color_palettes/armor/"));
             if (armorColors == null && colors != null && colors.length > 1) armorColors = armor(colors);
             var item = mapping(palette, colors);
@@ -94,13 +95,13 @@ public class MaterialTextures {
         var contents = new ArrayList<>(sprites.values());
         contents.add(MissingTextureAtlasSprite.create());
         if (atlas == null) Minecraft.getInstance().getTextureManager().register(ATLAS, atlas = new TextureAtlas(ATLAS));
-        var preparations = SpriteLoader.create(atlas).stitch(contents, 0, Util.backgroundExecutor()).waitForUpload().join();
+        var preparations = ((SpriteLoaderAccessor) SpriteLoader.create(atlas)).slag$stitch(contents, 0, Util.backgroundExecutor());
+        preparations.readyForUpload().join();
         atlas.upload(preparations);
-        atlas.updateFilter(preparations);
         DynamicPartRenderer.clear();
     }
 
-    private static void add(ResourceManager manager, Map<ResourceLocation, NativeImage> templates, Map<ResourceLocation, SpriteContents> sprites, ResourceLocation template, ResourceLocation material, @Nullable IntUnaryOperator mapping) {
+    private static void add(ResourceManager manager, Map<Identifier, NativeImage> templates, Map<Identifier, SpriteContents> sprites, Identifier template, Identifier material, @Nullable IntUnaryOperator mapping) {
         var id = template.withSuffix("_" + material.getPath());
         if (sprites.containsKey(id)) return;
         var image = read(manager, id);
@@ -111,10 +112,10 @@ public class MaterialTextures {
             if (base == null) return;
             image = base.mappedCopy(mapping);
         }
-        sprites.put(id, new SpriteContents(id, new FrameSize(image.getWidth(), image.getHeight()), image, ResourceMetadata.EMPTY));
+        sprites.put(id, new SpriteContents(id, new FrameSize(image.getWidth(), image.getHeight()), image));
     }
 
-    private static @Nullable NativeImage read(ResourceManager manager, ResourceLocation id) {
+    private static @Nullable NativeImage read(ResourceManager manager, Identifier id) {
         var resource = manager.getResource(TEXTURES.idToFile(id)).orElse(null);
         if (resource == null) return null;
         try (var stream = resource.open()) {
@@ -125,32 +126,32 @@ public class MaterialTextures {
         }
     }
 
-    private static int[] palette(ResourceManager manager, ResourceLocation id) {
-        try (var image = read(manager, id)) { return image == null ? null : image.getPixelsRGBA(); }
+    private static int[] palette(ResourceManager manager, Identifier id) {
+        try (var image = read(manager, id)) { return image == null ? null : image.getPixels(); }
     }
 
     private static int[] armor(int[] colors) {
         var rgb = new ArrayList<Integer>();
-        for (var i = 0; i < colors.length - 1; i++) rgb.add(FastColor.ABGR32.fromArgb32(colors[i]) & 0xFFFFFF);
-        return abgr(PaletteHelper.colorsToGradient(9, rgb));
+        for (var i = 0; i < colors.length - 1; i++) rgb.add(colors[i] & 0xFFFFFF);
+        return argb(PaletteHelper.colorsToGradient(9, rgb));
     }
 
-    private static int[] abgr(List<Integer> rgb) {
+    private static int[] argb(List<Integer> rgb) {
         var colors = new int[rgb.size()];
-        for (var i = 0; i < colors.length; i++) colors[i] = FastColor.ABGR32.fromArgb32(0xFF000000 | rgb.get(i));
+        for (var i = 0; i < colors.length; i++) colors[i] = 0xFF000000 | rgb.get(i);
         return colors;
     }
 
     private static @Nullable IntUnaryOperator mapping(int[] keys, int[] values) {
         if (keys == null || values == null || keys.length != values.length) return null;
         var map = new Int2IntOpenHashMap(keys.length);
-        for (var i = 0; i < keys.length; i++) if (FastColor.ABGR32.alpha(keys[i]) != 0) map.put(FastColor.ABGR32.transparent(keys[i]), values[i]);
+        for (var i = 0; i < keys.length; i++) if (ARGB.alpha(keys[i]) != 0) map.put(ARGB.transparent(keys[i]), values[i]);
         return color -> {
-            var alpha = FastColor.ABGR32.alpha(color);
+            var alpha = ARGB.alpha(color);
             if (alpha == 0) return color;
-            var rgb = FastColor.ABGR32.transparent(color);
-            var mapped = map.getOrDefault(rgb, FastColor.ABGR32.opaque(rgb));
-            return FastColor.ABGR32.color(alpha * FastColor.ABGR32.alpha(mapped) / 255, mapped);
+            var rgb = ARGB.transparent(color);
+            var mapped = map.getOrDefault(rgb, ARGB.opaque(rgb));
+            return ARGB.color(alpha * ARGB.alpha(mapped) / 255, mapped);
         };
     }
 }

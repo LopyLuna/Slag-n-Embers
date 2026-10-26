@@ -10,7 +10,7 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.VanillaGameEvent;
 import net.neoforged.neoforge.event.entity.living.LivingKnockBackEvent;
 import net.neoforged.neoforge.event.level.BlockDropsEvent;
-import net.neoforged.neoforge.event.level.BlockEvent;
+import net.neoforged.neoforge.event.level.block.BreakBlockEvent;
 
 import static dev.lopyluna.slag.SlagEmbers.MOD_ID;
 
@@ -18,7 +18,7 @@ import static dev.lopyluna.slag.SlagEmbers.MOD_ID;
 public class TraitEvents {
 
     @SubscribeEvent(priority = EventPriority.LOW)
-    public static void onBlockBreak(BlockEvent.BreakEvent event) {
+    public static void onBlockBreak(BreakBlockEvent event) {
         if (event.getLevel().isClientSide()) return;
         var stack = event.getPlayer().getMainHandItem();
         for (var hook : Traits.of(stack).blockBreak) hook.effect().onBlockBreak(hook.trait(), stack, event);

@@ -15,12 +15,8 @@
   "type": "minecraft:crafting_shaped",
   "category": "equipment",
   "key": {
-    "M": {
-      "tag": "c:ingots/tungsten"
-    },
-    "R": {
-      "item": "minecraft:paper"
-    }
+    "M": "#c:ingots/tungsten",
+    "R": "minecraft:paper"
   },
   "pattern": [
     "MM",
@@ -32,7 +28,6 @@
       "slag:material_type": "slag:tungsten",
       "slag:part_type": "slag:hoe_head"
     },
-    "count": 1,
     "id": "slag:dynamic_part"
   }
 }

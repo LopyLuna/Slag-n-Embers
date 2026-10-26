@@ -5,7 +5,7 @@ import dev.lopyluna.slag.client.FluidRenderHelper;
 import dev.lopyluna.slag.compat.sable.SableCompat;
 import dev.lopyluna.slag.config.SlagServerConfigs;
 import dev.lopyluna.slag.content.blocks.multiblock.renderer.SafeBlockEntityRenderer;
-import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
@@ -19,7 +19,7 @@ public class DrainRenderer extends SafeBlockEntityRenderer<DrainBE> {
     public DrainRenderer(BlockEntityRendererProvider.Context ctx) {}
 
     @Override
-    protected void renderSafe(DrainBE be, float partialTicks, PoseStack ms, MultiBufferSource buffer, int light, int overlay) {
+    protected void renderSafe(DrainBE be, float partialTicks, PoseStack ms, SubmitNodeCollector buffer, int light, int overlay) {
         var fluid = be.drainingFluid;
         if (fluid == null || fluid.isEmpty() || be.drainState == null || be.drainState == DrainState.OFF || be.target == null) return;
         var level = be.getLevel();

@@ -245,7 +245,7 @@ public class DataDynamicParts implements TooltipComponent {
         var left = itemsCopy();
         var source = new ArrayList<Integer>();
         for (var i = 0; i < left.size(); i++) source.add(i);
-        for (var segment : modular.finalSegmentStacks) {
+        for (var segment : modular.finalSegmentStacks()) {
             var target = unbuilt(segment);
             var found = -1;
             for (var i = 0; i < left.size(); i++) {
@@ -301,7 +301,7 @@ public class DataDynamicParts implements TooltipComponent {
 
         if (this.isEmpty()) {
             for (var modular : modulars) {
-                for (var sStack : modular.finalSegmentStacks) {
+                for (var sStack : modular.finalSegmentStacks()) {
                     var stack = unbuilt(sStack);
                     if (!contains(result, stack)) result.add(stack);
                 }
@@ -347,7 +347,7 @@ public class DataDynamicParts implements TooltipComponent {
         for (var item : this.items) if (!modular.contains(item, false)) return null;
         if (!Incompatible.compatible(items, modular)) return null;
 
-        for (var sStack : modular.finalSegmentStacks) {
+        for (var sStack : modular.finalSegmentStacks()) {
             var stack = unbuilt(sStack);
             if (containsInItems(stack)) matched.add(stack);
             else missing.add(stack);
@@ -369,7 +369,7 @@ public class DataDynamicParts implements TooltipComponent {
         if (isEmpty()) return null;
         var tags = getAllDynamicPartSegments();
         var stacks = getAllNonDynamicParts();
-        for (var modular : AllDynamicTypes.getAllModulars()) if (containsExactlyAllStacks(stacks, modular.finalSegmentStacks) && containsExactlyAllTags(tags, modular.segments) && Incompatible.compatible(items, modular)) return modular;
+        for (var modular : AllDynamicTypes.getAllModulars()) if (containsExactlyAllStacks(stacks, modular.finalSegmentStacks()) && containsExactlyAllTags(tags, modular.segments) && Incompatible.compatible(items, modular)) return modular;
         return null;
     }
 
@@ -393,7 +393,7 @@ public class DataDynamicParts implements TooltipComponent {
 
     private static boolean containsExactlyAllTags(List<TagKey<Item>> tags, List<TagKey<Item>> others) {
         if (tags.size() != others.size()) return false;
-        for (var tag : tags) if (others.stream().noneMatch(other -> tag.location().equals(other.location()) && tag.registry().location().equals(other.registry().location()))) return false;
+        for (var tag : tags) if (others.stream().noneMatch(other -> tag.location().equals(other.location()) && tag.registry().identifier().equals(other.registry().identifier()))) return false;
         return true;
     }
 

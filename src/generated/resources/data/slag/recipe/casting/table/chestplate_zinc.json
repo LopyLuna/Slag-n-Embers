@@ -12,14 +12,13 @@
   "cast": "slag:cast/chestplates",
   "ingredient": {
     "amount": 432,
-    "tag": "c:molten/zinc"
+    "ingredient": "#c:molten/zinc"
   },
   "result": {
     "components": {
       "slag:material_type": "slag:zinc",
       "slag:part_type": "slag:chestplate"
     },
-    "count": 1,
     "id": "slag:dynamic_part"
   }
 }

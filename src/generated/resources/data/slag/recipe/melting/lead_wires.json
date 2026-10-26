@@ -9,9 +9,7 @@
     }
   ],
   "type": "slag:melting",
-  "ingredient": {
-    "tag": "c:wires/lead"
-  },
+  "ingredient": "#c:wires/lead",
   "ingredients": [],
   "result": [
     {

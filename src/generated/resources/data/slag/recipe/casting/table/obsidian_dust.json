@@ -12,7 +12,7 @@
   "cast": "slag:cast/dusts",
   "ingredient": {
     "amount": 72,
-    "tag": "c:molten/obsidian"
+    "ingredient": "#c:molten/obsidian"
   },
   "result": {
     "tag": "c:dusts/obsidian"

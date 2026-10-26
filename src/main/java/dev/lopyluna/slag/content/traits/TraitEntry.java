@@ -3,24 +3,24 @@ package dev.lopyluna.slag.content.traits;
 import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 import java.util.Optional;
 
 @SuppressWarnings({"unused"})
-public record TraitEntry(ResourceLocation trait, Optional<Float> value, Optional<TraitOperation> operation, Optional<Boolean> hidden) {
+public record TraitEntry(Identifier trait, Optional<Float> value, Optional<TraitOperation> operation, Optional<Boolean> hidden) {
     private static final Codec<TraitEntry> FULL_CODEC = RecordCodecBuilder.create(instance -> instance.group(
-            ResourceLocation.CODEC.fieldOf("trait").forGetter(TraitEntry::trait),
+            Identifier.CODEC.fieldOf("trait").forGetter(TraitEntry::trait),
             Codec.FLOAT.optionalFieldOf("value").forGetter(TraitEntry::value),
             TraitOperation.CODEC.optionalFieldOf("operation").forGetter(TraitEntry::operation),
             Codec.BOOL.optionalFieldOf("hidden").forGetter(TraitEntry::hidden)
     ).apply(instance, TraitEntry::new));
 
-    public static final Codec<TraitEntry> CODEC = Codec.either(ResourceLocation.CODEC, FULL_CODEC).xmap(
+    public static final Codec<TraitEntry> CODEC = Codec.either(Identifier.CODEC, FULL_CODEC).xmap(
             either -> either.map(TraitEntry::of, entry -> entry),
             entry -> entry.isSimple() ? Either.left(entry.trait) : Either.right(entry));
 
-    public static TraitEntry of(ResourceLocation trait) {
+    public static TraitEntry of(Identifier trait) {
         return new TraitEntry(trait, Optional.empty(), Optional.empty(), Optional.empty());
     }
     public static TraitEntry of(TraitType trait) {

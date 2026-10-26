@@ -12,7 +12,7 @@
   "cast": "slag:cast/nuggets",
   "ingredient": {
     "amount": 8,
-    "tag": "c:molten/steel"
+    "ingredient": "#c:molten/steel"
   },
   "result": {
     "tag": "c:nuggets/steel"

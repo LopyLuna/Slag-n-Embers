@@ -2,12 +2,8 @@
   "type": "slag:double_smelting",
   "cookingTime": 200,
   "experience": 0.2,
-  "ingredientA": {
-    "tag": "minecraft:smelts_to_glass"
-  },
-  "ingredientB": {
-    "tag": "minecraft:smelts_to_glass"
-  },
+  "ingredientA": "#minecraft:smelts_to_glass",
+  "ingredientB": "#minecraft:smelts_to_glass",
   "result": {
     "count": 2,
     "id": "minecraft:glass"

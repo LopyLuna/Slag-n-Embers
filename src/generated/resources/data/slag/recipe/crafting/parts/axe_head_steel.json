@@ -15,12 +15,8 @@
   "type": "minecraft:crafting_shaped",
   "category": "equipment",
   "key": {
-    "M": {
-      "tag": "c:ingots/steel"
-    },
-    "R": {
-      "item": "minecraft:paper"
-    }
+    "M": "#c:ingots/steel",
+    "R": "minecraft:paper"
   },
   "pattern": [
     "MM",
@@ -32,7 +28,6 @@
       "slag:material_type": "slag:steel",
       "slag:part_type": "slag:axe_head"
     },
-    "count": 1,
     "id": "slag:dynamic_part"
   }
 }

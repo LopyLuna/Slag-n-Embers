@@ -9,9 +9,7 @@
     }
   ],
   "type": "slag:melting",
-  "ingredient": {
-    "tag": "c:wires/osmium"
-  },
+  "ingredient": "#c:wires/osmium",
   "ingredients": [],
   "result": [
     {

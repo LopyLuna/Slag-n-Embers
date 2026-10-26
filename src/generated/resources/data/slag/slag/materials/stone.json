@@ -9,9 +9,7 @@
       "slag:boots"
     ]
   },
-  "repair_ingredient": {
-    "tag": "minecraft:stone_tool_materials"
-  },
+  "repair_ingredient": "#minecraft:stone_tool_materials",
   "sort_order": 20,
   "texture": "soft",
   "traits": [

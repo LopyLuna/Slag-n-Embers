@@ -6,8 +6,7 @@ import dev.lopyluna.slag.content.items.modular.DataDynamicParts;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.codec.ByteBufCodecs;
-import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.tags.TagKey;
 import net.minecraft.util.Unit;
 import net.minecraft.world.item.Item;
@@ -27,28 +26,28 @@ public class AllDataComponents {
                     .persistent(Codec.INT).networkSynchronized(ByteBufCodecs.VAR_INT).cacheEncoding());
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<Unit>> CUTOUT = REGISTER.components()
             .registerComponentType("cutout", b -> b
-                    .persistent(Codec.unit(Unit.INSTANCE)).networkSynchronized(StreamCodec.unit(Unit.INSTANCE)).cacheEncoding());
+                    .persistent(Unit.CODEC).networkSynchronized(Unit.STREAM_CODEC).cacheEncoding());
 
-    public static final DeferredHolder<DataComponentType<?>, DataComponentType<ResourceLocation>> BUILT = REGISTER.components()
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<Identifier>> BUILT = REGISTER.components()
             .registerComponentType("built", b -> b
-                    .persistent(ResourceLocation.CODEC).networkSynchronized(ResourceLocation.STREAM_CODEC).cacheEncoding());
+                    .persistent(Identifier.CODEC).networkSynchronized(Identifier.STREAM_CODEC).cacheEncoding());
 
-    public static final DeferredHolder<DataComponentType<?>, DataComponentType<ResourceLocation>> SELECTED = REGISTER.components()
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<Identifier>> SELECTED = REGISTER.components()
             .registerComponentType("selected", b -> b
-                    .persistent(ResourceLocation.CODEC).networkSynchronized(ResourceLocation.STREAM_CODEC).cacheEncoding());
+                    .persistent(Identifier.CODEC).networkSynchronized(Identifier.STREAM_CODEC).cacheEncoding());
 
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<DataDynamicParts>> DYNAMIC_PARTS = REGISTER.components()
             .registerComponentType("dynamic_parts", b -> b
                     .persistent(DataDynamicParts.CODEC).networkSynchronized(DataDynamicParts.STREAM_CODEC).cacheEncoding());
-    public static final DeferredHolder<DataComponentType<?>, DataComponentType<ResourceLocation>> MATERIAL_TYPE = REGISTER.components()
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<Identifier>> MATERIAL_TYPE = REGISTER.components()
             .registerComponentType("material_type", b -> b
-                    .persistent(ResourceLocation.CODEC).networkSynchronized(ResourceLocation.STREAM_CODEC).cacheEncoding());
-    public static final DeferredHolder<DataComponentType<?>, DataComponentType<ResourceLocation>> PART_TYPE = REGISTER.components()
+                    .persistent(Identifier.CODEC).networkSynchronized(Identifier.STREAM_CODEC).cacheEncoding());
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<Identifier>> PART_TYPE = REGISTER.components()
             .registerComponentType("part_type", b -> b
-                    .persistent(ResourceLocation.CODEC).networkSynchronized(ResourceLocation.STREAM_CODEC).cacheEncoding());
-    public static final DeferredHolder<DataComponentType<?>, DataComponentType<ResourceLocation>> MODULAR_TYPE = REGISTER.components()
+                    .persistent(Identifier.CODEC).networkSynchronized(Identifier.STREAM_CODEC).cacheEncoding());
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<Identifier>> MODULAR_TYPE = REGISTER.components()
             .registerComponentType("modular_type", b -> b
-                    .persistent(ResourceLocation.CODEC).networkSynchronized(ResourceLocation.STREAM_CODEC).cacheEncoding());
+                    .persistent(Identifier.CODEC).networkSynchronized(Identifier.STREAM_CODEC).cacheEncoding());
 
 
 

@@ -9,9 +9,7 @@
     }
   ],
   "type": "slag:melting",
-  "ingredient": {
-    "tag": "c:rods/netherite"
-  },
+  "ingredient": "#c:rods/netherite",
   "ingredients": [],
   "result": [
     {

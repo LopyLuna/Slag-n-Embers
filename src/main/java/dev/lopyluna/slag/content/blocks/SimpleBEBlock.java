@@ -3,7 +3,6 @@ package dev.lopyluna.slag.content.blocks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -36,19 +35,13 @@ public abstract class SimpleBEBlock extends BEBlock {
     public abstract BlockEntityType<? extends BlockEntity> getBlockEntityType();
 
     @Override
-    protected void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean movedByPiston) {
-        if (level.getBlockEntity(pos) instanceof SimpleBE be && !state.is(newState.getBlock())) be.onRemoved(level, pos, state);
-        super.onRemove(state, level, pos, newState, movedByPiston);
-    }
-
-    @Override
     public void setPlacedBy(Level level, BlockPos pos, BlockState state, @Nullable LivingEntity placer, ItemStack stack) {
         if (level.getBlockEntity(pos) instanceof SimpleBE be) be.onPlaced(placer, stack, level, pos, state);
         super.setPlacedBy(level, pos, state, placer, stack);
     }
 
     @Override
-    protected @Nonnull ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
+    protected @Nonnull InteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
         if (level.getBlockEntity(pos) instanceof SimpleBE be) {
             var result = be.useItem(stack, state, level, pos, player, hand, hitResult);
             if (result != null) return result;
@@ -60,7 +53,7 @@ public abstract class SimpleBEBlock extends BEBlock {
     protected @Nonnull InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hitResult) {
         if (level.getBlockEntity(pos) instanceof SimpleBE be) {
             var result = be.useItem(ItemStack.EMPTY, state, level, pos, player, InteractionHand.MAIN_HAND, hitResult);
-            if (result != null) return result.result();
+            if (result != null && result != InteractionResult.TRY_WITH_EMPTY_HAND) return result;
         }
         return super.useWithoutItem(state, level, pos, player, hitResult);
     }

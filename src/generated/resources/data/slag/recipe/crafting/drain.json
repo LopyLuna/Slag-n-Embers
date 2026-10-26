@@ -2,12 +2,9 @@
   "type": "minecraft:crafting_shapeless",
   "category": "misc",
   "ingredients": [
-    {
-      "tag": "c:ingots/deep_alloy"
-    }
+    "#c:ingots/deep_alloy"
   ],
   "result": {
-    "count": 1,
     "id": "slag:drain"
   }
 }

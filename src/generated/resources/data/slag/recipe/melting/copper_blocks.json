@@ -1,8 +1,6 @@
 {
   "type": "slag:melting",
-  "ingredient": {
-    "tag": "slag:copper_blocks"
-  },
+  "ingredient": "#slag:copper_blocks",
   "ingredients": [],
   "result": [
     {

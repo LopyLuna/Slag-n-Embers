@@ -9,9 +9,7 @@
     }
   ],
   "type": "slag:melting",
-  "ingredient": {
-    "tag": "c:storage_blocks/steel"
-  },
+  "ingredient": "#c:storage_blocks/steel",
   "ingredients": [],
   "result": [
     {

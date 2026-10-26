@@ -1,6 +1,5 @@
 package dev.lopyluna.slag.content.blocks.crucible_interface.client;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.datafixers.util.Pair;
 import dev.lopyluna.slag.SlagEmbers;
 import dev.lopyluna.slag.client.FluidRenderHelper;
@@ -10,29 +9,31 @@ import dev.lopyluna.slag.register.AllLangs;
 import dev.lopyluna.slag.register.AllTags;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.renderer.Rect2i;
+import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 import net.neoforged.neoforge.common.SoundActions;
 import net.neoforged.neoforge.fluids.FluidStack;
-import net.neoforged.neoforge.network.PacketDistributor;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
+@SuppressWarnings("NullableProblems")
 public class InterfaceScreen extends AbstractContainerScreen<InterfaceMenu> {
-    private static final ResourceLocation TEXTURE = SlagEmbers.loc("textures/gui/interface.png");
-    private static final ResourceLocation TEXTURE_OVERLAY = SlagEmbers.loc("textures/gui/interface_overlay.png");
+    private static final Identifier TEXTURE = SlagEmbers.loc("textures/gui/interface.png");
+    private static final Identifier TEXTURE_OVERLAY = SlagEmbers.loc("textures/gui/interface_overlay.png");
 
     private static final int BOX_X = 39, BOX_Y = 19, BOX_W = 97, BOX_H = 48;
     private final Level level;
@@ -45,20 +46,21 @@ public class InterfaceScreen extends AbstractContainerScreen<InterfaceMenu> {
     }
 
     @Override
-    protected void renderBg(GuiGraphics g, float pt, int mx, int my) {
+    public void extractBackground(GuiGraphicsExtractor g, int mx, int my, float pt) {
+        super.extractBackground(g, mx, my, pt);
         ingredient = null;
         ingredientArea = null;
         int iX = (width - imageWidth) / 2;
         int iY = (height - imageHeight) / 2;
-        g.blit(TEXTURE, iX, iY, 0, 0, imageWidth, imageHeight);
+        g.blit(RenderPipelines.GUI_TEXTURED, TEXTURE, iX, iY, 0, 0, imageWidth, imageHeight, 256, 256);
         var capacity = menu.getCapacity();
         if (capacity == 0) return;
         renderFluidLayers(g, mx, my);
     }
 
     @Override
-    protected void renderLabels(@Nonnull GuiGraphics guiGraphics, int mouseX, int mouseY) {
-        super.renderLabels(guiGraphics, mouseX, mouseY);
+    protected void extractLabels(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY) {
+        super.extractLabels(guiGraphics, mouseX, mouseY);
         float capacity = (float) menu.getCapacity() / Math.max(1, menu.getFluids().size());
         if (capacity == 0) return;
         float amount = menu.getAmount();
@@ -76,11 +78,10 @@ public class InterfaceScreen extends AbstractContainerScreen<InterfaceMenu> {
 
         var text = amount + (bucketAmount ? "B" : "mB") + "/" + capacity + (bucketCapacity ? "B" : "mB");
         text = text.replace(".0", "");
-        guiGraphics.drawString(this.font, Component.literal(text), this.titleLabelX + imageWidth - font.width(text) - 12, this.titleLabelY, 4210752, false);
+        guiGraphics.text(this.font, Component.literal(text), this.titleLabelX + imageWidth - font.width(text) - 12, this.titleLabelY, 0xFF404040, false);
     }
 
-    @SuppressWarnings("removal")
-    public void renderFluidLayers(GuiGraphics g, int mx, int my) {
+    public void renderFluidLayers(GuiGraphicsExtractor g, int mx, int my) {
         if (level == null) return;
         var fluids = menu.getFluids();
         if (fluids.isEmpty()) return;
@@ -120,11 +121,9 @@ public class InterfaceScreen extends AbstractContainerScreen<InterfaceMenu> {
         }
 
         var p = g.pose();
-        p.pushPose();
-        RenderSystem.enableBlend();
-        g.blit(TEXTURE_OVERLAY, (width - imageWidth) / 2, (height - imageHeight) / 2, 0, 0, imageWidth, imageHeight);
-        RenderSystem.disableBlend();
-        p.popPose();
+        p.pushMatrix();
+        g.blit(RenderPipelines.GUI_TEXTURED, TEXTURE_OVERLAY, (width - imageWidth) / 2, (height - imageHeight) / 2, 0, 0, imageWidth, imageHeight, 256, 256);
+        p.popMatrix();
 
         if (mx >= boxX && mx < boxX + boxW && my >= boxY && my < boxY + boxH) {
             int yTop2 = boxY + boxH;
@@ -141,11 +140,11 @@ public class InterfaceScreen extends AbstractContainerScreen<InterfaceMenu> {
 
                     var tooltipFlag = Minecraft.getInstance().options.advancedItemTooltips ? TooltipFlag.Default.ADVANCED : TooltipFlag.Default.NORMAL;
                     var tooltip = new ArrayList<Component>();
-                    tooltip.add(fs.getDisplayName());
+                    tooltip.add(fs.getHoverName());
                     createLang(fs, tooltip).run();
                     if (tooltipFlag.advanced()) tooltip.add(Component.literal(BuiltInRegistries.FLUID.getKey(fs.getFluid()).toString()).withStyle(ChatFormatting.DARK_GRAY));
 
-                    g.renderTooltip(font, tooltip, Optional.empty(), mx, my);
+                    g.setTooltipForNextFrame(font, tooltip, Optional.empty(), mx, my);
                     break;
                 }
                 yTop2 -= h;
@@ -154,7 +153,7 @@ public class InterfaceScreen extends AbstractContainerScreen<InterfaceMenu> {
     }
 
     public static Runnable createLang(FluidStack fs, List<Component> tooltip) {
-        var shift = !hasShiftDown();
+        var shift = !Minecraft.getInstance().hasShiftDown();
         var amount = fs.getAmount();
         if (fs.is(AllTags.MOLTEN_METALS)) return () -> {
             if (shift) createTooltipAmounts(tooltip, amount, pNS("blocks", MelterBE.BLOCK_SIZE), pNS("ingots", MelterBE.INGOT_SIZE), pNS("nuggets", MelterBE.NUGGET_SIZE));
@@ -230,8 +229,11 @@ public class InterfaceScreen extends AbstractContainerScreen<InterfaceMenu> {
     }
 
     @Override
-    public boolean mouseClicked(double mx, double my, int button) {
-        if (level == null || !menu.isCrucible() || menu.player == null || menu.player.isSpectator()) return super.mouseClicked(mx, my, button);
+    public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
+        var mx = event.x();
+        var my = event.y();
+        var button = event.button();
+        if (level == null || !menu.isCrucible() || menu.player == null || menu.player.isSpectator()) return super.mouseClicked(event, doubleClick);
         if (button == 0) {
             int boxX = leftPos + BOX_X;
             int boxY = topPos  + BOX_Y;
@@ -239,7 +241,7 @@ public class InterfaceScreen extends AbstractContainerScreen<InterfaceMenu> {
 
             var fluids = menu.getFluids();
 
-            if (fluids.size() <= 1) return super.mouseClicked(mx, my, button);
+            if (fluids.size() <= 1) return super.mouseClicked(event, doubleClick);
 
             if (mx >= boxX && mx < boxX + BOX_W && my >= boxY && my < boxY + boxH) {
                 int maxFluids = 8;
@@ -265,7 +267,7 @@ public class InterfaceScreen extends AbstractContainerScreen<InterfaceMenu> {
                             var type = fs.getFluidType();
                             Optional.ofNullable(type.getSound(SoundActions.BUCKET_FILL)).ifPresent(s -> menu.player.playSound(s, 0.5f, 1f));
                             Optional.ofNullable(type.getSound(SoundActions.BUCKET_EMPTY)).ifPresent(s -> menu.player.playSound(s, 0.5f, 1f));
-                            PacketDistributor.sendToServer(new SelectFluidIndexC2S(i));
+                            ClientPacketDistributor.sendToServer(new SelectFluidIndexC2S(i));
                             return true;
                         }
                         yTop -= h;
@@ -273,17 +275,11 @@ public class InterfaceScreen extends AbstractContainerScreen<InterfaceMenu> {
                 }
             }
         }
-        return super.mouseClicked(mx, my, button);
+        return super.mouseClicked(event, doubleClick);
     }
 
     @Override
-    public void render(@Nonnull GuiGraphics gui, int mouseX, int mouseY, float partialTick) {
-        super.render(gui, mouseX, mouseY, partialTick);
-        var p = gui.pose();
-        p.pushPose();
-        RenderSystem.enableBlend();
-        renderTooltip(gui, mouseX, mouseY);
-        RenderSystem.disableBlend();
-        p.popPose();
+    public void extractRenderState(GuiGraphicsExtractor gui, int mouseX, int mouseY, float partialTick) {
+        super.extractRenderState(gui, mouseX, mouseY, partialTick);
     }
 }

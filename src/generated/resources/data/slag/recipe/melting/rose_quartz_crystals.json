@@ -9,9 +9,7 @@
     }
   ],
   "type": "slag:melting",
-  "ingredient": {
-    "tag": "c:gems/rose_quartz"
-  },
+  "ingredient": "#c:gems/rose_quartz",
   "ingredients": [],
   "result": [
     {

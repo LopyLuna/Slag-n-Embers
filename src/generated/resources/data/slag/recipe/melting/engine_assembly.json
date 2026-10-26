@@ -9,9 +9,7 @@
     }
   ],
   "type": "slag:melting",
-  "ingredient": {
-    "tag": "slag:engine_assembly"
-  },
+  "ingredient": "#slag:engine_assembly",
   "ingredients": [],
   "result": [
     {

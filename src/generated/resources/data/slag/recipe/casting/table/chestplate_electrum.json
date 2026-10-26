@@ -12,14 +12,13 @@
   "cast": "slag:cast/chestplates",
   "ingredient": {
     "amount": 432,
-    "tag": "c:molten/electrum"
+    "ingredient": "#c:molten/electrum"
   },
   "result": {
     "components": {
       "slag:material_type": "slag:electrum",
       "slag:part_type": "slag:chestplate"
     },
-    "count": 1,
     "id": "slag:dynamic_part"
   }
 }
