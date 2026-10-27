@@ -4,10 +4,12 @@ import dev.lopyluna.slag.SlagEmbers;
 import dev.lopyluna.slag.content.items.modular.DataDynamicParts;
 import dev.lopyluna.slag.content.traits.Traits;
 import dev.lopyluna.slag.content.types.Incompatible;
+import net.bettercombat.api.component.BetterCombatDataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.ItemStack;
+import net.neoforged.fml.ModList;
 import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
 import net.neoforged.neoforge.registries.DeferredHolder;
 
@@ -65,6 +67,9 @@ public class AllCreativeTabs {
                 baseTool.set(AllDataComponents.DYNAMIC_PARTS, new DataDynamicParts(toolParts));
                 baseTool.set(AllDataComponents.MODULAR_TYPE, modular.id);
                 Traits.of(baseTool).applyComponents(baseTool);
+                if (ModList.get().isLoaded("bettercombat") && modular.betterCombatPreset != null && modular.betterCombatPreset.isPresent()) {
+                    baseTool.set(BetterCombatDataComponents.WEAPON_PRESET_ID, modular.betterCombatPreset.get());
+                }
 
                 variants.add(baseTool);
             }

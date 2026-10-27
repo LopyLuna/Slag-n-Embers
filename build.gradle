@@ -108,6 +108,7 @@ dependencies {
     //compats
     compileOnly("com.simibubi.create:create-1.21.1:6.0.10-280:slim") { transitive = false }
     compileOnly("dev.ryanhcode.sable-companion:sable-companion-common-1.21.1:1.6.0") { transitive = false }
+    compileOnly("maven.modrinth:better-combat:2.4.0+1.21.1-neoforge")
 }
 
 var generateModMetadata = tasks.register("generateModMetadata", ProcessResources) {
